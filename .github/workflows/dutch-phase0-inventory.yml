@@ -72,7 +72,8 @@ jobs:
         if: github.event_name == 'push'
         shell: bash
         run: |
-          if git diff --quiet -- docs/dutch/PHASE0_FILE_MANIFEST.csv docs/dutch/PHASE0_INVENTORY_SUMMARY.md; then
+          changes="$(git status --porcelain -- docs/dutch/PHASE0_FILE_MANIFEST.csv docs/dutch/PHASE0_INVENTORY_SUMMARY.md)"
+          if [[ -z "$changes" ]]; then
             echo "Inventory already current."
             exit 0
           fi
