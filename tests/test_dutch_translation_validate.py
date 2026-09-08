@@ -95,6 +95,17 @@ class TranslationValidatorTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         self.assertIn("missing-target-string", {item.code for item in problems})
 
+    def test_strings_target_may_have_trailing_comment(self):
+        text = '''\
+translate french strings:
+    old "HIST"
+    new "HIST"  # Historique
+'''
+        blocks, problems = MODULE.parse_translation_text(text, "sample.rpy")
+        self.assertEqual(problems, [])
+        self.assertEqual(blocks[0].units[0].source, ("HIST",))
+        self.assertEqual(blocks[0].units[0].target, ("HIST",))
+
     def test_multiple_visible_string_literals_are_supported(self):
         reference_text = 'translate deutsch a:\n    # "BDSM Model" "Hey!"\n    "BDSM Model" "Hey!"\n'
         target_text = 'translate dutch a:\n    # "BDSM Model" "Hey!"\n    "BDSM-model" "Hé!"\n'

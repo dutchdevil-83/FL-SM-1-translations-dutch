@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Iterable
 
 TRANSLATE_RE = re.compile(r"^\s*translate\s+([A-Za-z_][\w]*)\s+([A-Za-z0-9_]+|strings)\s*:\s*$")
-OLD_NEW_RE = re.compile(r"^\s*(old|new)\s+(\"(?:\\.|[^\"\\])*\")\s*$")
+OLD_NEW_RE = re.compile(r'^\s*(old|new)\s+("(?:\\.|[^"\\])*")(?:\s*#.*)?\s*$')
 TOKEN_RE = re.compile(
     r"\{[^{}]*\}|\[[^\[\]]+\]|%\([^)]+\)[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|"
     r"%[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|%%|\\[ntr]"
