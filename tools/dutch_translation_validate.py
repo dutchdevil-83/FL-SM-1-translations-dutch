@@ -212,6 +212,12 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             target_index += 1
 
         if target_index >= len(lines) or TRANSLATE_RE.match(lines[target_index]):
+            if target_index > index + 1 and all(
+                not candidate.strip() or candidate.lstrip().startswith("#")
+                for candidate in lines[index + 1 : target_index]
+            ):
+                index = target_index
+                continue
             problems.append(Problem(path_label, index + 1, "missing-target-string", "source comment has no translated statement"))
             index += 1
             continue

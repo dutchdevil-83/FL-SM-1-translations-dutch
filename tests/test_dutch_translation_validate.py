@@ -95,6 +95,22 @@ class TranslationValidatorTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         self.assertIn("missing-target-string", {item.code for item in problems})
 
+    def test_orphan_comment_after_source_is_ignored(self):
+        text = '''\
+translate french scene:
+    # mc "Translated source"
+    mc "Source traduite"
+    # (alternative route)
+    # mc "Already translated elsewhere."
+
+translate french next_scene:
+    # mc "Next source"
+    mc "Source suivante"
+'''
+        blocks, problems = MODULE.parse_translation_text(text, "sample.rpy")
+        self.assertEqual(problems, [])
+        self.assertEqual([len(block.units) for block in blocks], [1, 1])
+
     def test_strings_target_may_have_trailing_comment(self):
         text = '''\
 translate french strings:
