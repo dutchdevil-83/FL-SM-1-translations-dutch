@@ -11,6 +11,7 @@ assert SPEC.loader is not None
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
+
 REFERENCE = '''\
 translate deutsch block_a:
     # mc "Hello, [mcname]! {i}Welcome{/i}"
@@ -93,6 +94,49 @@ class TranslationValidatorTests(unittest.TestCase):
         blocks, problems = MODULE.parse_translation_text('translate dutch strings:\n    old "Save"\n', "sample.rpy")
         self.assertEqual(len(blocks), 1)
         self.assertIn("missing-target-string", {item.code for item in problems})
+
+    def test_lenient_reference_mode_ignores_orphan_translator_comment(self):
+        text = '''\
+translate french a:
+    # mc "Actual source"
+    mc "Vraie traduction"
+
+# mc "Translator note that resembles dialogue"
+# Additional explanation.
+
+translate french b:
+    # mc "Next source"
+    mc "Source suivante"
+'''
+        strict_blocks, strict_problems = MODULE.parse_translation_text(text, "sample.rpy")
+        lenient_blocks, lenient_problems = MODULE.parse_translation_text(
+            text, "sample.rpy", strict_missing_targets=False
+        )
+        self.assertIn("missing-target-string", {item.code for item in strict_problems})
+        self.assertEqual(lenient_problems, [])
+        self.assertEqual(sum(len(block.units) for block in lenient_blocks), 2)
+        self.assertEqual(len(strict_blocks), len(lenient_blocks))
+
+    def test_strings_target_may_have_trailing_comment(self):
+        text = '''\
+translate french strings:
+    old "HIST"
+    new "HIST"  # Historique
+'''
+        blocks, problems = MODULE.parse_translation_text(text, "sample.rpy")
+        self.assertEqual(problems, [])
+        self.assertEqual(blocks[0].units[0].source, ("HIST",))
+        self.assertEqual(blocks[0].units[0].target, ("HIST",))
+
+    def test_multiple_visible_string_literals_are_supported(self):
+        reference_text = 'translate deutsch a:\n    # "BDSM Model" "Hey!"\n    "BDSM Model" "Hey!"\n'
+        target_text = 'translate dutch a:\n    # "BDSM Model" "Hey!"\n    "BDSM-model" "Hé!"\n'
+        temp, target, reference = self.make_files(target=target_text, reference=reference_text)
+        try:
+            problems = MODULE.validate_target_file(target, reference, "dutch", (set(), [], set()))
+        finally:
+            temp.cleanup()
+        self.assertEqual(problems, [])
 
     def test_unescaped_extra_quote_is_detected(self):
         with self.assertRaises(ValueError):

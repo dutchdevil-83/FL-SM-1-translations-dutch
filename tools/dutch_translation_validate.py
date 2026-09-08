@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Iterable
 
 TRANSLATE_RE = re.compile(r"^\s*translate\s+([A-Za-z_][\w]*)\s+([A-Za-z0-9_]+|strings)\s*:\s*$")
-OLD_NEW_RE = re.compile(r"^\s*(old|new)\s+(\"(?:\\.|[^\"\\])*\")\s*(?:#.*)?$")
+OLD_NEW_RE = re.compile(r'^\s*(old|new)\s+("(?:\\.|[^"\\])*")(?:\s*#.*)?\s*$')
 TOKEN_RE = re.compile(
     r"\{[^{}]*\}|\[[^\[\]]+\]|%\([^)]+\)[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|"
     r"%[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|%%|\\[ntr]"
@@ -30,8 +30,8 @@ BRACE_TAG_RE = re.compile(r"\{([^{}]+)\}")
 
 @dataclass(frozen=True)
 class Unit:
-    source: str
-    target: str
+    source: tuple[str, ...]
+    target: tuple[str, ...]
     source_shape: str
     target_shape: str
     source_line: int
@@ -72,27 +72,27 @@ def decode_literal(literal: str) -> str:
     return value
 
 
-def extract_statement(line: str) -> tuple[str, str] | None:
-    """Return decoded text and code shape for a Ren'Py statement containing a string.
+def extract_statement(line: str) -> tuple[tuple[str, ...], str] | None:
+    """Return decoded visible strings and the non-translatable statement shape."""
 
-    The shape replaces the visible string with ``\"\"``. This lets the validator
-    verify that speaker codes, menu colons and other non-translatable syntax are not
-    changed while still allowing the visible text itself to differ.
-    """
+    cursor = 0
+    literals: list[str] = []
+    shape_parts: list[str] = []
 
-    first = line.find('"')
-    if first < 0:
-        return None
-
-    literals: list[tuple[int, int]] = []
-    search_from = first
-    while search_from < len(line):
-        opening = line.find('"', search_from)
-        if opening < 0:
+    while True:
+        first = line.find('"', cursor)
+        if first < 0:
+            shape_parts.append(line[cursor:])
             break
+
+        between = line[cursor:first]
+        if literals and between and not between.isspace():
+            raise ValueError("unexpected non-whitespace code between quoted string literals")
+        shape_parts.append(between)
+
         escaped = False
         closing = None
-        for index in range(opening + 1, len(line)):
+        for index in range(first + 1, len(line)):
             char = line[index]
             if escaped:
                 escaped = False
@@ -103,35 +103,30 @@ def extract_statement(line: str) -> tuple[str, str] | None:
             if char == '"':
                 closing = index
                 break
+
         if closing is None:
             raise ValueError("missing closing quotation mark")
-        literals.append((opening, closing + 1))
-        search_from = closing + 1
-        next_quote = line.find('"', search_from)
-        if next_quote < 0:
-            break
-        if line[search_from:next_quote].strip():
-            raise ValueError("additional unescaped quotation mark after string literal")
+
+        literal = line[first : closing + 1]
+        literals.append(decode_literal(literal))
+        shape_parts.append('""')
+        cursor = closing + 1
 
     if not literals:
         return None
 
-    text = decode_literal(line[literals[-1][0] : literals[-1][1]])
-    shape_parts: list[str] = []
-    cursor = 0
-    for start, end in literals:
-        shape_parts.extend((line[cursor:start], '""'))
-        cursor = end
-    shape_parts.append(line[cursor:])
-    shape = normalize_shape("".join(shape_parts))
-    return text, shape
+    return tuple(literals), normalize_shape("".join(shape_parts))
 
 
 def normalize_shape(value: str) -> str:
     return " ".join(value.strip().split())
 
 
-def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[list[Block], list[Problem]]:
+def parse_translation_text(
+    text: str,
+    path_label: str = "<memory>",
+    strict_missing_targets: bool = True,
+) -> tuple[list[Block], list[Problem]]:
     lines = text.splitlines()
     blocks: list[Block] = []
     problems: list[Problem] = []
@@ -169,14 +164,16 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             while target_index < len(lines) and not lines[target_index].strip():
                 target_index += 1
             if target_index >= len(lines):
-                problems.append(Problem(path_label, source_line, "missing-target-string", "old string has no matching new string"))
+                if strict_missing_targets:
+                    problems.append(Problem(path_label, source_line, "missing-target-string", "old string has no matching new string"))
                 index += 1
                 continue
 
             next_translate = TRANSLATE_RE.match(lines[target_index])
             target_match = OLD_NEW_RE.match(lines[target_index])
             if next_translate or not target_match or target_match.group(1) != "new":
-                problems.append(Problem(path_label, source_line, "missing-target-string", "old string is not followed by a new string"))
+                if strict_missing_targets:
+                    problems.append(Problem(path_label, source_line, "missing-target-string", "old string is not followed by a new string"))
                 index += 1
                 continue
 
@@ -187,7 +184,7 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
                 index = target_index + 1
                 continue
 
-            current.units.append(Unit(source, target, 'old ""', 'new ""', source_line, target_index + 1))
+            current.units.append(Unit((source,), (target,), 'old ""', 'new ""', source_line, target_index + 1))
             index = target_index + 1
             continue
 
@@ -211,13 +208,6 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             index += 1
             continue
 
-        next_content = index + 1
-        while next_content < len(lines) and not lines[next_content].strip():
-            next_content += 1
-        if next_content < len(lines) and lines[next_content].lstrip().startswith("#"):
-            index += 1
-            continue
-
         target_index = index + 1
         while target_index < len(lines):
             candidate = lines[target_index]
@@ -228,7 +218,8 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             target_index += 1
 
         if target_index >= len(lines) or TRANSLATE_RE.match(lines[target_index]):
-            problems.append(Problem(path_label, index + 1, "missing-target-string", "source comment has no translated statement"))
+            if strict_missing_targets:
+                problems.append(Problem(path_label, index + 1, "missing-target-string", "source comment has no translated statement"))
             index += 1
             continue
 
@@ -239,7 +230,8 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             index = target_index + 1
             continue
         if target_statement is None:
-            problems.append(Problem(path_label, target_index + 1, "missing-target-string", "translated statement contains no quoted string"))
+            if strict_missing_targets:
+                problems.append(Problem(path_label, target_index + 1, "missing-target-string", "translated statement contains no quoted string"))
             index = target_index + 1
             continue
 
@@ -251,8 +243,15 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
     return blocks, problems
 
 
-def parse_translation_file(path: Path) -> tuple[list[Block], list[Problem]]:
-    return parse_translation_text(path.read_text(encoding="utf-8-sig"), path.as_posix())
+def parse_translation_file(
+    path: Path,
+    strict_missing_targets: bool = True,
+) -> tuple[list[Block], list[Problem]]:
+    return parse_translation_text(
+        path.read_text(encoding="utf-8-sig"),
+        path.as_posix(),
+        strict_missing_targets=strict_missing_targets,
+    )
 
 
 def token_counter(text: str) -> Counter[str]:
@@ -342,8 +341,8 @@ def validate_target_file(
     expected_language: str,
     allowlist: tuple[set[str], list[re.Pattern[str]], set[str]],
 ) -> list[Problem]:
-    target_blocks, problems = parse_translation_file(target_path)
-    reference_blocks, reference_problems = parse_translation_file(reference_path)
+    target_blocks, problems = parse_translation_file(target_path, strict_missing_targets=True)
+    reference_blocks, reference_problems = parse_translation_file(reference_path, strict_missing_targets=False)
     for item in reference_problems:
         problems.append(Problem(target_path.as_posix(), item.line, "reference-parse-error", item.message))
 
@@ -379,20 +378,25 @@ def validate_target_file(
             if block_id != "strings" and target_unit.source_shape != target_unit.target_shape:
                 problems.append(Problem(target_path.as_posix(), target_unit.target_line, "speaker-or-code-modified", f"block {block_id!r} unit {unit_index} changed non-translatable code around the string"))
 
-            source_tokens = token_counter(target_unit.source)
-            target_tokens = token_counter(target_unit.target)
-            if source_tokens != target_tokens:
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "token-parity", f"block {block_id!r} unit {unit_index} placeholder/tag/escape tokens differ from source"))
+            if len(target_unit.source) != len(target_unit.target):
+                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "literal-count-parity", f"block {block_id!r} unit {unit_index} has a different number of visible string literals"))
+                continue
 
-            if brace_tag_sequence(target_unit.source) != brace_tag_sequence(target_unit.target):
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-order", f"block {block_id!r} unit {unit_index} Ren'Py brace-tag sequence differs from source"))
+            for literal_index, (source_text, target_text) in enumerate(zip(target_unit.source, target_unit.target), start=1):
+                source_tokens = token_counter(source_text)
+                target_tokens = token_counter(target_text)
+                if source_tokens != target_tokens:
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "token-parity", f"block {block_id!r} unit {unit_index} literal {literal_index} placeholder/tag/escape tokens differ from source"))
 
-            balance_error = validate_paired_tag_balance(target_unit.source, target_unit.target)
-            if balance_error:
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-balance", f"block {block_id!r} unit {unit_index}: {balance_error}"))
+                if brace_tag_sequence(source_text) != brace_tag_sequence(target_text):
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-order", f"block {block_id!r} unit {unit_index} literal {literal_index} Ren'Py brace-tag sequence differs from source"))
 
-            if target_unit.source == target_unit.target and not is_identical_allowed(target_unit.source, allowlist):
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "untranslated-identical", f"block {block_id!r} unit {unit_index} is still identical to English and is not allowlisted"))
+                balance_error = validate_paired_tag_balance(source_text, target_text)
+                if balance_error:
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-balance", f"block {block_id!r} unit {unit_index} literal {literal_index}: {balance_error}"))
+
+                if source_text == target_text and not is_identical_allowed(source_text, allowlist):
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "untranslated-identical", f"block {block_id!r} unit {unit_index} literal {literal_index} is still identical to English and is not allowlisted"))
 
     return problems
 

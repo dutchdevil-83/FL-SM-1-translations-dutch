@@ -39,7 +39,8 @@ def fingerprint_blocks(blocks) -> str:
         parts.append(f"BLOCK\0{block.block_id}\n")
         for unit in block.units:
             parts.append(f"SHAPE\0{unit.source_shape}\n")
-            parts.append(f"TEXT\0{unit.source}\n")
+            for literal in unit.source:
+                parts.append(f"TEXT\0{literal}\n")
     return hashlib.sha256("".join(parts).encode("utf-8")).hexdigest()
 
 
@@ -51,7 +52,7 @@ def build_rows(repo_root: Path, manifest_rows: list[dict[str, str]]) -> list[dic
         reference = repo_root / language / relative
         if not reference.is_file():
             raise RuntimeError(f"missing reference file: {language}/{relative}")
-        blocks, problems = VALIDATOR.parse_translation_file(reference)
+        blocks, problems = VALIDATOR.parse_translation_file(reference, strict_missing_targets=False)
         if problems:
             rendered = "; ".join(item.render() for item in problems[:5])
             raise RuntimeError(f"cannot fingerprint {language}/{relative}: {rendered}")
