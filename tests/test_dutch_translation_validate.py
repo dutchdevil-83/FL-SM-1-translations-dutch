@@ -95,6 +95,28 @@ class TranslationValidatorTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         self.assertIn("missing-target-string", {item.code for item in problems})
 
+    def test_lenient_reference_mode_ignores_orphan_translator_comment(self):
+        text = '''\
+translate french a:
+    # mc "Actual source"
+    mc "Vraie traduction"
+
+# mc "Translator note that resembles dialogue"
+# Additional explanation.
+
+translate french b:
+    # mc "Next source"
+    mc "Source suivante"
+'''
+        strict_blocks, strict_problems = MODULE.parse_translation_text(text, "sample.rpy")
+        lenient_blocks, lenient_problems = MODULE.parse_translation_text(
+            text, "sample.rpy", strict_missing_targets=False
+        )
+        self.assertIn("missing-target-string", {item.code for item in strict_problems})
+        self.assertEqual(lenient_problems, [])
+        self.assertEqual(sum(len(block.units) for block in lenient_blocks), 2)
+        self.assertEqual(len(strict_blocks), len(lenient_blocks))
+
     def test_strings_target_may_have_trailing_comment(self):
         text = '''\
 translate french strings:
