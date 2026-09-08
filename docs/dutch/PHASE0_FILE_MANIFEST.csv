@@ -81,10 +81,10 @@ code/data/quick_interactions/l71_shop/q-inter-ic.rpy,Phase 3,not started,17,17,1
 code/data/quick_interactions/wurst_delivery/q-inter-ms.rpy,Phase 3,not started,142,142,904,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/data/quick_interactions/wurst_delivery/q-inter-nr.rpy,Phase 3,not started,33,33,256,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/data/renpy/defaults.rpy,Phase 3,not started,1,1,1,italian,italian,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/debug/storyline_config.rpy,Phase 2,not started,1,1,1,deutsch,deutsch;spanish;portuguese;turkish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/functions/functions.rpy,Phase 2,not started,1,3,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/functions/init.rpy,Phase 2,not started,1,1,1,french,french,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/functions/release_1.rpy,Phase 2,not started,1,1,6,french,french,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/debug/storyline_config.rpy,Phase 2,review,1,1,1,deutsch,deutsch;spanish;portuguese;turkish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/functions/functions.rpy,Phase 2,review,1,3,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/functions/init.rpy,Phase 2,review,1,1,1,french,french,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/functions/release_1.rpy,Phase 2,review,1,1,6,french,french,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/hints.rpy,Phase 2,not started,1,136,850,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/live_chat/live_chat.rpy,Phase 3,not started,1,4,26,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/live_chat/live_chat_auth.rpy,Phase 3,not started,1,12,90,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
@@ -98,10 +98,10 @@ code/minigames/simon_says/simon_says_game.rpy,Phase 3,not started,3,7,20,deutsch
 code/minigames/wurst_delivery/wurst_delivery_class.rpy,Phase 3,not started,2,2,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/minigames/wurst_delivery/wurst_delivery_game.rpy,Phase 3,not started,1,1,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/minigames/wurst_delivery/wurst_delivery_labels.rpy,Phase 3,not started,2,2,12,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/config/options.rpy,Phase 2,not started,2,2,6,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/labels/actions.rpy,Phase 2,not started,1,30,136,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/labels/labels.rpy,Phase 2,not started,2,2,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/labels/vn_mode.rpy,Phase 2,not started,2,2,25,spanish,spanish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/config/options.rpy,Phase 2,review,2,2,6,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/labels/actions.rpy,Phase 2,review,1,30,136,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/labels/labels.rpy,Phase 2,review,2,2,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/labels/vn_mode.rpy,Phase 2,review,2,2,25,spanish,spanish,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/character.rpy,Phase 2,not started,2,5,6,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/difficulity.rpy,Phase 2,not started,3,14,58,spanish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/faction_it.rpy,Phase 2,not started,2,8,19,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
@@ -109,29 +109,29 @@ code/renpy/screens/faction_th.rpy,Phase 2,not started,2,6,15,deutsch,deutsch;ita
 code/renpy/screens/gallery.rpy,Phase 2,not started,1,12,16,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/game_menus.rpy,Phase 2,not started,1,16,21,french,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/info.rpy,Phase 2,not started,2,12,78,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/interaction.rpy,Phase 2,not started,1,1,1,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/language.rpy,Phase 2,not started,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/interaction.rpy,Phase 2,review,1,1,1,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/language.rpy,Phase 2,review,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/lovense.rpy,Phase 2,not started,1,14,85,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/map.rpy,Phase 2,not started,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/money_statement.rpy,Phase 2,not started,1,4,5,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/map.rpy,Phase 2,review,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/money_statement.rpy,Phase 2,review,1,4,5,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/movie_progress.rpy,Phase 2,not started,1,6,11,french,deutsch;french,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/music_player.rpy,Phase 2,not started,1,3,7,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/neutral_characters.rpy,Phase 2,not started,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/music_player.rpy,Phase 2,review,1,3,7,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/neutral_characters.rpy,Phase 2,review,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/others.rpy,Phase 2,not started,1,19,139,french,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/phone.rpy,Phase 2,not started,1,12,18,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/pirates_movie.rpy,Phase 2,not started,1,8,15,french,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/quests.rpy,Phase 2,not started,1,6,14,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/renovation.rpy,Phase 2,not started,2,6,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/sandbox.rpy,Phase 2,not started,1,3,6,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/sandbox.rpy,Phase 2,review,1,3,6,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/save.rpy,Phase 2,not started,1,12,69,spanish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/scifi_movie.rpy,Phase 2,not started,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/scifi_movie.rpy,Phase 2,review,1,1,2,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/renpy/screens/screens.rpy,Phase 2,not started,1,137,350,french,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/renpy/screens/sm_website.rpy,Phase 2,not started,2,13,16,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/studio_laptop.rpy,Phase 2,not started,1,1,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/topics.rpy,Phase 2,not started,1,1,1,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/ui.rpy,Phase 2,not started,1,4,7,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/vn_mode.rpy,Phase 2,not started,3,3,12,spanish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/renpy/screens/wait.rpy,Phase 2,not started,1,4,10,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/renpy/screens/studio_laptop.rpy,Phase 2,review,1,1,3,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/topics.rpy,Phase 2,review,1,1,1,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/ui.rpy,Phase 2,review,1,4,7,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/vn_mode.rpy,Phase 2,review,3,3,12,spanish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/renpy/screens/wait.rpy,Phase 2,review,1,4,10,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/scenes/character_scenes/arj/sm1cs-arj001.rpy,Phase 5,not started,114,114,993,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/scenes/character_scenes/arj/sm1cs-arj001i.rpy,Phase 5,not started,18,18,69,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/scenes/character_scenes/arj/sm1cs-arj002.rpy,Phase 5,not started,334,341,2320,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,

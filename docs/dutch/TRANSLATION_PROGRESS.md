@@ -5,9 +5,9 @@ This file is generated from `docs/dutch/PHASE0_FILE_MANIFEST.csv`. Do not edit i
 - **Candidate files:** 444
 - **Done:** 0 (0.0%)
 - **In progress:** 0
-- **Review:** 18
-- **Not started:** 426
-- **Tracked Dutch `.rpy` files present:** 18
+- **Review:** 39
+- **Not started:** 405
+- **Tracked Dutch `.rpy` files present:** 39
 - **Untracked Dutch `.rpy` files present:** 0
 - **Pinned upstream baseline:** `cbb9016479fa95aca7c6ad58593fdf63093d7659`
 
@@ -15,7 +15,7 @@ This file is generated from `docs/dutch/PHASE0_FILE_MANIFEST.csv`. Do not edit i
 
 | Phase | Files | Not started | In progress | Review | Done | Source units | Source words |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Phase 2 | 58 | 40 | 0 | 18 | 0 | 976 | 3850 |
+| Phase 2 | 58 | 19 | 0 | 39 | 0 | 976 | 3850 |
 | Phase 3 | 76 | 76 | 0 | 0 | 0 | 2926 | 16480 |
 | Phase 4 | 60 | 60 | 0 | 0 | 0 | 7095 | 52317 |
 | Phase 5 | 92 | 92 | 0 | 0 | 0 | 11439 | 84864 |
