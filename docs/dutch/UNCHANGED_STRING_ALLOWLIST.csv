@@ -19,4 +19,4 @@ exact,pannekoek,intentional_dutch,Preserve authored spelling where present
 exact,Kuts,intentional_dutch,Character-specific authored Dutch form
 exact,"helaas, pindakaas",intentional_dutch,Already Dutch in authored source dialogue
 glossary_category,proper_name,proper_name,Any source/target pair marked proper_name and locked in DUTCH_GLOSSARY.csv
-regex,"^[[:space:][:punct:]]+$",nonlexical,Only punctuation/spacing; implementation must translate this POSIX class safely before use in Python
+regex,"^(?:\s|[^\w])+$",nonlexical,Python-compatible rule for strings containing only whitespace/punctuation and no letters digits or underscore
