@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Iterable
 
 TRANSLATE_RE = re.compile(r"^\s*translate\s+([A-Za-z_][\w]*)\s+([A-Za-z0-9_]+|strings)\s*:\s*$")
-OLD_NEW_RE = re.compile(r"^\s*(old|new)\s+(\"(?:\\.|[^\"\\])*\")\s*$")
+OLD_NEW_RE = re.compile(r"^\s*(old|new)\s+(\"(?:\\.|[^\"\\])*\")\s*(?:#.*)?$")
 TOKEN_RE = re.compile(
     r"\{[^{}]*\}|\[[^\[\]]+\]|%\([^)]+\)[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|"
     r"%[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs%]|%%|\\[ntr]"
@@ -84,31 +84,46 @@ def extract_statement(line: str) -> tuple[str, str] | None:
     if first < 0:
         return None
 
-    escaped = False
-    closing = None
-    for index in range(first + 1, len(line)):
-        char = line[index]
-        if escaped:
-            escaped = False
-            continue
-        if char == "\\":
-            escaped = True
-            continue
-        if char == '"':
-            closing = index
+    literals: list[tuple[int, int]] = []
+    search_from = first
+    while search_from < len(line):
+        opening = line.find('"', search_from)
+        if opening < 0:
             break
+        escaped = False
+        closing = None
+        for index in range(opening + 1, len(line)):
+            char = line[index]
+            if escaped:
+                escaped = False
+                continue
+            if char == "\\":
+                escaped = True
+                continue
+            if char == '"':
+                closing = index
+                break
+        if closing is None:
+            raise ValueError("missing closing quotation mark")
+        literals.append((opening, closing + 1))
+        search_from = closing + 1
+        next_quote = line.find('"', search_from)
+        if next_quote < 0:
+            break
+        if line[search_from:next_quote].strip():
+            raise ValueError("additional unescaped quotation mark after string literal")
 
-    if closing is None:
-        raise ValueError("missing closing quotation mark")
+    if not literals:
+        return None
 
-    literal = line[first : closing + 1]
-    suffix = line[closing + 1 :]
-    if '"' in suffix:
-        raise ValueError("additional unescaped quotation mark after string literal")
-
-    text = decode_literal(literal)
-    prefix = line[:first]
-    shape = normalize_shape(prefix + '""' + suffix)
+    text = decode_literal(line[literals[-1][0] : literals[-1][1]])
+    shape_parts: list[str] = []
+    cursor = 0
+    for start, end in literals:
+        shape_parts.extend((line[cursor:start], '""'))
+        cursor = end
+    shape_parts.append(line[cursor:])
+    shape = normalize_shape("".join(shape_parts))
     return text, shape
 
 
@@ -193,6 +208,13 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             index += 1
             continue
         if source_statement is None:
+            index += 1
+            continue
+
+        next_content = index + 1
+        while next_content < len(lines) and not lines[next_content].strip():
+            next_content += 1
+        if next_content < len(lines) and lines[next_content].lstrip().startswith("#"):
             index += 1
             continue
 
