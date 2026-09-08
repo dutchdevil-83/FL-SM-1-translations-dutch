@@ -122,7 +122,11 @@ def normalize_shape(value: str) -> str:
     return " ".join(value.strip().split())
 
 
-def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[list[Block], list[Problem]]:
+def parse_translation_text(
+    text: str,
+    path_label: str = "<memory>",
+    strict_missing_targets: bool = True,
+) -> tuple[list[Block], list[Problem]]:
     lines = text.splitlines()
     blocks: list[Block] = []
     problems: list[Problem] = []
@@ -160,14 +164,16 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             while target_index < len(lines) and not lines[target_index].strip():
                 target_index += 1
             if target_index >= len(lines):
-                problems.append(Problem(path_label, source_line, "missing-target-string", "old string has no matching new string"))
+                if strict_missing_targets:
+                    problems.append(Problem(path_label, source_line, "missing-target-string", "old string has no matching new string"))
                 index += 1
                 continue
 
             next_translate = TRANSLATE_RE.match(lines[target_index])
             target_match = OLD_NEW_RE.match(lines[target_index])
             if next_translate or not target_match or target_match.group(1) != "new":
-                problems.append(Problem(path_label, source_line, "missing-target-string", "old string is not followed by a new string"))
+                if strict_missing_targets:
+                    problems.append(Problem(path_label, source_line, "missing-target-string", "old string is not followed by a new string"))
                 index += 1
                 continue
 
@@ -212,13 +218,8 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             target_index += 1
 
         if target_index >= len(lines) or TRANSLATE_RE.match(lines[target_index]):
-            if target_index > index + 1 and all(
-                not candidate.strip() or candidate.lstrip().startswith("#")
-                for candidate in lines[index + 1 : target_index]
-            ):
-                index = target_index
-                continue
-            problems.append(Problem(path_label, index + 1, "missing-target-string", "source comment has no translated statement"))
+            if strict_missing_targets:
+                problems.append(Problem(path_label, index + 1, "missing-target-string", "source comment has no translated statement"))
             index += 1
             continue
 
@@ -229,7 +230,8 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
             index = target_index + 1
             continue
         if target_statement is None:
-            problems.append(Problem(path_label, target_index + 1, "missing-target-string", "translated statement contains no quoted string"))
+            if strict_missing_targets:
+                problems.append(Problem(path_label, target_index + 1, "missing-target-string", "translated statement contains no quoted string"))
             index = target_index + 1
             continue
 
@@ -241,8 +243,15 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
     return blocks, problems
 
 
-def parse_translation_file(path: Path) -> tuple[list[Block], list[Problem]]:
-    return parse_translation_text(path.read_text(encoding="utf-8-sig"), path.as_posix())
+def parse_translation_file(
+    path: Path,
+    strict_missing_targets: bool = True,
+) -> tuple[list[Block], list[Problem]]:
+    return parse_translation_text(
+        path.read_text(encoding="utf-8-sig"),
+        path.as_posix(),
+        strict_missing_targets=strict_missing_targets,
+    )
 
 
 def token_counter(text: str) -> Counter[str]:
@@ -332,8 +341,8 @@ def validate_target_file(
     expected_language: str,
     allowlist: tuple[set[str], list[re.Pattern[str]], set[str]],
 ) -> list[Problem]:
-    target_blocks, problems = parse_translation_file(target_path)
-    reference_blocks, reference_problems = parse_translation_file(reference_path)
+    target_blocks, problems = parse_translation_file(target_path, strict_missing_targets=True)
+    reference_blocks, reference_problems = parse_translation_file(reference_path, strict_missing_targets=False)
     for item in reference_problems:
         problems.append(Problem(target_path.as_posix(), item.line, "reference-parse-error", item.message))
 
