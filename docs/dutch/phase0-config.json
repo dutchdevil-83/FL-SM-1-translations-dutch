@@ -59,6 +59,9 @@
   "storefront": {
     "proposed_scope": "include",
     "proposed_filename": "storepage_896318_dutch.json",
-    "status": "pending_maintainer_confirmation"
+    "status": "confirmed",
+    "confirmation_scope": "fork_implementation_only",
+    "confirmed_by": "fork_owner",
+    "upstream_maintainer_status": "pending"
   }
 }
