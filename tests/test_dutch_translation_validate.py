@@ -142,6 +142,33 @@ translate french strings:
         with self.assertRaises(ValueError):
             MODULE.extract_statement('mc "Dit is "fout""')
 
+    def test_quoted_speaker_statement_uses_dialogue_text(self):
+        source = MODULE.extract_statement('"BDSM Model" "Hey!"')
+        target = MODULE.extract_statement('"BDSM-Modell" "Hallo!"')
+        self.assertEqual(source, (("BDSM Model", "Hey!"), '"" ""'))
+        self.assertEqual(target, (("BDSM-Modell", "Hallo!"), '"" ""'))
+
+    def test_strings_allow_trailing_comments(self):
+        blocks, problems = MODULE.parse_translation_text(
+            'translate deutsch strings:\n'
+            '    old "AUTO"\n'
+            '    new "AUTO" # keep the standard label\n',
+            "sample.rpy",
+        )
+        self.assertEqual(problems, [])
+        self.assertEqual(blocks[0].units[0].target, ("AUTO",))
+
+    def test_unpaired_annotated_dialogue_comment_is_ignored(self):
+        blocks, problems = MODULE.parse_translation_text(
+            'translate deutsch block:\n'
+            '    # mc "Alternative translated line"\n'
+            '    # alternate route note\n',
+            "sample.rpy",
+            strict_missing_targets=False,
+        )
+        self.assertEqual(problems, [])
+        self.assertEqual(blocks[0].units, [])
+
     def test_format_tag_order_is_detected(self):
         changed = TARGET_GOOD.replace("{i}Welkom{/i}", "{/i}Welkom{i}")
         temp, target, reference = self.make_files(target=changed)
