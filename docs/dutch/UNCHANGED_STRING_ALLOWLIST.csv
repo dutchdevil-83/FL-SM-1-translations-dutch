@@ -20,3 +20,4 @@ exact,Kuts,intentional_dutch,Character-specific authored Dutch form
 exact,"helaas, pindakaas",intentional_dutch,Already Dutch in authored source dialogue
 glossary_category,proper_name,proper_name,Any source/target pair marked proper_name and locked in DUTCH_GLOSSARY.csv
 regex,"^(?:\s|[^\w])+$",nonlexical,Python-compatible rule for strings containing only whitespace/punctuation and no letters digits or underscore
+regex,"^(?:\[[^\[\]]+\]|[^A-Za-z0-9_\[\]])+$",token_only,Strings composed only of Ren'Py square-bracket substitutions plus punctuation/whitespace have no lexical text to translate

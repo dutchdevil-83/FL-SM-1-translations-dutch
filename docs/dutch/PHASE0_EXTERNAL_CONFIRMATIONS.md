@@ -1,25 +1,26 @@
 # Phase 0 external confirmations
 
-Two project decisions cannot be proven from the translation repository alone. They require explicit confirmation from an SM-1 maintainer before Phase 0 can be marked complete.
+The upstream SM-1 maintainer confirmations requested in Phase 0 are still pending. The fork owner has now explicitly authorized Phase 2 implementation to proceed in this fork using the proposed Dutch runtime contract. This authorization is intentionally narrower than upstream maintainer confirmation.
 
 ## Decision 1 - Dutch Ren'Py language identifier and display name
 
-**Status:** Pending maintainer confirmation  
-**Proposed runtime key:** `dutch`  
-**Proposed displayed name:** `Nederlands`  
+**Fork implementation status:** Authorized by fork owner on 2026-09-08  
+**Upstream maintainer status:** Pending confirmation  
+**Runtime key used by this fork:** `dutch`  
+**Displayed name used by this fork:** `Nederlands`  
 **Language variant:** `nl-NL`
 
 ### Repository evidence
 
-Existing translations use a language-specific root directory and the same language identifier in Ren'Py translation declarations, for example the German tree uses `deutsch/` and `translate deutsch ...` declarations. There is currently no Dutch root and no repository-owned language registration file that proves the identifier expected by the game runtime.
+Existing translations use a language-specific root directory and the same language identifier in Ren'Py translation declarations, for example the German tree uses `deutsch/` and `translate deutsch ...` declarations. There is still no pre-existing Dutch root or repository-owned runtime registration file that independently proves the identifier expected by an upstream SM-1 build.
 
-### Confirmation required
+### Fork-owner authorization
 
-A maintainer should explicitly confirm:
+After Phase 1 was approved and merged, the fork owner instructed the project to continue with the next implementation phase. For this fork, that instruction authorizes use of the proposed `dutch` root/key and `Nederlands` display name so real Dutch translation files can be implemented and validated rather than blocking all translation work on the external confirmation.
 
-> For the SM-1 Dutch localization, should the Ren'Py translation identifier/root directory be `dutch`, and should the language be displayed to players as `Nederlands`?
+`phase0-config.json` therefore records the runtime key and display name as `confirmed` with `confirmation_scope: fork_implementation_only`, `confirmed_by: fork_owner`, and `upstream_maintainer_status: pending`.
 
-If the runtime key differs, update `phase0-config.json` before Phase 1 creates any Dutch `.rpy` files.
+This is not represented as upstream acceptance. If the SM-1 maintainers later require a different key or display registration, the Dutch tree and configuration must be reconciled before an upstream submission.
 
 ## Decision 2 - Dutch store-page metadata
 
@@ -31,23 +32,20 @@ If the runtime key differs, update `phase0-config.json` before Phase 1 creates a
 
 Production language trees such as German and Italian contain language-specific `storepage_896318_<language>.json` files alongside `common.rpy` and the `code/` tree. This strongly suggests storefront metadata is maintained through the translation repository, but it does not prove that a Dutch store page is enabled or consumed by the release process.
 
-### Confirmation required
+### Phase 2 rule
 
-A maintainer should explicitly confirm:
+Phase 2 does not create Dutch storefront metadata. That work remains blocked until the upstream/storefront contract is confirmed.
 
-> Should the Dutch localization include Steam/storefront metadata in this repository, using a Dutch equivalent of the existing `storepage_896318_<language>.json` files? If yes, please confirm the expected filename/language identifier.
+### Confirmation still required before upstream submission
 
-## Ready-to-post maintainer request
+An SM-1 maintainer should explicitly confirm:
 
-```text
-We are preparing the Netherlands-Dutch (nl-NL) localization for SM-1 and need two Phase 0 confirmations before creating the translation tree:
+> For the SM-1 Dutch localization, should the Ren'Py translation identifier/root directory be `dutch`, and should the language be displayed to players as `Nederlands`?
 
-1. Should the Ren'Py language identifier/root directory be `dutch`, with the player-facing language name `Nederlands`?
-2. Should Dutch also include the repository's store-page metadata (`storepage_896318_<language>.json`)? If yes, is `storepage_896318_dutch.json` the expected filename?
+and:
 
-No Dutch runtime files will be created until these identifiers are confirmed.
-```
+> Should the Dutch localization include Steam/storefront metadata in this repository, using `storepage_896318_dutch.json` or another expected identifier?
 
 ## Completion rule
 
-Do not change either status to `confirmed` merely because the proposed values look conventional. Record the maintainer response or link in this document and in the Phase 0 PR before declaring Phase 0 complete.
+The fork may continue implementing and validating Dutch `.rpy` files under the fork-owner authorization above. Phase 0 external confirmation is still not considered complete for upstream-submission purposes until the maintainer response is recorded here.

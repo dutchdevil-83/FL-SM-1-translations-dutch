@@ -60,8 +60,14 @@ jobs:
       - name: Run Dutch tooling tests
         run: python -m unittest discover -s tests -p 'test_dutch_*.py' -v
 
-      - name: Verify translation inventory is current
-        run: python tools/dutch_phase0_inventory.py --check
+      - name: Generate or verify translation inventory
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            python tools/dutch_phase0_inventory.py --check
+          else
+            python tools/dutch_phase0_inventory.py --write
+          fi
 
       - name: Generate or verify source-content snapshot
         shell: bash
@@ -92,6 +98,8 @@ jobs:
         shell: bash
         run: |
           GENERATED=(
+            docs/dutch/PHASE0_FILE_MANIFEST.csv
+            docs/dutch/PHASE0_INVENTORY_SUMMARY.md
             docs/dutch/SOURCE_CONTENT_SNAPSHOT.csv
             docs/dutch/TRANSLATION_PROGRESS.md
           )
