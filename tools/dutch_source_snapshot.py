@@ -39,7 +39,8 @@ def fingerprint_blocks(blocks) -> str:
         parts.append(f"BLOCK\0{block.block_id}\n")
         for unit in block.units:
             parts.append(f"SHAPE\0{unit.source_shape}\n")
-            parts.append(f"TEXT\0{unit.source}\n")
+            for literal in unit.source:
+                parts.append(f"TEXT\0{literal}\n")
     return hashlib.sha256("".join(parts).encode("utf-8")).hexdigest()
 
 

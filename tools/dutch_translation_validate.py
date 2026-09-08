@@ -30,8 +30,8 @@ BRACE_TAG_RE = re.compile(r"\{([^{}]+)\}")
 
 @dataclass(frozen=True)
 class Unit:
-    source: str
-    target: str
+    source: tuple[str, ...]
+    target: tuple[str, ...]
     source_shape: str
     target_shape: str
     source_line: int
@@ -72,44 +72,50 @@ def decode_literal(literal: str) -> str:
     return value
 
 
-def extract_statement(line: str) -> tuple[str, str] | None:
-    """Return decoded text and code shape for a Ren'Py statement containing a string.
+def extract_statement(line: str) -> tuple[tuple[str, ...], str] | None:
+    """Return decoded visible strings and the non-translatable statement shape."""
 
-    The shape replaces the visible string with ``\"\"``. This lets the validator
-    verify that speaker codes, menu colons and other non-translatable syntax are not
-    changed while still allowing the visible text itself to differ.
-    """
+    cursor = 0
+    literals: list[str] = []
+    shape_parts: list[str] = []
 
-    first = line.find('"')
-    if first < 0:
-        return None
-
-    escaped = False
-    closing = None
-    for index in range(first + 1, len(line)):
-        char = line[index]
-        if escaped:
-            escaped = False
-            continue
-        if char == "\\":
-            escaped = True
-            continue
-        if char == '"':
-            closing = index
+    while True:
+        first = line.find('"', cursor)
+        if first < 0:
+            shape_parts.append(line[cursor:])
             break
 
-    if closing is None:
-        raise ValueError("missing closing quotation mark")
+        between = line[cursor:first]
+        if literals and between and not between.isspace():
+            raise ValueError("unexpected non-whitespace code between quoted string literals")
+        shape_parts.append(between)
 
-    literal = line[first : closing + 1]
-    suffix = line[closing + 1 :]
-    if '"' in suffix:
-        raise ValueError("additional unescaped quotation mark after string literal")
+        escaped = False
+        closing = None
+        for index in range(first + 1, len(line)):
+            char = line[index]
+            if escaped:
+                escaped = False
+                continue
+            if char == "\\":
+                escaped = True
+                continue
+            if char == '"':
+                closing = index
+                break
 
-    text = decode_literal(literal)
-    prefix = line[:first]
-    shape = normalize_shape(prefix + '""' + suffix)
-    return text, shape
+        if closing is None:
+            raise ValueError("missing closing quotation mark")
+
+        literal = line[first : closing + 1]
+        literals.append(decode_literal(literal))
+        shape_parts.append('""')
+        cursor = closing + 1
+
+    if not literals:
+        return None
+
+    return tuple(literals), normalize_shape("".join(shape_parts))
 
 
 def normalize_shape(value: str) -> str:
@@ -172,7 +178,7 @@ def parse_translation_text(text: str, path_label: str = "<memory>") -> tuple[lis
                 index = target_index + 1
                 continue
 
-            current.units.append(Unit(source, target, 'old ""', 'new ""', source_line, target_index + 1))
+            current.units.append(Unit((source,), (target,), 'old ""', 'new ""', source_line, target_index + 1))
             index = target_index + 1
             continue
 
@@ -357,20 +363,25 @@ def validate_target_file(
             if block_id != "strings" and target_unit.source_shape != target_unit.target_shape:
                 problems.append(Problem(target_path.as_posix(), target_unit.target_line, "speaker-or-code-modified", f"block {block_id!r} unit {unit_index} changed non-translatable code around the string"))
 
-            source_tokens = token_counter(target_unit.source)
-            target_tokens = token_counter(target_unit.target)
-            if source_tokens != target_tokens:
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "token-parity", f"block {block_id!r} unit {unit_index} placeholder/tag/escape tokens differ from source"))
+            if len(target_unit.source) != len(target_unit.target):
+                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "literal-count-parity", f"block {block_id!r} unit {unit_index} has a different number of visible string literals"))
+                continue
 
-            if brace_tag_sequence(target_unit.source) != brace_tag_sequence(target_unit.target):
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-order", f"block {block_id!r} unit {unit_index} Ren'Py brace-tag sequence differs from source"))
+            for literal_index, (source_text, target_text) in enumerate(zip(target_unit.source, target_unit.target), start=1):
+                source_tokens = token_counter(source_text)
+                target_tokens = token_counter(target_text)
+                if source_tokens != target_tokens:
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "token-parity", f"block {block_id!r} unit {unit_index} literal {literal_index} placeholder/tag/escape tokens differ from source"))
 
-            balance_error = validate_paired_tag_balance(target_unit.source, target_unit.target)
-            if balance_error:
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-balance", f"block {block_id!r} unit {unit_index}: {balance_error}"))
+                if brace_tag_sequence(source_text) != brace_tag_sequence(target_text):
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-order", f"block {block_id!r} unit {unit_index} literal {literal_index} Ren'Py brace-tag sequence differs from source"))
 
-            if target_unit.source == target_unit.target and not is_identical_allowed(target_unit.source, allowlist):
-                problems.append(Problem(target_path.as_posix(), target_unit.target_line, "untranslated-identical", f"block {block_id!r} unit {unit_index} is still identical to English and is not allowlisted"))
+                balance_error = validate_paired_tag_balance(source_text, target_text)
+                if balance_error:
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "format-tag-balance", f"block {block_id!r} unit {unit_index} literal {literal_index}: {balance_error}"))
+
+                if source_text == target_text and not is_identical_allowed(source_text, allowlist):
+                    problems.append(Problem(target_path.as_posix(), target_unit.target_line, "untranslated-identical", f"block {block_id!r} unit {unit_index} literal {literal_index} is still identical to English and is not allowlisted"))
 
     return problems
 

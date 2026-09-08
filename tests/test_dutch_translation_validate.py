@@ -11,6 +11,7 @@ assert SPEC.loader is not None
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
+
 REFERENCE = '''\
 translate deutsch block_a:
     # mc "Hello, [mcname]! {i}Welcome{/i}"
@@ -93,6 +94,16 @@ class TranslationValidatorTests(unittest.TestCase):
         blocks, problems = MODULE.parse_translation_text('translate dutch strings:\n    old "Save"\n', "sample.rpy")
         self.assertEqual(len(blocks), 1)
         self.assertIn("missing-target-string", {item.code for item in problems})
+
+    def test_multiple_visible_string_literals_are_supported(self):
+        reference_text = 'translate deutsch a:\n    # "BDSM Model" "Hey!"\n    "BDSM Model" "Hey!"\n'
+        target_text = 'translate dutch a:\n    # "BDSM Model" "Hey!"\n    "BDSM-model" "Hé!"\n'
+        temp, target, reference = self.make_files(target=target_text, reference=reference_text)
+        try:
+            problems = MODULE.validate_target_file(target, reference, "dutch", (set(), [], set()))
+        finally:
+            temp.cleanup()
+        self.assertEqual(problems, [])
 
     def test_unescaped_extra_quote_is_detected(self):
         with self.assertRaises(ValueError):
