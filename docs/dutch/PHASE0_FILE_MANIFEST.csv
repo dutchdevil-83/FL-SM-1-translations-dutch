@@ -1,22 +1,22 @@
 relative_path,phase,status,translation_block_count,string_dialogue_count,source_word_estimate,count_reference_language,present_in_languages,structure_variance,source_upstream_baseline_sha,notes
-code/classes/character.rpy,Phase 2,not started,1,10,56,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/chat_controller.rpy,Phase 2,not started,2,8,14,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/gallery.rpy,Phase 2,not started,1,2,8,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/gametime.rpy,Phase 2,not started,2,5,22,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/interaction_character_option.rpy,Phase 2,not started,1,12,33,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/interaction_location_option.rpy,Phase 2,not started,1,1,0,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/interaction_object_option.rpy,Phase 2,not started,1,2,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/it_controller.rpy,Phase 2,not started,1,2,10,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/location_controller.rpy,Phase 2,not started,1,5,30,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/lovense.rpy,Phase 2,not started,1,1,13,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/map_location.rpy,Phase 2,not started,1,5,17,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/movie_controllers.rpy,Phase 2,not started,2,22,68,turkish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/player.rpy,Phase 2,not started,3,6,30,portuguese,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/player_controller.rpy,Phase 2,not started,2,3,15,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/quest_controller.rpy,Phase 2,not started,1,7,18,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/renovation_controller.rpy,Phase 2,not started,3,18,82,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/th_controller.rpy,Phase 2,not started,2,2,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
-code/classes/vn_mode_controller.rpy,Phase 2,not started,2,2,4,portuguese,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
+code/classes/character.rpy,Phase 2,review,1,10,56,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/chat_controller.rpy,Phase 2,review,2,8,14,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/gallery.rpy,Phase 2,review,1,2,8,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/gametime.rpy,Phase 2,review,2,5,22,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/interaction_character_option.rpy,Phase 2,review,1,12,33,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/interaction_location_option.rpy,Phase 2,review,1,1,0,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/interaction_object_option.rpy,Phase 2,review,1,2,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/it_controller.rpy,Phase 2,review,1,2,10,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/location_controller.rpy,Phase 2,review,1,5,30,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/lovense.rpy,Phase 2,review,1,1,13,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/map_location.rpy,Phase 2,review,1,5,17,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/movie_controllers.rpy,Phase 2,review,2,22,68,turkish,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/player.rpy,Phase 2,review,3,6,30,portuguese,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/player_controller.rpy,Phase 2,review,2,3,15,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/quest_controller.rpy,Phase 2,review,1,7,18,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,no,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/renovation_controller.rpy,Phase 2,review,3,18,82,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/th_controller.rpy,Phase 2,review,2,2,9,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
+code/classes/vn_mode_controller.rpy,Phase 2,review,2,2,4,portuguese,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,Dutch file committed; awaiting Dutch human review and runtime smoke test
 code/data/characters/characters.rpy,Phase 3,not started,1,65,67,french,deutsch;italian;french;spanish;portuguese;turkish,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/data/characters/names.rpy,Phase 3,not started,1,92,104,chinese,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
 code/data/chat/chat_am.rpy,Phase 3,not started,1,17,113,deutsch,deutsch;italian;french;spanish;portuguese;turkish;chinese,yes,cbb9016479fa95aca7c6ad58593fdf63093d7659,
