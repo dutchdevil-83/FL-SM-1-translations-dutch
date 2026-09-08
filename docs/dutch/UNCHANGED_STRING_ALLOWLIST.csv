@@ -11,6 +11,7 @@ exact,Gameplay,technical_term,Common Dutch game/UI loanword
 exact,Console,technical_term,Common technical loanword when used for the developer/game console
 exact,DejaVu Sans,font_name,Font name
 exact,OpenDyslexic,font_name,Font name
+exact,Bzzzzz,sound_effect,Non-lexical buzzing sound effect
 exact,Lekker,intentional_dutch,Already Dutch in authored source dialogue
 exact,Oprotten,intentional_dutch,Already Dutch in authored source dialogue
 exact,Vreselijk,intentional_dutch,Already Dutch in authored source dialogue

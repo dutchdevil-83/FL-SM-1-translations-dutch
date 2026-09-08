@@ -50,6 +50,12 @@ Doug,Doug,proper_name,preserve,locked,Doug Dickles
 Ethan,Ethan,proper_name,preserve,locked,Ethan Foxmorr
 Carmel,Carmel,proper_name,preserve,locked,Carmel Blaise
 Samiya,Samiya,proper_name,preserve,locked,Samiya Byers
+Mike,Mike,proper_name,preserve,locked,Default player name used by system prompts
+Young,Young,proper_name,preserve,locked,Name value used by game functions
+Brown,Brown,proper_name,preserve,locked,Name value used by game functions
+Chase,Chase,proper_name,preserve,locked,Name value used by game functions
+SM,SM,proper_name,preserve,locked,Short game title
+Fetish Locator: S&M Studio,Fetish Locator: S&M Studio,proper_name,preserve,locked,Full game title
 Narrator,Verteller,role_label,translate_if_visible,preferred,Only when Narrator is actually player-visible
 Creepy Guy,Enge man,role_label,translate,preferred,Generic unnamed role
 Dog Walker,Hondenuitlater,role_label,translate,preferred,Generic unnamed role
@@ -85,6 +91,18 @@ Enable,Inschakelen,ui,translate,preferred,
 Disable,Uitschakelen,ui,translate,preferred,
 Reset,Resetten,ui,translate,preferred,
 Accessibility Menu,Toegankelijkheidsmenu,ui,translate,preferred,
+Enter,Binnengaan,ui,translate,preferred,Use for entering an interactive location
+Choose Language,Taal kiezen,ui,translate,preferred,
+Go back,Terug,ui,translate,preferred,
+NEXT,VOLGENDE,ui,translate,preferred,
+HIDE,VERBERGEN,ui,translate,preferred,
+SKIP ALL,ALLES OVERSLAAN,ui,translate,preferred,
+Navigation,Navigatie,ui,translate,preferred,
+Quest,Missie,ui,translate,preferred,
+Quests,Missies,ui,translate,preferred,
+Timeslot,Tijdvak,ui,translate,preferred,
+Topic,Onderwerp,ui,translate,preferred,
+Topics,Onderwerpen,ui,translate,preferred,
 Relationship Point,relatiepunt,gameplay,translate,preferred,Use singular form in relationship-point notifications
 Relationship Points,relatiepunten,gameplay,translate,preferred,Use plural form in relationship-point notifications
 energy,energie,gameplay,translate,preferred,Use lowercase in running text unless source UI capitalization requires otherwise
