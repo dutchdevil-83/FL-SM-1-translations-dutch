@@ -20,8 +20,8 @@
 
 | Decision | Proposed value | Status |
 | --- | --- | --- |
-| Ren'Py key | `dutch` | `pending_maintainer_confirmation` |
-| Display name | `Nederlands` | `pending_maintainer_confirmation` |
+| Ren'Py key | `dutch` | `confirmed` |
+| Display name | `Nederlands` | `confirmed` |
 | Locale variant | `nl-NL` | project target |
 | Storefront metadata | `storepage_896318_dutch.json` | `pending_maintainer_confirmation` |
 
@@ -30,5 +30,7 @@
 The candidate set is the union of editable `.rpy` paths across the configured production language roots. Generated `.rpyc` files are not candidates.
 
 Counts come from the available language copy that exposes the most embedded English source units for that path. `structure_variance=yes` means existing language trees disagree on block/unit counts and should receive extra attention during implementation; it does not remove the file from Dutch scope.
+
+A newly committed Dutch target whose manifest status is still `not started` is automatically promoted to `review`. The validator must still pass, and human Dutch review/runtime smoke testing remain required before `done`.
 
 Any `Unassigned` path is a Phase 0 failure and must be classified before Phase 0 can be closed.

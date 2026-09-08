@@ -85,6 +85,12 @@ Enable,Inschakelen,ui,translate,preferred,
 Disable,Uitschakelen,ui,translate,preferred,
 Reset,Resetten,ui,translate,preferred,
 Accessibility Menu,Toegankelijkheidsmenu,ui,translate,preferred,
+Relationship Point,relatiepunt,gameplay,translate,preferred,Use singular form in relationship-point notifications
+Relationship Points,relatiepunten,gameplay,translate,preferred,Use plural form in relationship-point notifications
+energy,energie,gameplay,translate,preferred,Use lowercase in running text unless source UI capitalization requires otherwise
+renovation,renovatie,gameplay,translate,preferred,
+replay,herhaling,ui,translate,preferred,Use for replay unlock notifications unless established UI context requires replay
+achievement,prestatie,ui,translate,preferred,Use for achievement unlock notifications
 BDSM,BDSM,bdsm,preserve,locked,Established abbreviation
 bondage,bondage,bdsm,preserve,preferred,Established Dutch loanword
 dominant,dominant,bdsm,translate,preferred,Role/noun; inflect by sentence

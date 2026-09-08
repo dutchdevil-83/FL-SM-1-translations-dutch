@@ -5,11 +5,17 @@
     "locale_variant": "nl-NL",
     "display_name": {
       "proposed": "Nederlands",
-      "status": "pending_maintainer_confirmation"
+      "status": "confirmed",
+      "confirmation_scope": "fork_implementation_only",
+      "confirmed_by": "fork_owner",
+      "upstream_maintainer_status": "pending"
     },
     "renpy_language_key": {
       "proposed": "dutch",
-      "status": "pending_maintainer_confirmation"
+      "status": "confirmed",
+      "confirmation_scope": "fork_implementation_only",
+      "confirmed_by": "fork_owner",
+      "upstream_maintainer_status": "pending"
     }
   },
   "source": {

@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""Generate the Phase 0 Dutch translation inventory from existing SM-1 language trees.
+"""Generate the Dutch translation inventory from existing SM-1 language trees.
 
 The candidate set is the union of editable .rpy paths across configured production
 language roots. Counts are derived from the embedded English source comments/old
 strings already present in Ren'Py translation files.
+
+When a complete Dutch target file is committed for a manifest item whose status is
+still the configured default, the generated inventory promotes that item to review.
+This keeps implementation-branch tracking synchronized without pretending that a
+structurally complete file has already received human language/runtime approval.
 """
 
 from __future__ import annotations
@@ -40,6 +45,8 @@ MANIFEST_FIELDS = [
     "source_upstream_baseline_sha",
     "notes",
 ]
+
+AUTO_REVIEW_NOTE = "Dutch file committed; awaiting Dutch human review and runtime smoke test"
 
 
 @dataclass(frozen=True)
@@ -197,6 +204,22 @@ def choose_reference(
     return best, len(structures) > 1
 
 
+def promote_committed_target(
+    repo_root: Path,
+    target_root_name: str,
+    relative_path: str,
+    status: str,
+    notes: str,
+    default_status: str,
+) -> tuple[str, str]:
+    """Promote a newly committed target from the default state to human review."""
+
+    target_path = repo_root / target_root_name / relative_path
+    if target_path.is_file() and status == default_status:
+        return "review", notes or AUTO_REVIEW_NOTE
+    return status, notes
+
+
 def build_rows(repo_root: Path, config: dict) -> list[dict[str, str]]:
     languages = config["source"]["production_language_roots"]
     preferred = config["source"]["preferred_count_sources"]
@@ -205,6 +228,7 @@ def build_rows(repo_root: Path, config: dict) -> list[dict[str, str]]:
     default_status = config["inventory"]["default_status"]
     manifest_path = repo_root / config["inventory"]["manifest_path"]
     existing = load_existing_manual_fields(manifest_path, allowed_statuses)
+    target_root_name = config["target_language"]["renpy_language_key"]["proposed"]
 
     candidates = discover_candidates(repo_root, languages)
     rows: list[dict[str, str]] = []
@@ -213,6 +237,14 @@ def build_rows(repo_root: Path, config: dict) -> list[dict[str, str]]:
         present = sorted(candidates[relative_path], key=lambda item: preferred.index(item) if item in preferred else 999)
         metrics, variance = choose_reference(repo_root, relative_path, present, preferred)
         status, notes = existing.get(relative_path, (default_status, ""))
+        status, notes = promote_committed_target(
+            repo_root,
+            target_root_name,
+            relative_path,
+            status,
+            notes,
+            default_status,
+        )
         rows.append(
             {
                 "relative_path": relative_path,
@@ -297,6 +329,8 @@ def render_summary(rows: list[dict[str, str]], config: dict) -> str:
             "The candidate set is the union of editable `.rpy` paths across the configured production language roots. Generated `.rpyc` files are not candidates.",
             "",
             "Counts come from the available language copy that exposes the most embedded English source units for that path. `structure_variance=yes` means existing language trees disagree on block/unit counts and should receive extra attention during implementation; it does not remove the file from Dutch scope.",
+            "",
+            "A newly committed Dutch target whose manifest status is still `not started` is automatically promoted to `review`. The validator must still pass, and human Dutch review/runtime smoke testing remain required before `done`.",
             "",
             "Any `Unassigned` path is a Phase 0 failure and must be classified before Phase 0 can be closed.",
             "",
