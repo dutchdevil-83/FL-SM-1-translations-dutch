@@ -6,19 +6,15 @@ on:
       - voice/english-gemini-tts
     paths:
       - "voice/**"
-      - "tools/voice_pipeline.py"
-      - "tools/voice_profiles.py"
-      - "tests/test_voice_pipeline.py"
-      - "tests/test_voice_profiles.py"
+      - "tools/voice*.py"
+      - "tests/test_voice*.py"
       - "requirements-voice.txt"
       - ".github/workflows/voice-pipeline.yml"
   pull_request:
     paths:
       - "voice/**"
-      - "tools/voice_pipeline.py"
-      - "tools/voice_profiles.py"
-      - "tests/test_voice_pipeline.py"
-      - "tests/test_voice_profiles.py"
+      - "tools/voice*.py"
+      - "tests/test_voice*.py"
       - "requirements-voice.txt"
       - ".github/workflows/voice-pipeline.yml"
   workflow_dispatch:
@@ -44,6 +40,9 @@ jobs:
 
       - name: Extract English dialogue manifest
         run: python tools/voice_pipeline.py extract
+
+      - name: Preserve original speaker syntax
+        run: python tools/voice_source_syntax.py
 
       - name: Validate speaker registry merge
         run: python tools/voice_pipeline.py init-characters --dry-run
@@ -73,4 +72,15 @@ jobs:
             voice/build/casting/
             tools/voice_profiles.py
             tests/test_voice_profiles.py
+          if-no-files-found: error
+
+      - name: Upload offline working snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-voice-working-snapshot
+          path: |
+            tools/*.py
+            tests/test_voice*.py
+            voice/
+            requirements-voice.txt
           if-no-files-found: error
