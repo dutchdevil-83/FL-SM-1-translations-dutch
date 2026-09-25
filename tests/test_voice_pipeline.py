@@ -108,5 +108,79 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertIn("unresolved-variable:mcname", rows[0]["review_reasons"])
 
 
+    def test_source_resolver_avoids_conflicting_duplicate_ids(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            for language in ("french", "deutsch"):
+                (root / language).mkdir()
+
+            (root / "french" / "sample.rpy").write_text(
+                'translate french line_1234:\n'
+                '    # mc "Correct line."\n'
+                '    mc "Ligne correcte."\n'
+                'translate french line_1234:\n'
+                '    # mct "Wrong duplicate."\n'
+                '    mct "Mauvais doublon."\n',
+                encoding="utf-8",
+            )
+            (root / "deutsch" / "sample.rpy").write_text(
+                'translate deutsch line_1234:\n'
+                '    # mc "Correct line."\n'
+                '    mc "Korrekte Zeile."\n',
+                encoding="utf-8",
+            )
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                selected, warnings = MODULE.select_source_file(
+                    "sample.rpy",
+                    {
+                        "count_reference_language": "french",
+                        "present_in_languages": "french;deutsch",
+                    },
+                    {"reference_language_priority": ["deutsch", "french"]},
+                )
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertIsNotNone(selected)
+        self.assertEqual(selected["language"], "deutsch")
+        self.assertEqual(len(selected["blocks"]), 1)
+        self.assertTrue(any("instead of manifest count reference" in warning for warning in warnings))
+
+    def test_source_resolver_deduplicates_identical_ids(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "french").mkdir()
+            (root / "french" / "sample.rpy").write_text(
+                'translate french line_1234:\n'
+                '    # mc "Same line."\n'
+                '    mc "Même ligne."\n'
+                'translate french line_1234:\n'
+                '    # mc "Same line."\n'
+                '    mc "Même ligne."\n',
+                encoding="utf-8",
+            )
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                selected, warnings = MODULE.select_source_file(
+                    "sample.rpy",
+                    {
+                        "count_reference_language": "french",
+                        "present_in_languages": "french",
+                    },
+                    {"reference_language_priority": ["french"]},
+                )
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(len(selected["blocks"]), 1)
+        self.assertEqual(selected["identical_duplicates"], ["line_1234"])
+        self.assertTrue(any("deduplicated 1 identical" in warning for warning in warnings))
+
+
 if __name__ == "__main__":
     unittest.main()
