@@ -50,6 +50,47 @@ The files describe proposed voices: provider IDs remain empty until real voices 
 created and auditioned. The existing `design-voice` CLI still takes an explicit prompt;
 use the exported request object when all optional casting metadata must be retained.
 
+## Import the original English game source from Windows
+
+The canonical English Ren'Py source can live on another developer machine. Use the importer below from a clean clone of this repository:
+
+```powershell
+& {
+    Set-Location "<repo-root>"
+    pwsh -NoProfile -File .\tools\Import-OriginalGameVoiceSource.ps1
+}
+```
+
+The script opens a Windows folder picker. Select either the game installation folder or its `game` folder.
+
+It then:
+
+- finds original source-like files such as `.rpy`, `.rpym`, `.py`, JSON and configuration files;
+- excludes `game/tl`, compiled files, saves, cache, media, archives and executables;
+- scans selected text files for common credential patterns before committing anything;
+- copies the snapshot to `original-source/game/`;
+- creates `original-source/SOURCE_MANIFEST.json` with SHA-256 hashes and sizes;
+- creates a timestamped branch from `voice/english-gemini-tts`;
+- commits and pushes the snapshot;
+- opens a **draft pull request** against `voice/english-gemini-tts` for review.
+
+Requirements on the developer machine:
+
+```text
+PowerShell 7.2+
+Git
+GitHub CLI (gh), authenticated with gh auth login
+A clean local clone of this repository
+```
+
+No Gemini/TTS request is made by the importer. The imported PR should remain unmerged until the English source has been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
+
+For a local-only dry run without pushing:
+
+```powershell
+pwsh -NoProfile -File .\tools\Import-OriginalGameVoiceSource.ps1 -SkipPush
+```
+
 ## Setup
 
 ```powershell
