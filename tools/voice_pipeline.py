@@ -91,36 +91,133 @@ def prepare_tts_text(text: str, variables: dict[str, str]) -> tuple[str, list[st
     return value, sorted(set(unresolved))
 
 
+def source_signature(block) -> tuple:
+    return tuple((unit.source_shape, unit.source) for unit in block.units)
+
+
+def analyze_source_file(path: Path) -> dict:
+    blocks, problems = VALIDATOR.parse_translation_file(path, strict_missing_targets=False)
+    unique_blocks: dict[str, object] = {}
+    identical_duplicates: list[str] = []
+    conflicts: list[str] = []
+
+    for block in blocks:
+        if block.block_id == "strings":
+            continue
+        existing = unique_blocks.get(block.block_id)
+        if existing is None:
+            unique_blocks[block.block_id] = block
+            continue
+        if source_signature(existing) == source_signature(block):
+            identical_duplicates.append(block.block_id)
+        else:
+            conflicts.append(block.block_id)
+
+    return {
+        "path": path,
+        "blocks": list(unique_blocks.values()),
+        "problems": problems,
+        "identical_duplicates": sorted(set(identical_duplicates)),
+        "conflicts": sorted(set(conflicts)),
+        "unique_block_count": len(unique_blocks),
+        "unit_count": sum(len(block.units) for block in unique_blocks.values()),
+    }
+
+
+def candidate_languages(manifest_row: dict, config: dict) -> list[str]:
+    declared = [
+        value.strip()
+        for value in (manifest_row.get("present_in_languages") or "").split(";")
+        if value.strip()
+    ]
+    reference = (manifest_row.get("count_reference_language") or "").strip()
+    if reference and reference not in declared:
+        declared.append(reference)
+
+    priority = config.get("reference_language_priority", [])
+    rank = {language: index for index, language in enumerate(priority)}
+    return sorted(set(declared), key=lambda language: (rank.get(language, 999), language))
+
+
+def select_source_file(relative_path: str, manifest_row: dict, config: dict) -> tuple[dict | None, list[str]]:
+    warnings: list[str] = []
+    candidates: list[tuple[str, dict]] = []
+
+    for language in candidate_languages(manifest_row, config):
+        path = ROOT / language / relative_path
+        if not path.exists():
+            continue
+        analysis = analyze_source_file(path)
+        candidates.append((language, analysis))
+
+    if not candidates:
+        return None, [f"missing all source-language candidates for: {relative_path}"]
+
+    priority = config.get("reference_language_priority", [])
+    rank = {language: index for index, language in enumerate(priority)}
+
+    def score(item: tuple[str, dict]) -> tuple:
+        language, analysis = item
+        return (
+            1 if not analysis["conflicts"] else 0,
+            1 if not analysis["problems"] else 0,
+            analysis["unique_block_count"],
+            analysis["unit_count"],
+            -rank.get(language, 999),
+        )
+
+    language, best = max(candidates, key=score)
+
+    if best["conflicts"]:
+        details = ", ".join(best["conflicts"][:10])
+        raise RuntimeError(
+            f"no conflict-free source-language file for {relative_path}; "
+            f"best candidate {language!r} still has conflicting translation IDs: {details}"
+        )
+
+    preferred = (manifest_row.get("count_reference_language") or "").strip()
+    if preferred and language != preferred:
+        warnings.append(
+            f"voice source resolver selected {language}/{relative_path} instead of "
+            f"manifest count reference {preferred}/{relative_path}"
+        )
+    if best["identical_duplicates"]:
+        warnings.append(
+            f"deduplicated {len(best['identical_duplicates'])} identical translation ID(s) "
+            f"in {language}/{relative_path}"
+        )
+    for problem in best["problems"]:
+        warnings.append(problem.render())
+
+    best["language"] = language
+    return best, warnings
+
+
 def iter_source_rows(config: dict) -> tuple[list[dict], list[str]]:
     manifest_path = root_path(config["source_manifest"])
     variables = load_variables(config)
     skip_speakers = set(config.get("skip_speakers", []))
-    rows: list[dict] = []
+    rows_by_id: dict[str, dict] = {}
     warnings: list[str] = []
-    seen_ids: Counter[str] = Counter()
+    conflicts: list[str] = []
 
     with manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:
         source_manifest = list(csv.DictReader(handle))
 
     for manifest_row in source_manifest:
         relative_path = (manifest_row.get("relative_path") or "").strip()
-        reference_language = (manifest_row.get("count_reference_language") or "").strip()
-        if not relative_path or not reference_language:
+        if not relative_path:
             continue
 
-        reference_path = ROOT / reference_language / relative_path
-        if not reference_path.exists():
-            warnings.append(f"missing source file: {reference_path.relative_to(ROOT).as_posix()}")
+        selected, selection_warnings = select_source_file(relative_path, manifest_row, config)
+        warnings.extend(selection_warnings)
+        if selected is None:
             continue
 
-        blocks, problems = VALIDATOR.parse_translation_file(reference_path, strict_missing_targets=False)
-        for problem in problems:
-            warnings.append(problem.render())
+        reference_path = selected["path"]
+        reference_language = selected["language"]
 
-        for block in blocks:
-            if block.block_id == "strings":
-                continue
-
+        for block in selected["blocks"]:
             unit_count = len(block.units)
             for unit_index, unit in enumerate(block.units, start=1):
                 speaker = speaker_from_shape(unit.source_shape)
@@ -140,29 +237,56 @@ def iter_source_rows(config: dict) -> tuple[list[dict], list[str]]:
                     reasons.append("multi-unit-translation-block")
 
                 row_id = block.block_id if unit_count == 1 else f"{block.block_id}__u{unit_index}"
-                seen_ids[row_id] += 1
-                rows.append(
-                    {
-                        "id": row_id,
-                        "renpy_id": block.block_id,
-                        "unit_index": unit_index,
-                        "speaker": speaker or "",
-                        "english_text": english_text,
-                        "tts_text": tts_text,
-                        "status": "ready" if not reasons else "needs_review",
-                        "review_reasons": reasons,
-                        "reference_language": reference_language,
-                        "reference_file": reference_path.relative_to(ROOT).as_posix(),
-                        "game_source_file": relative_path,
-                        "source_line": unit.source_line,
-                    }
+                occurrence = {
+                    "reference_language": reference_language,
+                    "reference_file": reference_path.relative_to(ROOT).as_posix(),
+                    "source_line": unit.source_line,
+                }
+                row = {
+                    "id": row_id,
+                    "renpy_id": block.block_id,
+                    "unit_index": unit_index,
+                    "speaker": speaker or "",
+                    "english_text": english_text,
+                    "tts_text": tts_text,
+                    "status": "ready" if not reasons else "needs_review",
+                    "review_reasons": reasons,
+                    "reference_language": reference_language,
+                    "reference_file": reference_path.relative_to(ROOT).as_posix(),
+                    "game_source_file": relative_path,
+                    "source_line": unit.source_line,
+                    "source_occurrences": [occurrence],
+                }
+
+                existing = rows_by_id.get(row_id)
+                if existing is None:
+                    rows_by_id[row_id] = row
+                    continue
+
+                same_voice_line = (
+                    existing["speaker"] == row["speaker"]
+                    and existing["english_text"] == row["english_text"]
+                    and existing["tts_text"] == row["tts_text"]
+                )
+                if same_voice_line:
+                    existing["source_occurrences"].extend(row["source_occurrences"])
+                    warnings.append(
+                        f"deduplicated identical global voice ID {row_id} from {relative_path}"
+                    )
+                    continue
+
+                conflicts.append(
+                    f"{row_id}: {existing['speaker']} {existing['english_text']!r} "
+                    f"vs {row['speaker']} {row['english_text']!r}"
                 )
 
-    duplicates = sorted(key for key, count in seen_ids.items() if count > 1)
-    if duplicates:
-        raise RuntimeError("duplicate voice manifest IDs found: " + ", ".join(duplicates[:20]))
+    if conflicts:
+        raise RuntimeError(
+            "conflicting Ren'Py voice IDs cannot share one config.auto_voice filename: "
+            + " | ".join(conflicts[:20])
+        )
 
-    return rows, warnings
+    return list(rows_by_id.values()), warnings
 
 
 def write_manifest(config: dict, rows: list[dict], warnings: list[str]) -> None:
@@ -175,6 +299,7 @@ def write_manifest(config: dict, rows: list[dict], warnings: list[str]) -> None:
             handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
 
     speaker_counts = Counter(row["speaker"] for row in rows if row["speaker"])
+    source_language_counts = Counter(row["reference_language"] for row in rows)
     ready_count = sum(row["status"] == "ready" for row in rows)
     stats = {
         "total_lines": len(rows),
@@ -182,6 +307,7 @@ def write_manifest(config: dict, rows: list[dict], warnings: list[str]) -> None:
         "needs_review_lines": len(rows) - ready_count,
         "speaker_count": len(speaker_counts),
         "speakers": dict(sorted(speaker_counts.items(), key=lambda item: (-item[1], item[0]))),
+        "source_languages": dict(sorted(source_language_counts.items())),
         "warnings": warnings,
     }
     write_json(stats_path, stats)

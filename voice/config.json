@@ -17,5 +17,16 @@
   "default_style": "natural conversational delivery, clean studio sound",
   "skip_speakers": [
     "extend"
+  ],
+  "reference_language_priority": [
+    "deutsch",
+    "italian",
+    "french",
+    "spanish",
+    "portuguese",
+    "turkish",
+    "chinese",
+    "magyar",
+    "ukrainian"
   ]
 }

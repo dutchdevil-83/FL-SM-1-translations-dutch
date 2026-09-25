@@ -6,7 +6,7 @@ This branch is intentionally separate from the Dutch subtitle work.
 
 - Spoken dialogue stays English.
 - Dutch translation files are only used as project metadata; the spoken source text comes from the embedded English source comments already present in the upstream translation files.
-- The existing `docs/dutch/PHASE0_FILE_MANIFEST.csv` decides which complete language file is the best source for each Ren'Py file, so voice extraction does not depend on how far the Dutch translation has progressed.
+- The existing `docs/dutch/PHASE0_FILE_MANIFEST.csv` supplies the scene inventory. For each scene the voice extractor inspects all available translation-language copies and chooses the cleanest, most complete embedded-English source. This avoids inheriting duplicate/corrupt translation IDs from one language while remaining independent of Dutch translation progress.
 - Generated audio is not committed by default. Raw/generated files are ignored to avoid turning the repository into a multi-gigabyte audio dump.
 
 ## Models
