@@ -19,7 +19,9 @@ On a Gemini Developer API **Free Tier** project, Standard input and audio output
 
 Each real character should receive one persistent `voice_...` ID. The `mct` speaker is configured to reuse the main character voice by default, with a different delivery style.
 
-For the project-specific Google AI Studio setup, Voice Design workflow, API-key setup, Free Tier notes and an optional AI Studio Build-mode casting dashboard prompt, see [AI_STUDIO_SETUP.md](AI_STUDIO_SETUP.md).
+For the project-specific Google AI Studio setup, Voice Design workflow, API-key setup and Free Tier notes, see [AI_STUDIO_SETUP.md](AI_STUDIO_SETUP.md).
+
+For a ready-to-paste Google AI Studio Build-mode prompt that creates a full-stack casting/review dashboard for this exact project, see [AI_STUDIO_BUILD_PROMPT.md](AI_STUDIO_BUILD_PROMPT.md).
 
 ## Setup
 
