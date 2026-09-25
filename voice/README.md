@@ -52,12 +52,11 @@ use the exported request object when all optional casting metadata must be retai
 
 ## Import the original English game source from Windows
 
-The canonical English Ren'Py source can live on another developer machine. Use the importer below from a clean clone of this repository:
+The canonical English Ren'Py source can live on another developer machine. The importer defaults to the local clone at `X:\\dev\\personal\\FL-SM-1-translations-dutch`.
 
 ```powershell
 & {
-    Set-Location "<repo-root>"
-    pwsh -NoProfile -File .\tools\Import-OriginalGameVoiceSource.ps1
+    pwsh -NoProfile -File "X:\dev\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1"
 }
 ```
 
@@ -88,7 +87,7 @@ No Gemini/TTS request is made by the importer. The imported PR should remain unm
 For a local-only dry run without pushing:
 
 ```powershell
-pwsh -NoProfile -File .\tools\Import-OriginalGameVoiceSource.ps1 -SkipPush
+pwsh -NoProfile -File "X:\dev\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1" -SkipPush
 ```
 
 ## Setup
