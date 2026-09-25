@@ -15,7 +15,11 @@ This branch is intentionally separate from the Dutch subtitle work.
 - Final: `gemini-3.8-flash-tts`
 - Voice design: `gemini-3.8-flash-tts`
 
+On a Gemini Developer API **Free Tier** project, Standard input and audio output for these two TTS models are currently listed by Google as free of charge. Requests still consume the project's applicable Free Tier quota and rate limits. Enabling billing changes the project's usage tier and paid pricing can then apply.
+
 Each real character should receive one persistent `voice_...` ID. The `mct` speaker is configured to reuse the main character voice by default, with a different delivery style.
+
+For the project-specific Google AI Studio setup, Voice Design workflow, API-key setup, Free Tier notes and an optional AI Studio Build-mode casting dashboard prompt, see [AI_STUDIO_SETUP.md](AI_STUDIO_SETUP.md).
 
 ## Setup
 
@@ -148,6 +152,10 @@ Use `voice/line_overrides.json` for reviewed one-off changes:
 
 An override can also contain `"skip": true`.
 
-## Safety against accidental API spend
+## Safety against accidental quota consumption
 
-Extraction, tests, registry initialization and encoding do not call Gemini. Only `design-voice` and `synthesize` make paid API requests.
+Extraction, tests, registry initialization and encoding do not call Gemini. Only `design-voice` and `synthesize` consume Gemini API quota.
+
+When the API key belongs to a Gemini Developer API Free Tier project, supported Standard requests to the configured Gemini 3.8 TTS models are free of charge within that project's active Free Tier limits. The pipeline does not require billing, Batch or Flex mode.
+
+Generated files are skipped on reruns unless `--force` is supplied, which also prevents wasting quota after a rate-limit interruption.
