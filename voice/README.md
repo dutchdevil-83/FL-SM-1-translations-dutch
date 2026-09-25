@@ -52,15 +52,15 @@ use the exported request object when all optional casting metadata must be retai
 
 ## Import the original English game source from Windows
 
-The canonical English Ren'Py source can live on another developer machine. The importer defaults to the primary clone at `X:\\dev\\personal\\FL-SM-1-translations-dutch`, then automatically resolves the Git worktree that has `voice/english-gemini-tts` checked out. Tooling work stays on that canonical voice branch.
+The canonical English Ren'Py source can live on another developer machine. The importer defaults to the primary clone at `X:\\dev\\repos\\personal\\FL-SM-1-translations-dutch`, then automatically resolves the Git worktree that has `voice/english-gemini-tts` checked out. Tooling work stays on that canonical voice branch.
 
 ```powershell
 & {
-    pwsh -NoProfile -File "X:\dev\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1"
+    pwsh -NoProfile -File "X:\dev\repos\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1"
 }
 ```
 
-The script opens a Windows folder picker. Select either the game installation folder or its `game` folder.
+The importer now defaults to the installed game at `E:\\Games\\Fetish Locator SM Studio`. If that folder is unavailable, it falls back to a Windows folder picker where either the installation folder or its `game` folder can be selected.
 
 It then:
 
@@ -81,7 +81,7 @@ Requirements on the developer machine:
 PowerShell 7.2+
 Git
 GitHub CLI (gh), authenticated with gh auth login
-A local clone at `X:\dev\personal\FL-SM-1-translations-dutch` and a clean worktree with `voice/english-gemini-tts` checked out
+A local clone at `X:\dev\repos\personal\FL-SM-1-translations-dutch` and a clean worktree with `voice/english-gemini-tts` checked out
 ```
 
 No Gemini/TTS request is made by the importer. The imported PR should remain unmerged until the English source has been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
@@ -89,7 +89,7 @@ No Gemini/TTS request is made by the importer. The imported PR should remain unm
 For a local-only dry run without pushing:
 
 ```powershell
-pwsh -NoProfile -File "X:\dev\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1" -SkipPush
+pwsh -NoProfile -File "X:\dev\repos\personal\FL-SM-1-translations-dutch\tools\Import-OriginalGameVoiceSource.ps1" -SkipPush
 ```
 
 ## Setup
