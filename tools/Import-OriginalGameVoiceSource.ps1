@@ -5,7 +5,7 @@ Scans an original English Ren'Py game folder, imports only source-like files nee
 for voice work, and opens a draft GitHub pull request for review.
 
 Script name: Import-OriginalGameVoiceSource.ps1
-Version: 202609.25
+Version: 202609.26
 Author: Marco's Copilot
 
 .DESCRIPTION
@@ -21,11 +21,12 @@ opens a draft pull request against the English voice branch.
 No Gemini or other AI API calls are made by this script.
 
 .PARAMETER GamePath
-Optional path to the game installation root or directly to its game folder. When
-omitted, a Windows folder picker is shown.
+Path to the game installation root or directly to its game folder. Defaults to
+E:\Games\Fetish Locator SM Studio. If the configured path is unavailable, a Windows
+folder picker is shown.
 
 .PARAMETER RepositoryPath
-Path to the primary local clone of this repository. Defaults to X:\dev\personal\FL-SM-1-translations-dutch. The script auto-detects the worktree that has the English voice branch checked out.
+Path to the primary local clone of this repository. Defaults to X:\dev\repos\personal\FL-SM-1-translations-dutch. The script auto-detects the worktree that has the English voice branch checked out.
 
 .PARAMETER BaseBranch
 Git branch that receives the source-import pull request.
@@ -56,10 +57,10 @@ The scan never prints the suspected secret value.
 [CmdletBinding()]
 param(
     [Parameter()]
-    [string]$GamePath,
+    [string]$GamePath = 'E:\Games\Fetish Locator SM Studio',
 
     [Parameter()]
-    [string]$RepositoryPath = 'X:\dev\personal\FL-SM-1-translations-dutch',
+    [string]$RepositoryPath = 'X:\dev\repos\personal\FL-SM-1-translations-dutch',
 
     [Parameter()]
     [string]$BaseBranch = 'voice/english-gemini-tts',
@@ -83,7 +84,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$script:ScriptVersion = '202609.25'
+$script:ScriptVersion = '202609.26'
 $script:RepositoryRoot = $null
 $script:TranscriptStarted = $false
 
@@ -752,7 +753,11 @@ try {
     Write-Status -Message "Voice branch: $BaseBranch"
     Invoke-Git -Arguments @('pull', '--ff-only', 'origin', $BaseBranch)
 
-    if (-not $GamePath) {
+    if (-not $GamePath -or -not (Test-Path -LiteralPath $GamePath -PathType Container)) {
+        if ($GamePath) {
+            Write-Status -Level Warning -Message "Configured game path was not found: $GamePath"
+        }
+
         $GamePath = Select-GameFolder
     }
 
