@@ -127,8 +127,11 @@ def discover_candidates(repo_root: Path, languages: list[str]) -> dict[str, list
     for language in languages:
         root = repo_root / language
         if not root.is_dir():
-            missing_roots.append(language)
-            continue
+            wip_root = repo_root / "WIP" / language
+            if not wip_root.is_dir():
+                missing_roots.append(language)
+                continue
+            root = wip_root
         for file_path in root.rglob("*.rpy"):
             if not file_path.is_file():
                 continue
