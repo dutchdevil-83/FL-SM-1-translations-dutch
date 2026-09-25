@@ -25,7 +25,7 @@ Optional path to the game installation root or directly to its game folder. When
 omitted, a Windows folder picker is shown.
 
 .PARAMETER RepositoryPath
-Path to the local clone of this repository. Defaults to X:\dev\personal\FL-SM-1-translations-dutch.
+Path to the primary local clone of this repository. Defaults to X:\dev\personal\FL-SM-1-translations-dutch. The script auto-detects the worktree that has the English voice branch checked out.
 
 .PARAMETER BaseBranch
 Git branch that receives the source-import pull request.
@@ -280,19 +280,80 @@ function Test-Repository {
         throw "RepositoryPath is not inside a Git repository: $resolvedPath"
     }
 
-    $script:RepositoryRoot = ($topLevel | Out-String).Trim()
-
-    $dirty = Invoke-Git -Arguments @('status', '--porcelain') -Capture
-    if ($dirty) {
-        throw 'The repository has uncommitted changes. Commit or stash them before running the source importer.'
-    }
+    $repositoryRoot = ($topLevel | Out-String).Trim()
+    $script:RepositoryRoot = $repositoryRoot
 
     $origin = Invoke-Git -Arguments @('remote', 'get-url', 'origin') -Capture
     if (-not $origin) {
         throw 'The repository does not have an origin remote.'
     }
 
-    return $script:RepositoryRoot
+    return $repositoryRoot
+}
+
+function Get-BranchWorktree {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepositoryRoot,
+
+        [Parameter(Mandatory)]
+        [string]$BranchName
+    )
+
+    $output = & git -C $RepositoryRoot worktree list --porcelain 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to enumerate Git worktrees: $(($output | Out-String).Trim())"
+    }
+
+    $currentPath = $null
+    $currentBranch = $null
+    $matches = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($line in @($output) + '') {
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            if ($currentPath -and $currentBranch -eq "refs/heads/$BranchName") {
+                $matches.Add($currentPath)
+            }
+
+            $currentPath = $null
+            $currentBranch = $null
+            continue
+        }
+
+        if ($line -like 'worktree *') {
+            $currentPath = $line.Substring(9)
+            continue
+        }
+
+        if ($line -like 'branch *') {
+            $currentBranch = $line.Substring(7)
+        }
+    }
+
+    if ($matches.Count -gt 1) {
+        throw "More than one worktree reports branch '$BranchName': $($matches -join ', ')"
+    }
+
+    if ($matches.Count -eq 1) {
+        return (Resolve-Path -LiteralPath $matches[0]).Path
+    }
+
+    $currentBranchName = (& git -C $RepositoryRoot branch --show-current 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -eq 0 -and $currentBranchName -eq $BranchName) {
+        return $RepositoryRoot
+    }
+
+    throw @"
+No Git worktree has '$BranchName' checked out.
+
+Create or switch a worktree for the voice branch first. The primary clone remains:
+$RepositoryRoot
+
+Example:
+  git -C "$RepositoryRoot" fetch origin
+  git -C "$RepositoryRoot" switch $BranchName
+"@
 }
 
 function Get-SourceScan {
@@ -599,6 +660,9 @@ function New-DraftPullRequest {
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $logPath = Join-Path $env:TEMP "Import-OriginalGameVoiceSource-$timestamp.log"
+$voiceWorktreeRoot = $null
+$importWorktreePath = $null
+$removeImportWorktree = $false
 
 try {
     Start-Transcript -Path $logPath -Force | Out-Null
@@ -606,8 +670,29 @@ try {
 
     Write-Status -Message "Log: $logPath"
 
-    $script:RepositoryRoot = Test-Repository -Path $RepositoryPath
-    Write-Status -Message "Repository: $script:RepositoryRoot"
+    $primaryRepositoryRoot = Test-Repository -Path $RepositoryPath
+    Write-Status -Message "Primary repository: $primaryRepositoryRoot"
+
+    Write-Status -Message "Fetching origin before resolving the voice worktree."
+    Invoke-Git -Arguments @('fetch', 'origin', '--prune')
+    [void](Invoke-Git -Arguments @('rev-parse', '--verify', "origin/$BaseBranch") -Capture)
+
+    $voiceWorktreeRoot = Get-BranchWorktree -RepositoryRoot $primaryRepositoryRoot -BranchName $BaseBranch
+    $script:RepositoryRoot = $voiceWorktreeRoot
+
+    $activeBranch = Invoke-Git -Arguments @('branch', '--show-current') -Capture
+    if ($activeBranch -ne $BaseBranch) {
+        throw "Resolved worktree is on '$activeBranch' instead of '$BaseBranch': $voiceWorktreeRoot"
+    }
+
+    $dirty = Invoke-Git -Arguments @('status', '--porcelain') -Capture
+    if ($dirty) {
+        throw "The voice worktree has uncommitted changes. Commit or stash them first: $voiceWorktreeRoot"
+    }
+
+    Write-Status -Message "Voice worktree: $voiceWorktreeRoot"
+    Write-Status -Message "Voice branch: $BaseBranch"
+    Invoke-Git -Arguments @('pull', '--ff-only', 'origin', $BaseBranch)
 
     if (-not $GamePath) {
         $GamePath = Select-GameFolder
@@ -637,10 +722,6 @@ try {
         }
     }
 
-    Write-Status -Message "Fetching origin/$BaseBranch."
-    Invoke-Git -Arguments @('fetch', 'origin', '--prune')
-    [void](Invoke-Git -Arguments @('rev-parse', '--verify', "origin/$BaseBranch") -Capture)
-
     if (-not $BranchName) {
         $BranchName = "voice/import-original-source-$timestamp"
     }
@@ -658,8 +739,21 @@ try {
     $repositorySlug = Get-RepositorySlug
     Write-Status -Message "GitHub repository: $repositorySlug"
 
-    Write-Status -Message "Creating branch $BranchName from origin/$BaseBranch."
-    Invoke-Git -Arguments @('switch', '--create', $BranchName, "origin/$BaseBranch")
+    $safeRepositoryName = ($repositorySlug -split '/')[1] -replace '[^A-Za-z0-9._-]', '-'
+    $importWorktreePath = Join-Path $env:TEMP "$safeRepositoryName-source-import-$timestamp"
+
+    if (Test-Path -LiteralPath $importWorktreePath) {
+        throw "Temporary import worktree path already exists: $importWorktreePath"
+    }
+
+    Write-Status -Message "Creating temporary PR worktree for $BranchName."
+    $worktreeOutput = & git -C $voiceWorktreeRoot worktree add -b $BranchName $importWorktreePath "origin/$BaseBranch" 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to create import worktree: $(($worktreeOutput | Out-String).Trim())"
+    }
+
+    $script:RepositoryRoot = $importWorktreePath
+    Write-Status -Message "Temporary import worktree: $importWorktreePath"
 
     $destinationRoot = Get-SafeDestination -RelativePath $DestinationRelativePath
     $copyParameters = @{
@@ -691,6 +785,7 @@ try {
     if ($SkipPush) {
         Write-Status -Level Warning -Message 'Push skipped. No pull request was created.'
         Write-Status -Level Success -Message "Local import branch ready: $BranchName"
+        Write-Status -Message "Import worktree retained for inspection: $importWorktreePath"
         return
     }
 
@@ -700,6 +795,7 @@ try {
     if ($SkipPullRequest) {
         Write-Status -Level Warning -Message 'Draft pull request creation skipped.'
         Write-Status -Level Success -Message "Remote import branch ready: $BranchName"
+        $removeImportWorktree = $true
         return
     }
 
@@ -713,6 +809,7 @@ try {
 
     Write-Status -Level Success -Message "Draft pull request created: $pullRequestUrl"
     Write-Status -Message 'Leave the PR unmerged so the imported English source can be reviewed first.'
+    $removeImportWorktree = $true
 }
 catch {
     Write-Status -Level Warning -Message $_.Exception.Message
@@ -720,6 +817,25 @@ catch {
     throw
 }
 finally {
+    if ($removeImportWorktree -and $voiceWorktreeRoot -and $importWorktreePath -and (Test-Path -LiteralPath $importWorktreePath)) {
+        try {
+            $script:RepositoryRoot = $voiceWorktreeRoot
+            $removeOutput = & git -C $voiceWorktreeRoot worktree remove --force $importWorktreePath 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Status -Level Warning -Message "Could not remove temporary import worktree: $(($removeOutput | Out-String).Trim())"
+            }
+            else {
+                Write-Status -Message "Removed temporary import worktree: $importWorktreePath"
+            }
+        }
+        catch {
+            Write-Status -Level Warning -Message "Could not clean up temporary import worktree: $($_.Exception.Message)"
+        }
+    }
+    elseif ($importWorktreePath -and (Test-Path -LiteralPath $importWorktreePath)) {
+        Write-Status -Message "Import worktree retained: $importWorktreePath"
+    }
+
     if ($script:TranscriptStarted) {
         Stop-Transcript | Out-Null
     }
