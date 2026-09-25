@@ -1,0 +1,50 @@
+name: English voice pipeline checks
+
+on:
+  push:
+    branches:
+      - voice/english-gemini-tts
+    paths:
+      - "voice/**"
+      - "tools/voice_pipeline.py"
+      - "tests/test_voice_pipeline.py"
+      - "requirements-voice.txt"
+      - ".github/workflows/voice-pipeline.yml"
+  pull_request:
+    paths:
+      - "voice/**"
+      - "tools/voice_pipeline.py"
+      - "tests/test_voice_pipeline.py"
+      - "requirements-voice.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run voice pipeline unit tests
+        run: python -m unittest tests.test_voice_pipeline -v
+
+      - name: Extract English dialogue manifest
+        run: python tools/voice_pipeline.py extract
+
+      - name: Validate speaker registry merge
+        run: python tools/voice_pipeline.py init-characters --dry-run
+
+      - name: Upload extraction diagnostics
+        uses: actions/upload-artifact@v6
+        with:
+          name: english-voice-extraction
+          path: voice/build/
+          if-no-files-found: error

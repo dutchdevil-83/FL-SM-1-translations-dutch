@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "characters": {
+    "mc": {
+      "display_name": "Main character",
+      "voice_id": "",
+      "voice_ref": "",
+      "language_code": "en-US",
+      "design_prompt": "",
+      "default_style": "natural conversational delivery",
+      "enabled": true
+    },
+    "mct": {
+      "display_name": "Main character thoughts",
+      "voice_id": "",
+      "voice_ref": "mc",
+      "language_code": "en-US",
+      "design_prompt": "",
+      "default_style": "quiet internal monologue, thoughtful and close-mic",
+      "enabled": true
+    }
+  }
+}
