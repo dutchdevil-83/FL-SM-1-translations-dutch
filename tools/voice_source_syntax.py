@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recover original speaker syntax without changing dialogue or translation files."""
+"""Recover source syntax and alternate malformed-block evidence without source edits."""
 from __future__ import annotations
 
 import hashlib
@@ -15,9 +15,12 @@ sys.modules[SPEC.name] = VALIDATOR
 SPEC.loader.exec_module(VALIDATOR)
 
 
+def read_manifest(root: Path) -> list[dict]:
+    return [json.loads(line) for line in (root / "voice/build/dialogue_manifest.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
 def collect(root: Path = ROOT) -> list[dict]:
-    manifest = root / "voice/build/dialogue_manifest.jsonl"
-    rows = [json.loads(line) for line in manifest.read_text(encoding="utf-8").splitlines() if line.strip()]
+    rows = read_manifest(root)
     cache: dict[str, list[str]] = {}
     result = []
     for row in rows:
@@ -42,13 +45,41 @@ def collect(root: Path = ROOT) -> list[dict]:
     return result
 
 
+def alternate_evidence(root: Path = ROOT) -> dict:
+    rows = read_manifest(root)
+    paths = {row["game_source_file"] for row in rows if "multi-unit-translation-block" in row["review_reasons"]}
+    result = {}
+    # Capture complete block metadata in the few affected scenes. It exposes the original
+    # identifiers for orphan comments without assuming adjacent translation order is runtime order.
+    for relative in sorted(paths):
+        result[relative] = {}
+        for language in ("deutsch", "italian", "french", "spanish", "portuguese", "turkish", "chinese"):
+            path = (root / language / relative).resolve()
+            if root.resolve() not in path.parents:
+                raise ValueError("Candidate source escapes the repository")
+            if not path.exists():
+                continue
+            blocks, problems = VALIDATOR.parse_translation_file(path, strict_missing_targets=False)
+            result[relative][language] = {
+                "path": path.relative_to(root).as_posix(),
+                "file_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "parse_problem_count": len(problems),
+                "blocks": [{"id": b.block_id, "line": b.line,
+                            "units": [{"literals": list(u.source), "shape": u.source_shape,
+                                       "source_line": u.source_line} for u in b.units]}
+                           for b in blocks if b.block_id != "strings"]}
+    return {"schema_version": 1, "scenes": result}
+
+
 def main() -> None:
     result = collect()
     output = ROOT / "voice/build/speaker_syntax.jsonl"
     temporary = output.with_suffix(".tmp")
     temporary.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in result), encoding="utf-8")
     temporary.replace(output)
-    print(f"Preserved speaker syntax for {len(result)} dialogue rows. API calls: 0.")
+    evidence = ROOT / "voice/build/source_candidates.json"
+    evidence.write_text(json.dumps(alternate_evidence(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"Preserved speaker syntax for {len(result)} dialogue rows and alternate malformed-scene evidence. API calls: 0.")
 
 
 if __name__ == "__main__":
