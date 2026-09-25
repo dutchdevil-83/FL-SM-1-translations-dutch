@@ -52,7 +52,7 @@ use the exported request object when all optional casting metadata must be retai
 
 ## Import the original English game source from Windows
 
-The canonical English Ren'Py source can live on another developer machine. The importer defaults to the local clone at `X:\\dev\\personal\\FL-SM-1-translations-dutch`.
+The canonical English Ren'Py source can live on another developer machine. The importer defaults to the primary clone at `X:\\dev\\personal\\FL-SM-1-translations-dutch`, then automatically resolves the Git worktree that has `voice/english-gemini-tts` checked out. Tooling work stays on that canonical voice branch.
 
 ```powershell
 & {
@@ -69,9 +69,11 @@ It then:
 - scans selected text files for common credential patterns before committing anything;
 - copies the snapshot to `original-source/game/`;
 - creates `original-source/SOURCE_MANIFEST.json` with SHA-256 hashes and sizes;
-- creates a timestamped branch from `voice/english-gemini-tts`;
+- keeps the canonical voice worktree on `voice/english-gemini-tts`;
+- creates a temporary Git worktree and timestamped branch from that voice branch only for the imported source snapshot;
 - commits and pushes the snapshot;
-- opens a **draft pull request** against `voice/english-gemini-tts` for review.
+- opens a **draft pull request** against `voice/english-gemini-tts` for review;
+- removes the temporary import worktree after a successful push/PR, while leaving the canonical voice worktree untouched.
 
 Requirements on the developer machine:
 
@@ -79,7 +81,7 @@ Requirements on the developer machine:
 PowerShell 7.2+
 Git
 GitHub CLI (gh), authenticated with gh auth login
-A clean local clone of this repository
+A local clone at `X:\dev\personal\FL-SM-1-translations-dutch` and a clean worktree with `voice/english-gemini-tts` checked out
 ```
 
 No Gemini/TTS request is made by the importer. The imported PR should remain unmerged until the English source has been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
