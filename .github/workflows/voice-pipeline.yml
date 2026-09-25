@@ -7,20 +7,29 @@ on:
     paths:
       - "voice/**"
       - "tools/voice_pipeline.py"
+      - "tools/voice_profiles.py"
       - "tests/test_voice_pipeline.py"
+      - "tests/test_voice_profiles.py"
       - "requirements-voice.txt"
       - ".github/workflows/voice-pipeline.yml"
   pull_request:
     paths:
       - "voice/**"
       - "tools/voice_pipeline.py"
+      - "tools/voice_profiles.py"
       - "tests/test_voice_pipeline.py"
+      - "tests/test_voice_profiles.py"
       - "requirements-voice.txt"
+      - ".github/workflows/voice-pipeline.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,8 +39,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run voice pipeline unit tests
-        run: python -m unittest tests.test_voice_pipeline -v
+      - name: Run voice pipeline and profile tests
+        run: python -m unittest discover -s tests -p "test_voice*.py" -v
 
       - name: Extract English dialogue manifest
         run: python tools/voice_pipeline.py extract
@@ -39,9 +48,29 @@ jobs:
       - name: Validate speaker registry merge
         run: python tools/voice_pipeline.py init-characters --dry-run
 
+      - name: Validate character coverage and evidence
+        run: python tools/voice_profiles.py validate
+
+      - name: Export character profiles without API calls
+        run: python tools/voice_profiles.py export
+
       - name: Upload extraction diagnostics
         uses: actions/upload-artifact@v4
         with:
           name: english-voice-extraction
           path: voice/build/
+          if-no-files-found: error
+
+      - name: Upload character casting pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-character-casting-pack
+          path: |
+            voice/characters.json
+            voice/character_sources.json
+            voice/CHARACTER_RESEARCH.md
+            voice/MODEL_INPUTS.md
+            voice/build/casting/
+            tools/voice_profiles.py
+            tests/test_voice_profiles.py
           if-no-files-found: error

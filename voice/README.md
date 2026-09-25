@@ -23,6 +23,33 @@ For the project-specific Google AI Studio setup, Voice Design workflow, API-key 
 
 For a ready-to-paste Google AI Studio Build-mode prompt that creates a full-stack casting/review dashboard for this exact project, see [AI_STUDIO_BUILD_PROMPT.md](AI_STUDIO_BUILD_PROMPT.md).
 
+## Researched character casting pack
+
+The registry now covers the 58 nonempty speaker tokens in the English manifest.
+[CHARACTER_RESEARCH.md](CHARACTER_RESEARCH.md) records confirmed facts, proposed casting
+directions, cross-game matches and unresolved identities. Unknown canonical ages are
+not replaced by invented facts. [MODEL_INPUTS.md](MODEL_INPUTS.md) documents the supported
+Gemini creation fields and the distinction between discovery metadata and voice direction.
+
+After extraction, validate and export the individual profile/request files without
+making any Gemini calls:
+
+```powershell
+python tools/voice_profiles.py validate
+python tools/voice_profiles.py export
+```
+
+The export under `voice/build/casting/` contains 58 profiles and 50 eligible Voice Design
+request files. Two protagonist aliases reuse `mc`; six uncertain or dynamic speaker
+bindings remain disabled. Another 474 manifest rows lack a resolved speaker token and
+are listed separately for review. These counts are a source snapshot, not a claim that
+all distinct characters or every game line have already been cast.
+
+GitHub Actions publishes the resulting `english-character-casting-pack` artifact.
+The files describe proposed voices: provider IDs remain empty until real voices are
+created and auditioned. The existing `design-voice` CLI still takes an explicit prompt;
+use the exported request object when all optional casting metadata must be retained.
+
 ## Setup
 
 ```powershell
@@ -156,7 +183,7 @@ An override can also contain `"skip": true`.
 
 ## Safety against accidental quota consumption
 
-Extraction, tests, registry initialization and encoding do not call Gemini. Only `design-voice` and `synthesize` consume Gemini API quota.
+Extraction, tests, registry initialization, profile validation/export and encoding do not call Gemini. Only `design-voice` and `synthesize` consume Gemini API quota.
 
 When the API key belongs to a Gemini Developer API Free Tier project, supported Standard requests to the configured Gemini 3.8 TTS models are free of charge within that project's active Free Tier limits. The pipeline does not require billing, Batch or Flex mode.
 

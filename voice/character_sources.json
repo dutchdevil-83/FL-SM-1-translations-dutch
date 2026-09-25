@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-25",
+  "sources": {
+    "sm_names": {
+      "type": "official_game_repository",
+      "url": "https://github.com/vinovella/FL-SM-1-translations/blob/master/chinese/code/data/characters/names.rpy",
+      "blob_sha": "189052e5ffa138e8ffe89d502c0499de71d6da14",
+      "scope": "Names and route-variable default name. Names-list adjacency alone is not an identity binding."
+    },
+    "sm_store": {
+      "type": "developer_store",
+      "url": "https://vinovella.itch.io/fetish-locator-sm-studio",
+      "scope": "Sequel framing and broad roles/personality descriptions; not exact ages or recorded voices."
+    },
+    "tu_store": {
+      "type": "developer_store",
+      "url": "https://vinovella.itch.io/taboo-university-book-one",
+      "scope": "Title, prequel timeframe and separate protagonist; not a license to merge all shared tokens."
+    },
+    "tu_names": {
+      "type": "official_game_repository",
+      "url": "https://github.com/vinovella/VU-book-1-translations/blob/master/deutsch/code/data/characters.rpy",
+      "blob_sha": "db968f2eac1cc554a7632195779f8e4f507da1ef",
+      "scope": "Includes Zemfira, Eliina, Ridley, Stacy, Daisy, Lyssa and Nari; exact identity and era require contextual confirmation."
+    },
+    "tu_bios": {
+      "type": "official_game_repository",
+      "url": "https://github.com/vinovella/VU-book-1-translations/blob/master/deutsch/code/data/ib_descriptions.rpy",
+      "blob_sha": "0f125cf4ceff2fd5a25e78d5a75a9f1cd57c89d5",
+      "scope": "Explicitly named Zemfira notes; anonymous adjacent descriptions were not automatically assigned."
+    },
+    "sm_amrose_post": {
+      "type": "developer_steam_announcement",
+      "url": "https://store.steampowered.com/news/posts/?enddate=1753724063&feed=steam_community_announcements",
+      "scope": "July 28, 2025 AmRose Jenkins announcement: returning friend, former roommate of the protagonist's first girlfriend."
+    },
+    "sm_lyssa_post": {
+      "type": "developer_steam_announcement",
+      "url": "https://store.steampowered.com/news/posts/?enddate=1754691028&feed=steam_community_announcements",
+      "scope": "August 8, 2025 Lyssa Harris announcement: lawyer, humor and recurring trilogy identity."
+    },
+    "google_voice_design": {
+      "type": "official_api_documentation",
+      "url": "https://ai.google.dev/gemini-api/docs/generate-content/voice-design",
+      "scope": "Documented prompted Voice creation request and output-only voice ID/sample."
+    },
+    "google_tts": {
+      "type": "official_api_documentation",
+      "url": "https://ai.google.dev/gemini-api/docs/speech-generation",
+      "scope": "Interactions TTS request, speech_metadata, audio format, voice listing filters and custom-voice limitations."
+    },
+    "fl1_names": {
+      "type": "official_game_repository",
+      "url": "https://github.com/vinovella/FL-week-1-translations/blob/master/deutsch/code/characters.rpy",
+      "blob_sha": "61d25abd2876ac853788fa1adc14775b45cbc6f9",
+      "scope": "Names include Hana, Min, Stacy, Daisy and Lyssa; no exact ages in this file."
+    },
+    "google_voices_reference": {
+      "type": "official_api_documentation",
+      "url": "https://ai.google.dev/api/voices",
+      "scope": "CreateVoice input resource, optional discovery metadata, Pitch enum and response-only fields."
+    },
+    "google_openapi": {
+      "type": "official_api_schema",
+      "url": "https://ai.google.dev/static/api/interactions.openapi.json",
+      "scope": "CreateVoiceRequest, Voice, PromptedVoice and Pitch schemas. Checked 2026-09-25; prompted voices require store=true."
+    }
+  }
+}
