@@ -25,7 +25,7 @@ Optional path to the game installation root or directly to its game folder. When
 omitted, a Windows folder picker is shown.
 
 .PARAMETER RepositoryPath
-Path to the local clone of this repository. Defaults to the current directory.
+Path to the local clone of this repository. Defaults to X:\dev\personal\FL-SM-1-translations-dutch.
 
 .PARAMETER BaseBranch
 Git branch that receives the source-import pull request.
@@ -59,7 +59,7 @@ param(
     [string]$GamePath,
 
     [Parameter()]
-    [string]$RepositoryPath = (Get-Location).Path,
+    [string]$RepositoryPath = 'X:\dev\personal\FL-SM-1-translations-dutch',
 
     [Parameter()]
     [string]$BaseBranch = 'voice/english-gemini-tts',
