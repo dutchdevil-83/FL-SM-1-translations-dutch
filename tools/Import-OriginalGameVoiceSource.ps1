@@ -339,21 +339,79 @@ function Get-BranchWorktree {
         return (Resolve-Path -LiteralPath $matches[0]).Path
     }
 
-    $currentBranchName = (& git -C $RepositoryRoot branch --show-current 2>&1 | Out-String).Trim()
-    if ($LASTEXITCODE -eq 0 -and $currentBranchName -eq $BranchName) {
+    return $null
+}
+
+function Initialize-BranchWorktree {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepositoryRoot,
+
+        [Parameter(Mandatory)]
+        [string]$BranchName
+    )
+
+    $existing = Get-BranchWorktree -RepositoryRoot $RepositoryRoot -BranchName $BranchName
+    if ($existing) {
+        return $existing
+    }
+
+    $status = & git -C $RepositoryRoot status --porcelain 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to inspect repository status: $(($status | Out-String).Trim())"
+    }
+
+    if (-not ($status | Out-String).Trim()) {
+        Write-Status -Message "No worktree currently has $BranchName checked out. Switching the clean primary clone to that branch."
+
+        $switchOutput = & git -C $RepositoryRoot switch $BranchName 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            $switchOutput = & git -C $RepositoryRoot switch --create $BranchName --track "origin/$BranchName" 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                throw "Unable to switch the primary clone to $BranchName: $(($switchOutput | Out-String).Trim())"
+            }
+        }
+
         return $RepositoryRoot
     }
 
-    throw @"
-No Git worktree has '$BranchName' checked out.
+    $repositoryName = Split-Path -Leaf $RepositoryRoot
+    $safeBranchName = $BranchName -replace '[^A-Za-z0-9._-]', '-'
+    $worktreePath = Join-Path (Split-Path -Parent $RepositoryRoot) "$repositoryName-$safeBranchName"
 
-Create or switch a worktree for the voice branch first. The primary clone remains:
-$RepositoryRoot
+    if (Test-Path -LiteralPath $worktreePath) {
+        $candidateRoot = (& git -C $worktreePath rev-parse --show-toplevel 2>$null | Out-String).Trim()
+        $candidateBranch = (& git -C $worktreePath branch --show-current 2>$null | Out-String).Trim()
 
-Example:
-  git -C "$RepositoryRoot" fetch origin
-  git -C "$RepositoryRoot" switch $BranchName
-"@
+        if ($LASTEXITCODE -eq 0 -and $candidateRoot -and $candidateBranch -eq $BranchName) {
+            return $candidateRoot
+        }
+
+        throw "Cannot automatically create the voice worktree because the target path already exists: $worktreePath"
+    }
+
+    Write-Status -Level Warning -Message 'The primary clone has uncommitted work, so it will not be switched.'
+    Write-Status -Message "Creating a dedicated worktree for $BranchName at $worktreePath."
+
+    $localBranchExists = $false
+    & git -C $RepositoryRoot show-ref --verify --quiet "refs/heads/$BranchName"
+    if ($LASTEXITCODE -eq 0) {
+        $localBranchExists = $true
+    }
+
+    if ($localBranchExists) {
+        $worktreeOutput = & git -C $RepositoryRoot worktree add $worktreePath $BranchName 2>&1
+    }
+    else {
+        $worktreeOutput = & git -C $RepositoryRoot worktree add -b $BranchName $worktreePath "origin/$BranchName" 2>&1
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to create the voice worktree: $(($worktreeOutput | Out-String).Trim())"
+    }
+
+    return (Resolve-Path -LiteralPath $worktreePath).Path
 }
 
 function Get-SourceScan {
@@ -677,7 +735,7 @@ try {
     Invoke-Git -Arguments @('fetch', 'origin', '--prune')
     [void](Invoke-Git -Arguments @('rev-parse', '--verify', "origin/$BaseBranch") -Capture)
 
-    $voiceWorktreeRoot = Get-BranchWorktree -RepositoryRoot $primaryRepositoryRoot -BranchName $BaseBranch
+    $voiceWorktreeRoot = Initialize-BranchWorktree -RepositoryRoot $primaryRepositoryRoot -BranchName $BaseBranch
     $script:RepositoryRoot = $voiceWorktreeRoot
 
     $activeBranch = Invoke-Git -Arguments @('branch', '--show-current') -Capture
