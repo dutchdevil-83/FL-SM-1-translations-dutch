@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "spoken_language": "en-US",
+  "source_manifest": "docs/dutch/PHASE0_FILE_MANIFEST.csv",
+  "manifest_output": "voice/build/dialogue_manifest.jsonl",
+  "speaker_stats_output": "voice/build/speaker_stats.json",
+  "characters_file": "voice/characters.json",
+  "line_overrides_file": "voice/line_overrides.json",
+  "variables_file": "voice/variables.local.json",
+  "preview_model": "gemini-3.8-flash-lite-tts",
+  "final_model": "gemini-3.8-flash-tts",
+  "voice_design_model": "gemini-3.8-flash-tts",
+  "wav_output_dir": "voice/generated/wav",
+  "ogg_output_dir": "voice/generated/ogg",
+  "sample_rate": 24000,
+  "opus_bitrate": "64k",
+  "default_style": "natural conversational delivery, clean studio sound",
+  "skip_speakers": [
+    "extend"
+  ]
+}
