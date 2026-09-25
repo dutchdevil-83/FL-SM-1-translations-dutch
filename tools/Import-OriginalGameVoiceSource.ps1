@@ -369,7 +369,7 @@ function Initialize-BranchWorktree {
         if ($LASTEXITCODE -ne 0) {
             $switchOutput = & git -C $RepositoryRoot switch --create $BranchName --track "origin/$BranchName" 2>&1
             if ($LASTEXITCODE -ne 0) {
-                throw "Unable to switch the primary clone to $BranchName: $(($switchOutput | Out-String).Trim())"
+                throw "Unable to switch the primary clone to ${BranchName}: $(($switchOutput | Out-String).Trim())"
             }
         }
 
