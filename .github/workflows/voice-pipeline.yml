@@ -7,6 +7,7 @@ on:
     paths:
       - "voice/**"
       - "tools/voice*.py"
+      - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
       - ".github/workflows/voice-pipeline.yml"
@@ -14,6 +15,7 @@ on:
     paths:
       - "voice/**"
       - "tools/voice*.py"
+      - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
       - ".github/workflows/voice-pipeline.yml"
@@ -37,6 +39,25 @@ jobs:
 
       - name: Run voice pipeline and profile tests
         run: python -m unittest discover -s tests -p "test_voice*.py" -v
+
+
+      - name: Validate PowerShell importer syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "tools/Import-OriginalGameVoiceSource.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+          Write-Host "PowerShell syntax validation passed."
 
       - name: Extract English dialogue manifest
         run: python tools/voice_pipeline.py extract
