@@ -82,6 +82,20 @@ translate deutsch strings:
         self.assertEqual(sorted(result["code/a.rpy"]), ["deutsch", "italian"])
         self.assertEqual(result["code/b.rpy"], ["italian"])
 
+    def test_discover_candidates_uses_wip_fallback_for_missing_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "deutsch" / "code").mkdir(parents=True)
+            (root / "WIP" / "magyar" / "code").mkdir(parents=True)
+            (root / "deutsch" / "code" / "a.rpy").write_text("", encoding="utf-8")
+            (root / "WIP" / "magyar" / "code" / "a.rpy").write_text("", encoding="utf-8")
+            (root / "WIP" / "magyar" / "code" / "b.rpy").write_text("", encoding="utf-8")
+            result = MODULE.discover_candidates(root, ["deutsch", "magyar"])
+
+        self.assertEqual(set(result), {"code/a.rpy", "code/b.rpy"})
+        self.assertEqual(sorted(result["code/a.rpy"]), ["deutsch", "magyar"])
+        self.assertEqual(result["code/b.rpy"], ["magyar"])
+
 
 if __name__ == "__main__":
     unittest.main()
