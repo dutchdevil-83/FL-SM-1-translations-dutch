@@ -5,3 +5,9 @@ desktop.ini
 /.vscode
 /dutch/*.rpyc
 /dutch/**/*.rpyc
+
+# English voice pipeline generated/local files
+/voice/build/
+/voice/generated/
+/voice/previews/
+/voice/variables.local.json
