@@ -59,8 +59,19 @@ def validate_registry(registry: dict[str, Any], sources: dict[str, Any]) -> None
         age = profile.get("canonical_age_years")
         if age is not None and (type(age) is not int or age < 0):
             raise ValueError("Invalid canonical age: " + speaker)
-        if not profile.get("evidence_ids"):
-            raise ValueError("Missing dialogue provenance: " + speaker)
+        evidence_ids = profile.get("evidence_ids", [])
+        direct_evidence = profile.get("direct_source_evidence", [])
+        if not evidence_ids and not direct_evidence:
+            raise ValueError("Missing dialogue/source provenance: " + speaker)
+        if direct_evidence:
+            if not isinstance(direct_evidence, list):
+                raise ValueError("direct_source_evidence must be a list: " + speaker)
+            for item in direct_evidence:
+                if not isinstance(item, dict) or not item.get("path") or not isinstance(item.get("line"), int):
+                    raise ValueError("Invalid direct_source_evidence: " + speaker)
+                evidence_path = (ROOT / item["path"]).resolve()
+                if ROOT.resolve() not in evidence_path.parents or not evidence_path.is_file():
+                    raise ValueError("Missing direct source evidence path: " + speaker)
         for source_id in profile.get("official_source_ids", []):
             if source_id not in sources.get("sources", {}):
                 raise ValueError("Unknown source ID: " + source_id)
@@ -136,32 +147,86 @@ def audit_manifest(registry: dict[str, Any], manifest: Path) -> tuple[dict[str, 
             if row["speaker"]:
                 counts[row["speaker"]] += 1
             else:
-                # Report IDs/locations, not copied narrative content.
-                unresolved.append({k: row[k] for k in ("id", "reference_file", "source_line", "review_reasons")})
+                unresolved.append({
+                    "id": row["id"],
+                    "source_file": row.get("source_file", ""),
+                    "source_line": row.get("source_line", 0),
+                    "speaker_label": row.get("speaker_label", ""),
+                    "review_reasons": row["review_reasons"],
+                })
+
     characters = registry["characters"]
     missing = set(counts) - set(characters)
-    unexpected = set(characters) - set(counts)
-    if missing or unexpected:
-        raise ValueError(f"Speaker coverage differs: missing={sorted(missing)}, unexpected={sorted(unexpected)}")
-    evidence: dict[str, Any] = {}
-    commit = registry["research"]["source_commit"]
-    repo = registry["research"]["source_repository"]
-    for speaker, entry in characters.items():
-        if entry.get("line_count") != counts[speaker]:
-            raise ValueError("Stale dialogue count: " + speaker)
-        evidence[speaker] = []
-        for identifier in entry["profile"]["evidence_ids"]:
-            if identifier not in rows:
-                raise ValueError("Missing evidence ID: " + identifier)
-            row = rows[identifier]
-            path = row["reference_file"]
-            line = row["source_line"]
-            evidence[speaker].append({"id": identifier, "speaker": row["speaker"],
-                "url": f"https://github.com/{repo}/blob/{commit}/{path}#L{line}",
-                "reference_file": path, "source_line": line})
-    return {"speaker_tokens": len(counts), "dialogue_rows": len(rows),
-        "untokenized_rows": len(unresolved), "unresolved_dialogue": unresolved}, evidence
+    if missing:
+        raise ValueError(f"Speaker profiles missing for canonical source: {sorted(missing)}")
 
+    inactive_profiles = sorted(set(characters) - set(counts))
+    count_drift: dict[str, dict[str, int]] = {}
+    for speaker, entry in characters.items():
+        stored = int(entry.get("line_count", 0))
+        current = int(counts.get(speaker, 0))
+        if stored != current:
+            count_drift[speaker] = {"registry": stored, "canonical_source": current}
+
+    evidence: dict[str, Any] = {}
+    repo = registry["research"]["source_repository"]
+    canonical_commit = registry["research"].get(
+        "canonical_source_commit",
+        registry["research"].get("source_commit", ""),
+    )
+    missing_evidence_ids: dict[str, list[str]] = {}
+
+    for speaker, entry in characters.items():
+        evidence[speaker] = []
+
+        for identifier in entry["profile"].get("evidence_ids", []):
+            row = rows.get(identifier)
+            if row is None:
+                missing_evidence_ids.setdefault(speaker, []).append(identifier)
+                continue
+
+            path = row.get("source_file") or row.get("reference_file") or ""
+            line = int(row.get("source_line") or 0)
+            item = {
+                "id": identifier,
+                "speaker": row.get("speaker", ""),
+                "source_file": path,
+                "source_line": line,
+            }
+            if path and line and canonical_commit:
+                item["url"] = (
+                    f"https://github.com/{repo}/blob/{canonical_commit}/{path}#L{line}"
+                )
+            evidence[speaker].append(item)
+
+        for item in entry["profile"].get("direct_source_evidence", []):
+            path = item["path"]
+            line = int(item["line"])
+            evidence_item = {
+                "id": "",
+                "speaker": speaker,
+                "source_file": path,
+                "source_line": line,
+                "claim": item.get("claim", ""),
+            }
+            if canonical_commit:
+                evidence_item["url"] = (
+                    f"https://github.com/{repo}/blob/{canonical_commit}/{path}#L{line}"
+                )
+            evidence[speaker].append(evidence_item)
+
+    audit = {
+        "speaker_tokens": len(counts),
+        "profile_tokens": len(characters),
+        "dialogue_rows": len(rows),
+        "untokenized_rows": len(unresolved),
+        "inactive_profile_tokens": inactive_profiles,
+        "speaker_line_counts": dict(sorted(counts.items())),
+        "profile_line_count_drift": count_drift,
+        "missing_evidence_ids": missing_evidence_ids,
+        "unresolved_dialogue": unresolved,
+    }
+    return audit, evidence
 
 def write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -186,6 +251,7 @@ def export_profiles(registry: dict[str, Any], sources: dict[str, Any], audit: di
         target = resolve_identity(registry["characters"], speaker)
         write_json(destination / "profiles" / f"{speaker}.json", {
             "speaker": speaker, "voice_identity": target, "character": entry,
+            "current_line_count": audit.get("speaker_line_counts", {}).get(speaker, 0),
             "voice_metadata": voice_metadata(registry["characters"][target]) if entry["enabled"] else None,
             "evidence": evidence[speaker],
             "official_sources": {k: sources["sources"][k] for k in entry["profile"]["official_source_ids"]},
