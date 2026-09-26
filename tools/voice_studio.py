@@ -474,6 +474,9 @@ def log_usage(
     }
     if usage:
         record.update(usage)
+    elif text:
+        record["usage_source"] = "estimated"
+        record["estimated_input_tokens"] = max(1, math.ceil(len(text) / 4))
     if error:
         record["error"] = error[:1000]
         record["http_status"] = parse_http_status(RuntimeError(error))
