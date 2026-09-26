@@ -172,6 +172,8 @@ The desktop app provides:
 - exact provider token usage when returned by Gemini plus clearly marked estimates otherwise;
 - local usage dashboard and recent-request table;
 - rate/retry settings dialog persisted in ignored `voice/runtime.local.json`;
+- final-generation preflight that distinguishes current canonical source rows from stale/historical registry counts;
+- clear diagnostics when a character has no final-ready rows, including matching files reported missing by `original-source/SOURCE_COVERAGE.json` when evidence IDs identify the absent scene;
 - resumable final generation for an approved voice;
 - activity log and busy protection so overlapping API jobs cannot accidentally fight over quota.
 
@@ -257,6 +259,13 @@ and a new candidate can then be created.
 Approvals are written to `voice/approvals.json` and the character's
 `casting_status` becomes `approved`. Final audio generation is blocked until the
 canonical voice identity is approved.
+
+A character profile can outlive the exact imported game build it was researched against.
+Therefore `line_count` is treated as current-source data when the registry is refreshed:
+`init-characters` resets stale counts to zero for speaker tokens absent from the current
+canonical manifest. The Windows GUI also calculates current source/final-ready counts
+directly from the loaded manifest, so an older local registry cannot misleadingly suggest
+that final audio can be generated for scenes absent from the imported game source.
 
 ## 1. Extract the English dialogue
 
