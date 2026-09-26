@@ -1329,10 +1329,17 @@ class VoiceStudio:
         for raw_path in coverage.get("missing_paths") or []:
             path = str(raw_path)
             stem = Path(path).stem.lower().replace("-", "_")
+            stems = {stem}
+            # Ren'Py projects commonly use a trailing "i" for the interaction/
+            # intro companion of a numbered scene (for example dc009i beside
+            # dc009). Character evidence usually points at the base scene ID.
+            if stem.endswith("i"):
+                stems.add(stem[:-1])
             if any(
-                evidence == stem
-                or evidence.startswith(stem + "_")
-                or stem in evidence
+                evidence == candidate
+                or evidence.startswith(candidate + "_")
+                or candidate in evidence
+                for candidate in stems
                 for evidence in evidence_ids
             ):
                 matches.append(path)
