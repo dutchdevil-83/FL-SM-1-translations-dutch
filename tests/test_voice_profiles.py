@@ -18,7 +18,36 @@ class VoiceProfilesTests(unittest.TestCase):
 
     def test_registry_is_valid_and_all_tokens_have_profiles(self):
         MODULE.validate_registry(self.registry, self.sources)
-        self.assertEqual(len(self.registry['characters']), 58)
+        self.assertEqual(len(self.registry['characters']), 59)
+
+    def test_narrator_profile_uses_direct_source_evidence(self):
+        narrator = self.registry['characters']['narrator']
+        self.assertTrue(narrator['enabled'])
+        self.assertEqual(narrator['profile']['identity_status'], 'direct_source_supported')
+        self.assertEqual(narrator['profile']['evidence_ids'], [])
+        self.assertTrue(narrator['profile']['direct_source_evidence'])
+        MODULE.validate_registry(self.registry, self.sources)
+
+    def test_manifest_audit_allows_profiles_from_other_game_versions(self):
+        registry = copy.deepcopy(self.registry)
+        registry['characters']['narrator']['line_count'] = 99
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / 'dialogue.jsonl'
+            manifest.write_text(
+                json.dumps({
+                    'id': 'narrator_test',
+                    'speaker': 'narrator',
+                    'source_file': 'original-source/game/code/data/characters/names.rpy',
+                    'source_line': 1,
+                    'review_reasons': [],
+                }) + '\n',
+                encoding='utf-8',
+            )
+            audit, evidence = MODULE.audit_manifest(registry, manifest)
+        self.assertIn('ag', audit['inactive_profile_tokens'])
+        self.assertEqual(audit['speaker_line_counts']['narrator'], 1)
+        self.assertEqual(audit['profile_line_count_drift']['narrator']['canonical_source'], 1)
+        self.assertTrue(evidence['narrator'])
 
     def test_nari_age_is_fact_but_other_casting_ages_are_not(self):
         chars = self.registry['characters']
@@ -112,8 +141,8 @@ class VoiceProfilesTests(unittest.TestCase):
             MODULE.export_profiles(self.registry, self.sources, audit, evidence,
                                    destination, 'gemini-3.8-flash-tts')
             self.assertFalse((destination / 'requests/ed.json').exists())
-            self.assertEqual(len(list((destination / 'profiles').glob('*.json'))), 58)
-            self.assertEqual(len(list((destination / 'requests').glob('*.json'))), 50)
+            self.assertEqual(len(list((destination / 'profiles').glob('*.json'))), 59)
+            self.assertEqual(len(list((destination / 'requests').glob('*.json'))), 51)
 
     def test_unmapped_accent_is_not_silently_replaced_by_american(self):
         self.registry['characters']['ns']['profile']['accent'] = 'another accent'
@@ -122,7 +151,7 @@ class VoiceProfilesTests(unittest.TestCase):
 
     def test_creation_count_excludes_aliases_and_review_queue(self):
         available = [key for key, value in self.registry['characters'].items() if value['enabled'] and not value['voice_ref']]
-        self.assertEqual(len(available), 50)
+        self.assertEqual(len(available), 51)
         prompts = {self.registry['characters'][key]['design_prompt'] for key in available}
         self.assertEqual(len(prompts), len(available))
 
