@@ -1024,6 +1024,13 @@ def command_studio(args: argparse.Namespace, config: dict) -> int:
 
 def command_gui(args: argparse.Namespace, config: dict) -> int:
     del args, config
+    if sys.version_info >= (3, 15):
+        print(
+            "PySide6 currently requires Python < 3.15. "
+            "Use tools/Start-VoiceStudio.ps1 so a compatible GUI venv is created.",
+            file=sys.stderr,
+        )
+        return 2
     command = [sys.executable, str(ROOT / "tools" / "voice_studio_gui.py")]
     return subprocess.call(command, cwd=ROOT)
 
