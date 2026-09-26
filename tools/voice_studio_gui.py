@@ -20,7 +20,7 @@ from typing import Any, Callable
 
 try:
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, QUrl, Signal, Slot, Qt
-    from PySide6.QtGui import QAction, QCloseEvent, QFont
+    from PySide6.QtGui import QAction, QCloseEvent, QFont, QIcon
     from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
     from PySide6.QtWidgets import (
         QApplication,
@@ -64,6 +64,17 @@ except ImportError as exc:
         "python -m pip install -r requirements-voice-gui.txt"
     ) from exc
 
+try:
+    import numpy as np
+    import pyqtgraph as pg
+    import qtawesome as qta
+    import soundfile as sf
+except ImportError as exc:
+    raise SystemExit(
+        "Waveform GUI dependencies are missing. Run: "
+        "python -m pip install -r requirements-voice-gui.txt"
+    ) from exc
+
 import voice_pipeline as vp
 import voice_studio as vs
 
@@ -71,6 +82,185 @@ import voice_studio as vs
 APP_TITLE = "Gemini Game Voice Studio"
 WINDOW_MIN_WIDTH = 1180
 WINDOW_MIN_HEIGHT = 760
+
+
+
+def ui_icon(name: str) -> QIcon:
+    try:
+        return qta.icon(name, color="#dbeafe")
+    except Exception:
+        return QIcon()
+
+
+class TimeAxisItem(pg.AxisItem):
+    def tickStrings(self, values, scale, spacing):
+        del scale, spacing
+        labels = []
+        for value in values:
+            seconds = max(0, int(round(value)))
+            minutes, seconds = divmod(seconds, 60)
+            hours, minutes = divmod(minutes, 60)
+            if hours:
+                labels.append(f"{hours:d}:{minutes:02d}:{seconds:02d}")
+            else:
+                labels.append(f"{minutes:02d}:{seconds:02d}")
+        return labels
+
+
+class WaveformWidget(pg.PlotWidget):
+    seekRequested = Signal(float)
+    hoverTimeChanged = Signal(float)
+
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        *,
+        compact: bool = False,
+        interactive: bool = True,
+    ) -> None:
+        axis_items = {"bottom": TimeAxisItem(orientation="bottom")}
+        super().__init__(parent=parent, axisItems=axis_items)
+        self.compact = compact
+        self.interactive = interactive
+        self.duration_seconds = 0.0
+        self.file_path: Path | None = None
+
+        self.setBackground("#0f1115")
+        self.setMenuEnabled(False)
+        self.showGrid(x=False, y=False)
+        self.setMouseEnabled(x=interactive, y=False)
+        self.hideAxis("left")
+        if compact:
+            self.hideAxis("bottom")
+            self.setMinimumHeight(46)
+            self.setMaximumHeight(54)
+        else:
+            self.setMinimumHeight(165)
+
+        self.getViewBox().setMouseMode(pg.ViewBox.PanMode)
+        self.getViewBox().setLimits(yMin=-1.05, yMax=1.05)
+
+        self.upper_curve = self.plot(
+            pen=pg.mkPen("#60a5fa", width=1.1),
+            antialias=True,
+        )
+        self.lower_curve = self.plot(
+            pen=pg.mkPen("#60a5fa", width=1.1),
+            antialias=True,
+        )
+        self.fill = pg.FillBetweenItem(
+            self.upper_curve,
+            self.lower_curve,
+            brush=pg.mkBrush(37, 99, 235, 105),
+        )
+        self.addItem(self.fill)
+
+        self.playhead = pg.InfiniteLine(
+            angle=90,
+            movable=interactive,
+            pen=pg.mkPen("#f8fafc", width=2),
+            hoverPen=pg.mkPen("#fbbf24", width=2),
+        )
+        self.playhead.setZValue(20)
+        self.addItem(self.playhead)
+        if interactive:
+            self.playhead.sigPositionChangeFinished.connect(
+                lambda: self._emit_seek(self.playhead.value())
+            )
+            self.scene().sigMouseClicked.connect(self._scene_clicked)
+            self.scene().sigMouseMoved.connect(self._scene_moved)
+
+    def load_file(self, path: Path) -> None:
+        resolved = path.resolve()
+        data, sample_rate = sf.read(
+            str(resolved),
+            dtype="float32",
+            always_2d=True,
+        )
+        if data.size == 0 or sample_rate <= 0:
+            raise RuntimeError(f"Audio file has no decodable samples: {resolved}")
+
+        mono = np.mean(data, axis=1, dtype=np.float32)
+        sample_count = int(mono.shape[0])
+        self.duration_seconds = sample_count / float(sample_rate)
+        self.file_path = resolved
+
+        target_points = 500 if self.compact else 3500
+        block = max(1, int(math.ceil(sample_count / target_points)))
+        pad = (-sample_count) % block
+        if pad:
+            mono = np.pad(mono, (0, pad), mode="constant")
+        blocks = mono.reshape(-1, block)
+        lower = blocks.min(axis=1)
+        upper = blocks.max(axis=1)
+        x = np.arange(blocks.shape[0], dtype=np.float32) * (
+            block / float(sample_rate)
+        )
+
+        self.upper_curve.setData(x, upper)
+        self.lower_curve.setData(x, lower)
+        self.playhead.setValue(0.0)
+        self.setYRange(-1.05, 1.05, padding=0)
+        self.reset_zoom()
+
+    def clear_waveform(self) -> None:
+        self.file_path = None
+        self.duration_seconds = 0.0
+        self.upper_curve.setData([], [])
+        self.lower_curve.setData([], [])
+        self.playhead.setValue(0.0)
+        self.setXRange(0.0, 1.0, padding=0)
+
+    def set_playhead(self, seconds: float) -> None:
+        if self.duration_seconds <= 0:
+            return
+        bounded = min(max(float(seconds), 0.0), self.duration_seconds)
+        self.playhead.setValue(bounded)
+
+    def reset_zoom(self) -> None:
+        if self.duration_seconds <= 0:
+            self.setXRange(0.0, 1.0, padding=0)
+            return
+        self.setXRange(0.0, self.duration_seconds, padding=0)
+
+    def zoom(self, factor: float, center: float | None = None) -> None:
+        if self.duration_seconds <= 0 or factor <= 0:
+            return
+        view_min, view_max = self.getViewBox().viewRange()[0]
+        current_width = max(0.05, view_max - view_min)
+        new_width = min(
+            self.duration_seconds,
+            max(0.25, current_width * factor),
+        )
+        if center is None:
+            center = (view_min + view_max) / 2.0
+        start = max(0.0, min(center - new_width / 2.0, self.duration_seconds - new_width))
+        self.setXRange(start, start + new_width, padding=0)
+
+    def _emit_seek(self, seconds: float) -> None:
+        if self.duration_seconds <= 0:
+            return
+        bounded = min(max(float(seconds), 0.0), self.duration_seconds)
+        self.seekRequested.emit(bounded)
+
+    def _scene_clicked(self, event) -> None:
+        if not self.interactive or self.duration_seconds <= 0:
+            return
+        if event.button() != Qt.MouseButton.LeftButton:
+            return
+        if not self.sceneBoundingRect().contains(event.scenePos()):
+            return
+        point = self.getViewBox().mapSceneToView(event.scenePos())
+        self._emit_seek(point.x())
+
+    def _scene_moved(self, position) -> None:
+        if not self.interactive or self.duration_seconds <= 0:
+            return
+        if not self.sceneBoundingRect().contains(position):
+            return
+        point = self.getViewBox().mapSceneToView(position)
+        seconds = min(max(float(point.x()), 0.0), self.duration_seconds)
+        self.hoverTimeChanged.emit(seconds)
 
 
 class WorkerSignals(QObject):
