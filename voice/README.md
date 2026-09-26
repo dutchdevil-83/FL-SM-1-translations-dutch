@@ -25,7 +25,7 @@ For a ready-to-paste Google AI Studio Build-mode prompt that creates a full-stac
 
 ## Researched character casting pack
 
-The registry now covers the 58 nonempty speaker tokens in the English manifest.
+The registry currently contains 59 researched speaker profiles; the canonical imported build exposes 49 active speaker tokens.
 [CHARACTER_RESEARCH.md](CHARACTER_RESEARCH.md) records confirmed facts, proposed casting
 directions, cross-game matches and unresolved identities. Unknown canonical ages are
 not replaced by invented facts. [MODEL_INPUTS.md](MODEL_INPUTS.md) documents the supported
@@ -39,16 +39,17 @@ python tools/voice_profiles.py validate
 python tools/voice_profiles.py export
 ```
 
-The export under `voice/build/casting/` contains 58 profiles and 50 eligible Voice Design
+The export under `voice/build/casting/` contains 59 profiles and 51 eligible Voice Design
 request files. Two protagonist aliases reuse `mc`; six uncertain or dynamic speaker
-bindings remain disabled. Another 474 manifest rows lack a resolved speaker token and
-are listed separately for review. These counts are a source snapshot, not a claim that
-all distinct characters or every game line have already been cast.
+bindings remain disabled. The current canonical source audit reports 201 untokenized
+rows for manual review. These counts are tied to the imported game build and may differ
+from historical research snapshots.
 
 GitHub Actions publishes the resulting `english-character-casting-pack` artifact.
 The files describe proposed voices: provider IDs remain empty until real voices are
-created and auditioned. The existing `design-voice` CLI still takes an explicit prompt;
-use the exported request object when all optional casting metadata must be retained.
+created and auditioned. Prefer `create-voice --speaker <token>` to create a provider
+voice directly from the exported request object, retaining all verified casting metadata.
+The older `design-voice` command remains available for explicit ad-hoc prompt creation.
 
 ## Import the original English game source from Windows
 
@@ -139,7 +140,29 @@ python tools/voice_pipeline.py init-characters
 
 This merges discovered speaker IDs into `voice/characters.json` without overwriting voice IDs or prompts you already approved.
 
-## 3. Design and lock a character voice
+## 3. Create and audition a character voice from the exported casting request
+
+Recommended:
+
+```powershell
+python tools/voice_pipeline.py create-voice --speaker mc
+```
+
+This reads `voice/build/casting/requests/<speaker>.json`, refuses stale request data,
+never overwrites an existing `voice_id`, stores the returned persistent provider ID in
+`voice/characters.json`, and saves any returned audition sample under
+`voice/previews/<speaker>.wav`. Local creation metadata is written beside the preview
+and remains ignored by Git.
+
+Before creating voices, regenerate the offline casting requests after any profile edit:
+
+```powershell
+python tools/voice_profiles.py validate
+python tools/voice_profiles.py export
+```
+
+## 3b. Design and lock a character voice manually
+
 
 Example:
 
