@@ -1159,7 +1159,13 @@ function New-DraftPullRequest {
         [int]$FileCount,
 
         [Parameter(Mandatory)]
-        [int64]$TotalBytes
+        [int64]$TotalBytes,
+
+        [Parameter(Mandatory)]
+        [object]$ReconstructionInfo,
+
+        [Parameter(Mandatory)]
+        [object]$CoverageInfo
     )
 
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
@@ -1179,6 +1185,9 @@ function New-DraftPullRequest {
             '',
             "Imported source files: $FileCount",
             "Imported bytes: $TotalBytes",
+            "Expected source coverage: $($CoverageInfo.CoveredCount)/$($CoverageInfo.ExpectedCount) ($('{0:P2}' -f [double]$CoverageInfo.Coverage))",
+            "RPA archives processed: $($ReconstructionInfo.ArchiveCount)",
+            "Compiled scripts decompiled: $($ReconstructionInfo.DecompiledScriptCount)",
             '',
             '### Purpose',
             '',
@@ -1188,8 +1197,10 @@ function New-DraftPullRequest {
             '',
             '- Draft PR only. Do not merge before review.',
             '- game/tl translations are excluded.',
-            '- compiled files, saves, cache, media, archives, and executables are excluded.',
-            '- SOURCE_MANIFEST.json contains SHA-256 hashes for every imported source file.',
+            '- RPA archives and compiled Ren''Py scripts are reconstructed in a temporary workspace; binary archives/compiled files are not committed.',
+            '- saves, cache, media, archives, compiled files and executables are excluded from the PR.',
+            '- SOURCE_MANIFEST.json records SHA-256 hashes, reconstruction provenance and coverage.',
+            '- SOURCE_COVERAGE.json lists any expected .rpy paths still missing.',
             '- No Gemini/TTS calls were made by the import script.',
             '',
             '### Review target',
