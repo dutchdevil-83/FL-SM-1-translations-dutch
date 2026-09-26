@@ -15,15 +15,17 @@ The importer deliberately excludes translation folders, compiled Ren'Py/Python f
 
 No AI/TTS requests are made by the importer.
 
+Credential-bearing non-voice source excluded during review: `game/code/classes/analytics.rpy`.
+
 ## File counts
 
 | Extension | Files |
 | --- | ---: |
-| .rpy | 500 |
+| .rpy | 499 |
 | .txt | 1 |
 
-Total imported files: 501
-Total imported bytes: 6872903
+Total imported files: 500
+Total imported bytes: 6857353
 
 ## Reconstruction
 
