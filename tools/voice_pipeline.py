@@ -628,9 +628,14 @@ def merge_character_registry(config: dict, write: bool = True) -> dict:
     characters = registry.setdefault("characters", {})
     counts = Counter(row["speaker"] for row in load_manifest(config) if row["speaker"])
 
+    # line_count describes the current canonical source manifest, not historical
+    # research coverage. Reset existing entries first so speakers that disappeared
+    # from the imported source do not retain stale non-zero counts.
+    for speaker, entry in characters.items():
+        entry["line_count"] = counts.get(speaker, 0)
+
     for speaker, count in sorted(counts.items()):
         if speaker in characters:
-            characters[speaker]["line_count"] = count
             continue
         characters[speaker] = {
             "display_name": speaker,
