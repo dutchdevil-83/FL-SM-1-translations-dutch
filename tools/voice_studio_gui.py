@@ -892,17 +892,18 @@ class MainWindow(QMainWindow):
             return
 
         def task(message: Callable[[str], None]) -> dict[str, Any]:
+            worker_backend = vs.VoiceStudio(self.config, self.settings)
             registry = vs.load_registry(self.config)
             current = registry["characters"][speaker]
             request_path, request = vs.ensure_casting_request(
                 self.config, speaker, current
             )
-            limiter = self.backend.limiter(
+            limiter = worker_backend.limiter(
                 "voices:create", int(self.settings["voice_api_rpm"])
             )
             message("Sending Voice Design request...")
             created, latency_ms = vs.api_call_with_retry(
-                lambda: self.backend.client.voices.create(**request),
+                lambda: worker_backend.client.voices.create(**request),
                 limiter=limiter,
                 settings=self.settings,
                 label=f"create voice {speaker}",
@@ -960,16 +961,17 @@ class MainWindow(QMainWindow):
             return
 
         def task(message: Callable[[str], None]) -> Path:
+            worker_backend = vs.VoiceStudio(self.config, self.settings)
             registry = vs.load_registry(self.config)
             voice_id = (registry["characters"][speaker].get("voice_id") or "").strip()
             if not voice_id:
                 raise RuntimeError("No provider voice ID stored.")
-            limiter = self.backend.limiter(
+            limiter = worker_backend.limiter(
                 "voices:get", int(self.settings["voice_api_rpm"])
             )
             message(f"Fetching {voice_id}...")
             details, _ = vs.api_call_with_retry(
-                lambda: self.backend.client.voices.get(id=voice_id),
+                lambda: worker_backend.client.voices.get(id=voice_id),
                 limiter=limiter,
                 settings=self.settings,
                 label=f"get voice {speaker}",
@@ -1058,12 +1060,13 @@ class MainWindow(QMainWindow):
         reason = "Rejected from PySide6 Voice Studio"
 
         def task(message: Callable[[str], None]) -> dict[str, Any]:
-            limiter = self.backend.limiter(
+            worker_backend = vs.VoiceStudio(self.config, self.settings)
+            limiter = worker_backend.limiter(
                 "voices:delete", int(self.settings["voice_api_rpm"])
             )
             message(f"Deleting stored provider voice {voice_id}...")
             vs.api_call_with_retry(
-                lambda: self.backend.client.voices.delete(id=voice_id),
+                lambda: worker_backend.client.voices.delete(id=voice_id),
                 limiter=limiter,
                 settings=self.settings,
                 label=f"delete voice {speaker}",
@@ -1097,6 +1100,7 @@ class MainWindow(QMainWindow):
         count = self.demo_count.value()
 
         def task(message: Callable[[str], None]) -> dict[str, int]:
+            worker_backend = vs.VoiceStudio(self.config, self.settings)
             registry = vs.load_registry(self.config)
             voice_id, entry = vp.resolve_voice_id(registry["characters"], speaker)
             rows = vs.representative_rows(self.manifest, speaker, count)
@@ -1104,7 +1108,7 @@ class MainWindow(QMainWindow):
                 raise RuntimeError("No ready dialogue lines found.")
 
             model = self.config["preview_model"]
-            limiter = self.backend.limiter(
+            limiter = worker_backend.limiter(
                 f"tts:{model}",
                 int(self.settings["preview_rpm"]),
                 int(self.settings["preview_tpm"]),
@@ -1131,7 +1135,7 @@ class MainWindow(QMainWindow):
                 try:
                     interaction, latency_ms = vs.api_call_with_retry(
                         lambda text=text: vs.create_tts_interaction(
-                            self.backend.client,
+                            worker_backend.client,
                             model=model,
                             voice_id=voice_id,
                             text=text,
@@ -1273,13 +1277,14 @@ class MainWindow(QMainWindow):
             return
 
         def task(message: Callable[[str], None]) -> dict[str, int]:
+            worker_backend = vs.VoiceStudio(self.config, self.settings)
             registry = vs.load_registry(self.config)
             characters = registry["characters"]
-            canonical = self.backend.canonical_voice_token(characters, speaker)
+            canonical = worker_backend.canonical_voice_token(characters, speaker)
             related = {
                 token
                 for token in characters
-                if self.backend.canonical_voice_token(characters, token) == canonical
+                if worker_backend.canonical_voice_token(characters, token) == canonical
             }
             rows = [
                 row
@@ -1289,7 +1294,7 @@ class MainWindow(QMainWindow):
                 and row.get("renpy_id")
             ]
             message(f"{len(rows)} ready lines across {sorted(related)}")
-            generated, skipped, failed, _ = self.backend._generate_rows(
+            generated, skipped, failed, _ = worker_backend._generate_rows(
                 rows,
                 mode="final",
                 output_dir=vp.root_path(self.config["wav_output_dir"]),
