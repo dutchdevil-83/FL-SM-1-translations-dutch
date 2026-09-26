@@ -1280,6 +1280,31 @@ function Invoke-ImporterSelfTest {
             throw "Self-test expected one secret hit, got $($secretHits.Count)."
         }
 
+        $toolEnvironment = $null
+        try {
+            $toolEnvironment = New-RpycdecEnvironment
+            $archiveSourceRoot = Join-Path $testRoot 'archive-source'
+            $archiveOutputRoot = Join-Path $testRoot 'archive-output'
+            New-Item -ItemType Directory -Path $archiveSourceRoot -Force | Out-Null
+            New-Item -ItemType Directory -Path $archiveOutputRoot -Force | Out-Null
+
+            $archiveSource = Join-Path $archiveSourceRoot 'archived-script.rpy'
+            'label archived_test:' | Set-Content -LiteralPath $archiveSource -Encoding utf8NoBOM
+            $archivePath = Join-Path $testRoot 'selftest.rpa'
+
+            Invoke-Rpycdec -PythonPath $toolEnvironment.Python -Arguments @('rpa', $archiveSource, '-o', $archivePath)
+            Invoke-Rpycdec -PythonPath $toolEnvironment.Python -Arguments @('unrpa', $archivePath, '-o', $archiveOutputRoot, '-s', '.rpy')
+
+            if (-not (Test-Path -LiteralPath (Join-Path $archiveOutputRoot 'archived-script.rpy') -PathType Leaf)) {
+                throw 'Self-test RPA round trip did not reconstruct archived-script.rpy.'
+            }
+        }
+        finally {
+            if ($toolEnvironment -and (Test-Path -LiteralPath $toolEnvironment.Root)) {
+                Remove-Item -LiteralPath $toolEnvironment.Root -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+
         Write-Status -Level Success -Message 'Importer runtime self-test passed.'
     }
     finally {
