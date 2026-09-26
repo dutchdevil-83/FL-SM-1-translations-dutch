@@ -12,6 +12,7 @@ on:
       - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
+      - "requirements-voice-gui.txt"
       - ".github/workflows/voice-pipeline.yml"
   pull_request:
     paths:
@@ -22,6 +23,7 @@ on:
       - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
+      - "requirements-voice-gui.txt"
       - ".github/workflows/voice-pipeline.yml"
   workflow_dispatch:
 
@@ -44,6 +46,9 @@ jobs:
       - name: Run voice pipeline and profile tests
         run: python -m unittest discover -s tests -p "test_voice*.py" -v
 
+
+      - name: Compile PySide6 Voice Studio frontend
+        run: python -m py_compile tools/voice_studio_gui.py
 
       - name: Validate PowerShell importer syntax
         shell: pwsh
@@ -117,4 +122,5 @@ jobs:
             tests/test_voice*.py
             voice/
             requirements-voice.txt
+            requirements-voice-gui.txt
           if-no-files-found: error
