@@ -43,6 +43,7 @@ try:
         QProgressBar,
         QPushButton,
         QScrollArea,
+        QSlider,
         QSpinBox,
         QDoubleSpinBox,
         QSplitter,
@@ -219,6 +220,10 @@ class MainWindow(QMainWindow):
         self.audio_output.setVolume(0.85)
         self.player.setAudioOutput(self.audio_output)
         self.player.errorOccurred.connect(self._media_error)
+        self.player.positionChanged.connect(self._media_position_changed)
+        self.player.durationChanged.connect(self._media_duration_changed)
+        self.player.playbackStateChanged.connect(self._media_state_changed)
+        self.current_audio_path: Path | None = None
 
         self.setWindowTitle(APP_TITLE)
         self.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
@@ -440,19 +445,62 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
+        player_group = QGroupBox("Audio player")
+        player_layout = QVBoxLayout(player_group)
+
+        now_row = QHBoxLayout()
+        self.now_playing_label = QLabel("Nothing loaded")
+        self.now_playing_label.setObjectName("nowPlaying")
+        self.now_playing_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        now_row.addWidget(QLabel("Now loaded:"))
+        now_row.addWidget(self.now_playing_label, 1)
+        player_layout.addLayout(now_row)
+
+        transport = QHBoxLayout()
+        self.player_play_button = QPushButton("Play")
+        self.player_play_button.clicked.connect(self._player_play)
+        self.player_pause_button = QPushButton("Pause")
+        self.player_pause_button.clicked.connect(self.player.pause)
+        self.player_stop_button = QPushButton("Stop")
+        self.player_stop_button.clicked.connect(self._player_stop)
+
+        self.player_time_label = QLabel("00:00 / 00:00")
+        self.player_time_label.setMinimumWidth(100)
+
+        self.player_seek = QSlider(Qt.Orientation.Horizontal)
+        self.player_seek.setRange(0, 0)
+        self.player_seek.sliderMoved.connect(self.player.setPosition)
+
+        self.player_volume = QSlider(Qt.Orientation.Horizontal)
+        self.player_volume.setRange(0, 100)
+        self.player_volume.setValue(85)
+        self.player_volume.setFixedWidth(120)
+        self.player_volume.valueChanged.connect(
+            lambda value: self.audio_output.setVolume(value / 100.0)
+        )
+
+        transport.addWidget(self.player_play_button)
+        transport.addWidget(self.player_pause_button)
+        transport.addWidget(self.player_stop_button)
+        transport.addWidget(self.player_time_label)
+        transport.addWidget(self.player_seek, 1)
+        transport.addWidget(QLabel("Volume"))
+        transport.addWidget(self.player_volume)
+        player_layout.addLayout(transport)
+        layout.addWidget(player_group)
+
         design_group = QGroupBox("Voice Design sample")
         design_layout = QHBoxLayout(design_group)
         self.design_sample_path = QLabel("No local sample")
         self.design_sample_path.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
-        self.play_design_button = QPushButton("Play")
+        self.play_design_button = QPushButton("Load & play")
         self.play_design_button.clicked.connect(self.play_design_sample)
-        self.stop_audio_button = QPushButton("Stop")
-        self.stop_audio_button.clicked.connect(self.player.stop)
         design_layout.addWidget(self.design_sample_path, 1)
         design_layout.addWidget(self.play_design_button)
-        design_layout.addWidget(self.stop_audio_button)
         layout.addWidget(design_group)
 
         demo_controls = QHBoxLayout()
@@ -461,7 +509,7 @@ class MainWindow(QMainWindow):
         self.demo_count.setValue(int(self.settings["demo_line_count"]))
         self.generate_demo_button = QPushButton("Generate representative demos")
         self.generate_demo_button.clicked.connect(self.generate_demos)
-        self.play_selected_demo_button = QPushButton("Play selected")
+        self.play_selected_demo_button = QPushButton("Load & play selected")
         self.play_selected_demo_button.clicked.connect(self.play_selected_demo)
         self.open_demo_folder_button = QPushButton("Open demo folder")
         self.open_demo_folder_button.clicked.connect(self.open_demo_folder)
@@ -480,6 +528,7 @@ class MainWindow(QMainWindow):
         self.demo_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.demo_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.demo_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.demo_table.itemSelectionChanged.connect(self._demo_selection_changed)
         self.demo_table.doubleClicked.connect(self.play_selected_demo)
         header = self.demo_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -489,6 +538,7 @@ class MainWindow(QMainWindow):
         header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(self.demo_table, 1)
 
+        self.player_pause_button.setEnabled(False)
         return widget
 
     def _build_usage_tab(self) -> QWidget:
@@ -656,6 +706,10 @@ class MainWindow(QMainWindow):
             QLabel#metricValue {
                 font-size: 20px;
                 font-weight: 700;
+            }
+            QLabel#nowPlaying {
+                color: #93c5fd;
+                font-weight: 600;
             }
             QTabBar::tab {
                 background: #1d2025;
@@ -846,6 +900,11 @@ class MainWindow(QMainWindow):
         self.play_design_button.setEnabled(sample.exists())
         self.play_sample_casting_button.setEnabled(sample.exists())
         self.refresh_demo_table()
+        if sample.exists() and (
+            self.current_audio_path is None
+            or self.current_audio_path.name != sample.name
+        ):
+            self._load_audio(sample, autoplay=False)
 
     def _prompt_changed(self) -> None:
         if not self.current_speaker:
@@ -1341,27 +1400,112 @@ class MainWindow(QMainWindow):
         path = vs.provider_voice_sample_path(self.current_speaker)
         self.play_file(path)
 
-    def play_selected_demo(self, *_: Any) -> None:
+    def _selected_demo_path(self) -> Path | None:
         row = self.demo_table.currentRow()
         if row < 0:
-            return
+            return None
         item = self.demo_table.item(row, 0)
-        path = Path(item.data(Qt.ItemDataRole.UserRole))
+        if item is None:
+            return None
+        raw = item.data(Qt.ItemDataRole.UserRole)
+        return Path(raw) if raw else None
+
+    def _demo_selection_changed(self) -> None:
+        path = self._selected_demo_path()
+        if path is not None and path.exists():
+            self._load_audio(path, autoplay=False)
+
+    def play_selected_demo(self, *_: Any) -> None:
+        path = self._selected_demo_path()
+        if path is None:
+            QMessageBox.information(
+                self,
+                "Dialogue demo",
+                "Select a generated dialogue demo first.",
+            )
+            return
         self.play_file(path)
 
-    def play_file(self, path: Path) -> None:
+    def _load_audio(self, path: Path, *, autoplay: bool) -> None:
         if not path.exists():
             QMessageBox.warning(self, "Audio", f"File does not exist:\n{path}")
             return
-        self.player.stop()
-        self.player.setSource(QUrl.fromLocalFile(str(path.resolve())))
+
+        resolved = path.resolve()
+        if self.current_audio_path != resolved:
+            self.player.stop()
+            self.current_audio_path = resolved
+            self.player.setSource(QUrl.fromLocalFile(str(resolved)))
+            try:
+                display = str(resolved.relative_to(vs.ROOT))
+            except ValueError:
+                display = str(resolved)
+            self.now_playing_label.setText(display)
+            self.player_seek.setValue(0)
+            self.player_time_label.setText("00:00 / 00:00")
+            self.log(f"AUDIO loaded: {display}")
+
+        self.tabs.setCurrentWidget(self.audition_tab)
+        if autoplay:
+            self.player.play()
+            self.statusBar().showMessage(f"Playing {resolved.name}", 5000)
+
+    def play_file(self, path: Path) -> None:
+        self._load_audio(path, autoplay=True)
+
+    def _player_play(self) -> None:
+        if self.player.source().isEmpty():
+            QMessageBox.information(
+                self,
+                "Audio player",
+                "Load the Voice Design sample or select a dialogue demo first.",
+            )
+            return
         self.player.play()
-        self.statusBar().showMessage(f"Playing {path.name}", 5000)
+
+    def _player_stop(self) -> None:
+        self.player.stop()
+        self.player.setPosition(0)
+
+    @staticmethod
+    def _format_media_time(milliseconds: int) -> str:
+        seconds = max(0, int(milliseconds // 1000))
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        if hours:
+            return f"{hours:d}:{minutes:02d}:{seconds:02d}"
+        return f"{minutes:02d}:{seconds:02d}"
+
+    @Slot(int)
+    def _media_position_changed(self, position: int) -> None:
+        if not self.player_seek.isSliderDown():
+            self.player_seek.setValue(position)
+        self.player_time_label.setText(
+            f"{self._format_media_time(position)} / "
+            f"{self._format_media_time(self.player.duration())}"
+        )
+
+    @Slot(int)
+    def _media_duration_changed(self, duration: int) -> None:
+        self.player_seek.setRange(0, max(0, duration))
+        self.player_time_label.setText(
+            f"{self._format_media_time(self.player.position())} / "
+            f"{self._format_media_time(duration)}"
+        )
+
+    @Slot(object)
+    def _media_state_changed(self, state: Any) -> None:
+        playing = state == QMediaPlayer.PlaybackState.PlayingState
+        self.player_play_button.setEnabled(not playing)
+        self.player_pause_button.setEnabled(playing)
+        if state == QMediaPlayer.PlaybackState.StoppedState:
+            self.statusBar().showMessage("Audio stopped", 2000)
 
     def _media_error(self, error: Any, text: str) -> None:
         del error
         if text:
             self.log(f"Audio playback error: {text}", error=True)
+            self.statusBar().showMessage(f"Audio error: {text}", 8000)
 
     # ---------- final generation ----------
 
