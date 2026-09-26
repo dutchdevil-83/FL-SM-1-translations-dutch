@@ -60,15 +60,21 @@ The canonical English Ren'Py source can live on another developer machine. The i
 }
 ```
 
-The importer now defaults to the installed game at `E:\\Games\\Fetish Locator SM Studio`. If that folder is unavailable, it falls back to a Windows folder picker where either the installation folder or its `game` folder can be selected.
+The importer defaults to the installed game at `E:\\Games\\Fetish Locator SM Studio`. If that folder is unavailable, it falls back to a Windows folder picker where either the installation folder or its `game` folder can be selected.
+
+Released Ren'Py games often contain most creator scripts as compiled `.rpyc` / `.rpymc` files and inside `.rpa` archives rather than as loose `.rpy` files. The importer therefore reconstructs the effective English source in a temporary workspace when packaged scripts are detected. It uses a temporary Python virtual environment with pinned `rpycdec 0.2.0`, verifies the published wheel SHA-256, extracts only source/data candidates, decompiles compiled scripts, and never modifies the installed game.
 
 It then:
 
-- finds original source-like files such as `.rpy`, `.rpym`, `.py`, JSON and configuration files;
-- excludes `game/tl`, compiled files, saves, cache, media, archives and executables;
-- scans selected text files for common credential patterns before committing anything;
-- copies the snapshot to `original-source/game/`;
-- creates `original-source/SOURCE_MANIFEST.json` with SHA-256 hashes and sizes;
+- scans loose source files plus `.rpa`, `.rpyc` and `.rpymc` packaging;
+- reconstructs source from archives/compiled scripts in a temporary workspace when needed;
+- prefers direct loose source when the same path is also present in packaged content;
+- excludes `game/tl`, saves, cache, audio/media, binary archives, compiled files and executables from the PR;
+- scans reconstructed text files for common credential patterns before committing anything;
+- compares reconstructed `.rpy` paths against the 444-path project source inventory and refuses to create a PR below 95% coverage;
+- copies the reviewed source snapshot to `original-source/game/`;
+- creates `original-source/SOURCE_MANIFEST.json` with SHA-256 hashes, archive/decompile provenance and source coverage;
+- creates `original-source/SOURCE_COVERAGE.json` listing every expected path still missing;
 - keeps the canonical voice worktree on `voice/english-gemini-tts`;
 - creates a temporary Git worktree and timestamped branch from that voice branch only for the imported source snapshot;
 - commits and pushes the snapshot;
@@ -84,7 +90,7 @@ GitHub CLI (gh), authenticated with gh auth login
 A local clone at `X:\dev\repos\personal\FL-SM-1-translations-dutch` and a clean worktree with `voice/english-gemini-tts` checked out
 ```
 
-No Gemini/TTS request is made by the importer. The imported PR should remain unmerged until the English source has been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
+No Gemini/TTS request is made by the importer. The installed game is read-only throughout the process. The imported PR should remain unmerged until the reconstructed English source and coverage report have been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
 
 For a local-only dry run without pushing:
 
