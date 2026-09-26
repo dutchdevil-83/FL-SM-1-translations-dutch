@@ -666,6 +666,7 @@ def gemini_api_key() -> str:
 
 
 def create_genai_client():
+    genai = require_genai()
     key = gemini_api_key()
     if os.environ.get("GOOGLE_API_KEY"):
         print(
