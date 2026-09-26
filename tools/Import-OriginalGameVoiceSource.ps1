@@ -987,7 +987,13 @@ function Copy-SourceSnapshot {
         [string]$RepositorySlug,
 
         [Parameter(Mandatory)]
-        [string]$ImportBranch
+        [string]$ImportBranch,
+
+        [Parameter(Mandatory)]
+        [object]$ReconstructionInfo,
+
+        [Parameter(Mandatory)]
+        [object]$CoverageInfo
     )
 
     if (Test-Path -LiteralPath $DestinationRoot) {
@@ -1033,6 +1039,22 @@ function Copy-SourceSnapshot {
         import_branch = $ImportBranch
         file_count = $manifestFiles.Count
         total_bytes = $copiedBytes
+        reconstruction = [ordered]@{
+            used = [bool]$ReconstructionInfo.ReconstructionUsed
+            tool = if ($ReconstructionInfo.ReconstructionUsed) { 'rpycdec' } else { $null }
+            tool_version = $ReconstructionInfo.RpycdecVersion
+            archive_count = [int]$ReconstructionInfo.ArchiveCount
+            loose_compiled_count = [int]$ReconstructionInfo.LooseCompiledCount
+            decompiled_script_count = [int]$ReconstructionInfo.DecompiledScriptCount
+            archive_conflict_count = @($ReconstructionInfo.ArchiveConflicts).Count
+            archives = @($ReconstructionInfo.ArchiveFiles)
+        }
+        expected_source_coverage = [ordered]@{
+            expected_paths = [int]$CoverageInfo.ExpectedCount
+            covered_paths = [int]$CoverageInfo.CoveredCount
+            missing_paths = [int]$CoverageInfo.MissingCount
+            coverage_ratio = [math]::Round([double]$CoverageInfo.Coverage, 6)
+        }
         excluded = [ordered]@{
             translations = 'game/tl/**'
             compiled = '*.rpyc, *.pyc'
@@ -1043,8 +1065,18 @@ function Copy-SourceSnapshot {
     }
 
     $manifestPath = Join-Path $DestinationRoot 'SOURCE_MANIFEST.json'
-    $manifest | ConvertTo-Json -Depth 8 |
+    $manifest | ConvertTo-Json -Depth 10 |
         Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
+
+    $coveragePath = Join-Path $DestinationRoot 'SOURCE_COVERAGE.json'
+    [ordered]@{
+        expected_count = [int]$CoverageInfo.ExpectedCount
+        covered_count = [int]$CoverageInfo.CoveredCount
+        missing_count = [int]$CoverageInfo.MissingCount
+        coverage_ratio = [math]::Round([double]$CoverageInfo.Coverage, 6)
+        missing_paths = @($CoverageInfo.MissingPaths)
+    } | ConvertTo-Json -Depth 6 |
+        Set-Content -LiteralPath $coveragePath -Encoding utf8NoBOM
 
     $byExtension = $Files |
         Group-Object Extension |
@@ -1078,6 +1110,23 @@ function Copy-SourceSnapshot {
         "Total imported files: $($manifest.file_count)",
         "Total imported bytes: $($manifest.total_bytes)",
         '',
+        '## Reconstruction',
+        '',
+        "RPA archives processed: $($manifest.reconstruction.archive_count)",
+        "Loose compiled scripts found: $($manifest.reconstruction.loose_compiled_count)",
+        "Compiled scripts decompiled: $($manifest.reconstruction.decompiled_script_count)",
+        "Archive path conflicts resolved by archive priority: $($manifest.reconstruction.archive_conflict_count)",
+        "Reconstruction tool: $(if ($manifest.reconstruction.used) { "rpycdec $($manifest.reconstruction.tool_version)" } else { 'not required' })",
+        '',
+        '## Expected source coverage',
+        '',
+        "Expected .rpy paths from project inventory: $($CoverageInfo.ExpectedCount)",
+        "Covered paths: $($CoverageInfo.CoveredCount)",
+        "Missing paths: $($CoverageInfo.MissingCount)",
+        ("Coverage: {0:P2}" -f [double]$CoverageInfo.Coverage),
+        '',
+        'See SOURCE_COVERAGE.json for the exact missing-path review list.',
+        '',
         '## Review',
         '',
         'Review this draft pull request before merging. SOURCE_MANIFEST.json records the original SHA-256 hash and size for every imported file.',
@@ -1090,6 +1139,7 @@ function Copy-SourceSnapshot {
 
     return [pscustomobject]@{
         ManifestPath = $manifestPath
+        CoveragePath = $coveragePath
         ReportPath = $reportPath
         FileCount = $manifest.file_count
         TotalBytes = $manifest.total_bytes
