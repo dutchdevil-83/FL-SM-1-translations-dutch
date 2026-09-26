@@ -125,19 +125,34 @@ For normal Windows use, the PySide6 desktop app is the recommended frontend. It 
 the same backend, registry, rate limiter, retry logic, token ledger and approval files as
 the terminal studio.
 
-Install the GUI dependencies once:
+The current PySide6 release requires Python below 3.15. The Windows launcher therefore
+creates and maintains a dedicated `.venv-voice-gui` using Python 3.14, 3.13, or 3.12,
+while the rest of the voice pipeline can continue using another Python version.
+
+Recommended launch:
+
+```powershell
+pwsh -NoProfile -File tools/Start-VoiceStudio.ps1
+```
+
+The launcher installs/repairs `requirements-voice-gui.txt`, securely asks for the Gemini
+key when the current PowerShell process does not already contain one, and then opens the
+desktop application.
+
+Manual setup is still possible from an already compatible Python environment:
 
 ```powershell
 python -m pip install -r requirements-voice-gui.txt
-```
-
-Launch directly:
-
-```powershell
 python tools/voice_pipeline.py gui
 ```
 
-Or use the Windows launcher, which checks PySide6 and securely asks for the Gemini key
+If no compatible interpreter is installed, inspect the Windows Python launcher with:
+
+```powershell
+py -0p
+```
+
+The Windows launcher also checks PySide6 and securely asks for the Gemini key
 when the current PowerShell process does not already contain one:
 
 ```powershell
