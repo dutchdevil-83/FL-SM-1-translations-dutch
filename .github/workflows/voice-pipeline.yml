@@ -59,6 +59,11 @@ jobs:
 
           Write-Host "PowerShell syntax validation passed."
 
+
+      - name: Run PowerShell importer runtime self-test
+        shell: pwsh
+        run: pwsh -NoProfile -File tools/Import-OriginalGameVoiceSource.ps1 -SelfTest
+
       - name: Extract English dialogue manifest
         run: python tools/voice_pipeline.py extract
 
