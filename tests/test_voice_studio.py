@@ -188,7 +188,7 @@ class VoiceStudioTests(unittest.TestCase):
             rpm = 3
             safety_margin_seconds = 1.5
 
-            def wait(self):
+            def wait(self, estimated_tokens=0):
                 return 0.0
 
         attempts = 0
