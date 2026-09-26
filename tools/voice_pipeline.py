@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build English Ren'Py voice assets from embedded source dialogue.
+"""Build English Ren'Py voice assets from canonical original game source.
 
-Extraction is standard-library only. Gemini is imported only by commands that
-actually call the TTS or Voices APIs.
+English dialogue text and speaker syntax come only from original-source/game.
+Translation exports are used only as ID metadata so generated audio filenames match
+Ren'Py's config.auto_voice dialogue identifiers.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import hashlib
 import importlib.util
 import json
 import os
@@ -24,17 +26,23 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "voice" / "config.json"
 VALIDATOR_PATH = ROOT / "tools" / "dutch_translation_validate.py"
 
-SPEC = importlib.util.spec_from_file_location("voice_source_validator", VALIDATOR_PATH)
+SPEC = importlib.util.spec_from_file_location("voice_id_validator", VALIDATOR_PATH)
 VALIDATOR = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 sys.modules[SPEC.name] = VALIDATOR
 SPEC.loader.exec_module(VALIDATOR)
 
-SPEAKER_RE = re.compile(r"^([A-Za-z_][\w.]*)\s+\"\"")
 VARIABLE_RE = re.compile(r"\[([A-Za-z_][\w.]*)\]")
 PERCENT_VAR_RE = re.compile(r"%\([^)]+\)[#0 +\-]?(?:\d+|\*)?(?:\.\d+)?[diouxXeEfFgGcrs]")
 WAIT_TAG_RE = re.compile(r"\{(?:w(?:=[^}]*)?|p)\}", re.IGNORECASE)
 BRACE_TAG_RE = re.compile(r"\{[^{}]*\}")
+CHARACTER_DEFINE_RE = re.compile(
+    r"^\s*define\s+([A-Za-z_][\w]*)\s*=\s*Character\s*\(",
+    re.MULTILINE,
+)
+TOKEN_DIALOGUE_SHAPE_RE = re.compile(r'^([A-Za-z_][\w.]*)\s+""(?:\s+.*)?$')
+LITERAL_SPEAKER_SHAPE_RE = re.compile(r'^""\s+""(?:\s+.*)?$')
+NARRATOR_SHAPE_RE = re.compile(r'^""(?:\s+.*)?$')
 
 
 def read_json(path: Path, default: dict | None = None) -> dict:
@@ -65,9 +73,40 @@ def load_variables(config: dict) -> dict[str, str]:
     return {str(key): str(value) for key, value in data.items()}
 
 
-def speaker_from_shape(shape: str) -> str | None:
-    match = SPEAKER_RE.match(shape)
-    return match.group(1) if match else None
+def original_source_root(config: dict) -> Path:
+    return root_path(config.get("original_source_root", "original-source/game"))
+
+
+def id_manifest_path(config: dict) -> Path:
+    value = config.get("id_manifest") or config.get("source_manifest")
+    if not value:
+        raise RuntimeError("voice/config.json must define id_manifest")
+    return root_path(value)
+
+
+def id_language_priority(config: dict) -> list[str]:
+    return list(
+        config.get("id_reference_language_priority")
+        or config.get("reference_language_priority")
+        or []
+    )
+
+
+def load_character_tokens(config: dict) -> set[str]:
+    source_root = original_source_root(config)
+    if not source_root.exists():
+        raise RuntimeError(
+            f"canonical original source is missing: {source_root.relative_to(ROOT)}"
+        )
+
+    tokens = {"narrator", "extend"}
+    for path in sorted(source_root.rglob("*.rpy")):
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            continue
+        tokens.update(CHARACTER_DEFINE_RE.findall(text))
+    return tokens
 
 
 def prepare_tts_text(text: str, variables: dict[str, str]) -> tuple[str, list[str]]:
@@ -91,11 +130,84 @@ def prepare_tts_text(text: str, variables: dict[str, str]) -> tuple[str, list[st
     return value, sorted(set(unresolved))
 
 
+def dialogue_from_statement(
+    literals: tuple[str, ...] | list[str],
+    shape: str,
+    character_tokens: set[str],
+) -> dict | None:
+    values = tuple(literals)
+
+    if NARRATOR_SHAPE_RE.fullmatch(shape) and not LITERAL_SPEAKER_SHAPE_RE.fullmatch(shape):
+        if len(values) != 1:
+            return None
+        return {
+            "speaker": "narrator",
+            "speaker_label": "",
+            "speaker_kind": "narrator",
+            "english_text": values[0],
+        }
+
+    if LITERAL_SPEAKER_SHAPE_RE.fullmatch(shape):
+        if len(values) != 2:
+            return None
+        return {
+            "speaker": "",
+            "speaker_label": values[0],
+            "speaker_kind": "literal",
+            "english_text": values[1],
+        }
+
+    match = TOKEN_DIALOGUE_SHAPE_RE.fullmatch(shape)
+    if not match:
+        return None
+
+    speaker = match.group(1).split(".", 1)[0]
+    if speaker not in character_tokens:
+        return None
+    if len(values) != 1:
+        return None
+    return {
+        "speaker": speaker,
+        "speaker_label": "",
+        "speaker_kind": "token",
+        "english_text": values[0],
+    }
+
+
+def parse_original_dialogue_file(path: Path, character_tokens: set[str]) -> list[dict]:
+    units: list[dict] = []
+    for line_no, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), start=1):
+        stripped = line.strip()
+        if '"' not in stripped:
+            continue
+        try:
+            parsed = VALIDATOR.extract_statement(stripped)
+        except ValueError:
+            continue
+        if parsed is None:
+            continue
+
+        literals, shape = parsed
+        dialogue = dialogue_from_statement(literals, shape, character_tokens)
+        if dialogue is None:
+            continue
+        units.append(
+            {
+                **dialogue,
+                "source_line": line_no,
+                "source_shape": shape,
+                "source_literals": tuple(literals),
+                "statement": stripped,
+            }
+        )
+    return units
+
+
 def source_signature(block) -> tuple:
     return tuple((unit.source_shape, unit.source) for unit in block.units)
 
 
-def analyze_source_file(path: Path) -> dict:
+def analyze_id_file(path: Path) -> dict:
     blocks, problems = VALIDATOR.parse_translation_file(path, strict_missing_targets=False)
     unique_blocks: dict[str, object] = {}
     identical_duplicates: list[str] = []
@@ -124,7 +236,7 @@ def analyze_source_file(path: Path) -> dict:
     }
 
 
-def candidate_languages(manifest_row: dict, config: dict) -> list[str]:
+def candidate_id_languages(manifest_row: dict, config: dict) -> list[str]:
     declared = [
         value.strip()
         for value in (manifest_row.get("present_in_languages") or "").split(";")
@@ -134,26 +246,29 @@ def candidate_languages(manifest_row: dict, config: dict) -> list[str]:
     if reference and reference not in declared:
         declared.append(reference)
 
-    priority = config.get("reference_language_priority", [])
+    priority = id_language_priority(config)
     rank = {language: index for index, language in enumerate(priority)}
     return sorted(set(declared), key=lambda language: (rank.get(language, 999), language))
 
 
-def select_source_file(relative_path: str, manifest_row: dict, config: dict) -> tuple[dict | None, list[str]]:
+def select_id_metadata_file(
+    relative_path: str,
+    manifest_row: dict,
+    config: dict,
+) -> tuple[dict | None, list[str]]:
     warnings: list[str] = []
     candidates: list[tuple[str, dict]] = []
 
-    for language in candidate_languages(manifest_row, config):
+    for language in candidate_id_languages(manifest_row, config):
         path = ROOT / language / relative_path
         if not path.exists():
             continue
-        analysis = analyze_source_file(path)
-        candidates.append((language, analysis))
+        candidates.append((language, analyze_id_file(path)))
 
     if not candidates:
-        return None, [f"missing all source-language candidates for: {relative_path}"]
+        return None, [f"missing all translation ID metadata candidates for: {relative_path}"]
 
-    priority = config.get("reference_language_priority", [])
+    priority = id_language_priority(config)
     rank = {language: index for index, language in enumerate(priority)}
 
     def score(item: tuple[str, dict]) -> tuple:
@@ -167,18 +282,17 @@ def select_source_file(relative_path: str, manifest_row: dict, config: dict) -> 
         )
 
     language, best = max(candidates, key=score)
-
     if best["conflicts"]:
         details = ", ".join(best["conflicts"][:10])
         raise RuntimeError(
-            f"no conflict-free source-language file for {relative_path}; "
-            f"best candidate {language!r} still has conflicting translation IDs: {details}"
+            f"no conflict-free ID metadata file for {relative_path}; "
+            f"best candidate {language!r} has conflicting translation IDs: {details}"
         )
 
     preferred = (manifest_row.get("count_reference_language") or "").strip()
     if preferred and language != preferred:
         warnings.append(
-            f"voice source resolver selected {language}/{relative_path} instead of "
+            f"ID resolver selected {language}/{relative_path} instead of "
             f"manifest count reference {preferred}/{relative_path}"
         )
     if best["identical_duplicates"]:
@@ -193,92 +307,266 @@ def select_source_file(relative_path: str, manifest_row: dict, config: dict) -> 
     return best, warnings
 
 
+def block_dialogue_units(block, character_tokens: set[str]) -> list[object]:
+    result = []
+    for unit in block.units:
+        if dialogue_from_statement(unit.source, unit.source_shape, character_tokens) is not None:
+            result.append(unit)
+    return result
+
+
+def match_ids_to_original(
+    blocks: list[object],
+    direct_units: list[dict],
+    character_tokens: set[str],
+    relative_path: str,
+) -> tuple[list[tuple[object, object, dict]], set[int], list[str]]:
+    matches: list[tuple[object, object, dict]] = []
+    used: set[int] = set()
+    warnings: list[str] = []
+    cursor = 0
+
+    for block in blocks:
+        dialogue_units = block_dialogue_units(block, character_tokens)
+        if not dialogue_units:
+            continue
+        if len(dialogue_units) > 1:
+            warnings.append(
+                f"{relative_path}: ID block {block.block_id} contains "
+                f"{len(dialogue_units)} dialogue units; skipped as ambiguous"
+            )
+            continue
+
+        metadata_unit = dialogue_units[0]
+        key = (metadata_unit.source_shape, tuple(metadata_unit.source))
+
+        found = None
+        for index in range(cursor, len(direct_units)):
+            direct = direct_units[index]
+            if index not in used and (
+                direct["source_shape"],
+                tuple(direct["source_literals"]),
+            ) == key:
+                found = index
+                break
+
+        if found is None:
+            candidates = [
+                index
+                for index, direct in enumerate(direct_units)
+                if index not in used
+                and (
+                    direct["source_shape"],
+                    tuple(direct["source_literals"]),
+                ) == key
+            ]
+            if len(candidates) == 1:
+                found = candidates[0]
+                warnings.append(
+                    f"{relative_path}: ID {block.block_id} matched original source "
+                    "outside expected statement order"
+                )
+
+        if found is None:
+            warnings.append(
+                f"{relative_path}: ID {block.block_id} source comment does not match "
+                "the canonical original source"
+            )
+            continue
+
+        used.add(found)
+        if found >= cursor:
+            cursor = found + 1
+        matches.append((block, metadata_unit, direct_units[found]))
+
+    return matches, used, warnings
+
+
+def make_unmapped_id(relative_path: str, unit: dict) -> str:
+    payload = json.dumps(
+        [
+            relative_path,
+            unit["source_line"],
+            unit["source_shape"],
+            list(unit["source_literals"]),
+        ],
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    return "unmapped_" + hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def build_row(
+    *,
+    row_id: str,
+    renpy_id: str,
+    relative_path: str,
+    direct_path: Path,
+    direct: dict,
+    variables: dict[str, str],
+    skip_speakers: set[str],
+    reference_language: str = "",
+    reference_file: str = "",
+    id_source_line: int = 0,
+    extra_reasons: list[str] | None = None,
+) -> dict:
+    tts_text, unresolved = prepare_tts_text(direct["english_text"], variables)
+    reasons = list(extra_reasons or [])
+
+    if direct["speaker_kind"] == "literal":
+        reasons.append("literal-speaker:" + direct["speaker_label"])
+    if direct["speaker"] in skip_speakers:
+        reasons.append("speaker-skipped-by-config")
+    if unresolved:
+        reasons.append("unresolved-variable:" + ",".join(unresolved))
+
+    source_file = direct_path.relative_to(ROOT).as_posix()
+    return {
+        "id": row_id,
+        "renpy_id": renpy_id,
+        "unit_index": 1,
+        "speaker": direct["speaker"],
+        "speaker_label": direct["speaker_label"],
+        "speaker_kind": direct["speaker_kind"],
+        "english_text": direct["english_text"],
+        "tts_text": tts_text,
+        "status": "ready" if not reasons else "needs_review",
+        "review_reasons": reasons,
+        "reference_language": reference_language,
+        "reference_file": reference_file,
+        "id_source_line": id_source_line,
+        "game_source_file": relative_path,
+        "source_file": source_file,
+        "source_line": direct["source_line"],
+        "source_shape": direct["source_shape"],
+        "source_literals": list(direct["source_literals"]),
+        "source_occurrences": [
+            {
+                "source_file": source_file,
+                "source_line": direct["source_line"],
+            }
+        ],
+    }
+
+
 def iter_source_rows(config: dict) -> tuple[list[dict], list[str]]:
-    manifest_path = root_path(config["source_manifest"])
+    manifest_path = id_manifest_path(config)
+    source_root = original_source_root(config)
     variables = load_variables(config)
     skip_speakers = set(config.get("skip_speakers", []))
+    character_tokens = load_character_tokens(config)
     rows_by_id: dict[str, dict] = {}
     warnings: list[str] = []
     conflicts: list[str] = []
+    processed_paths: set[str] = set()
 
     with manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:
-        source_manifest = list(csv.DictReader(handle))
+        id_manifest = list(csv.DictReader(handle))
 
-    for manifest_row in source_manifest:
+    def add_row(row: dict) -> None:
+        existing = rows_by_id.get(row["id"])
+        if existing is None:
+            rows_by_id[row["id"]] = row
+            return
+
+        same_voice_line = (
+            existing["speaker"] == row["speaker"]
+            and existing.get("speaker_label", "") == row.get("speaker_label", "")
+            and existing["english_text"] == row["english_text"]
+            and existing["tts_text"] == row["tts_text"]
+        )
+        if same_voice_line:
+            existing["source_occurrences"].extend(row["source_occurrences"])
+            warnings.append(
+                f"deduplicated identical global voice ID {row['id']} from "
+                f"{row['game_source_file']}"
+            )
+            return
+
+        conflicts.append(
+            f"{row['id']}: {existing['speaker']} {existing['english_text']!r} "
+            f"vs {row['speaker']} {row['english_text']!r}"
+        )
+
+    for manifest_row in id_manifest:
         relative_path = (manifest_row.get("relative_path") or "").strip()
         if not relative_path:
             continue
 
-        selected, selection_warnings = select_source_file(relative_path, manifest_row, config)
-        warnings.extend(selection_warnings)
-        if selected is None:
+        direct_path = source_root / relative_path
+        if not direct_path.exists():
+            warnings.append(
+                f"not present in installed canonical original source: {relative_path}"
+            )
             continue
 
-        reference_path = selected["path"]
-        reference_language = selected["language"]
+        processed_paths.add(relative_path)
+        direct_units = parse_original_dialogue_file(direct_path, character_tokens)
+        selected, selection_warnings = select_id_metadata_file(
+            relative_path, manifest_row, config
+        )
+        warnings.extend(selection_warnings)
 
-        for block in selected["blocks"]:
-            unit_count = len(block.units)
-            for unit_index, unit in enumerate(block.units, start=1):
-                speaker = speaker_from_shape(unit.source_shape)
-                english_text = " ".join(part for part in unit.source if part).strip()
-                if not english_text:
-                    continue
+        used: set[int] = set()
+        if selected is not None:
+            matches, used, mapping_warnings = match_ids_to_original(
+                selected["blocks"], direct_units, character_tokens, relative_path
+            )
+            warnings.extend(mapping_warnings)
 
-                tts_text, unresolved = prepare_tts_text(english_text, variables)
-                reasons: list[str] = []
-                if not speaker:
-                    reasons.append("speaker-not-resolved")
-                if speaker in skip_speakers:
-                    reasons.append("speaker-skipped-by-config")
-                if unresolved:
-                    reasons.append("unresolved-variable:" + ",".join(unresolved))
-                if unit_count != 1:
-                    reasons.append("multi-unit-translation-block")
-
-                row_id = block.block_id if unit_count == 1 else f"{block.block_id}__u{unit_index}"
-                occurrence = {
-                    "reference_language": reference_language,
-                    "reference_file": reference_path.relative_to(ROOT).as_posix(),
-                    "source_line": unit.source_line,
-                }
-                row = {
-                    "id": row_id,
-                    "renpy_id": block.block_id,
-                    "unit_index": unit_index,
-                    "speaker": speaker or "",
-                    "english_text": english_text,
-                    "tts_text": tts_text,
-                    "status": "ready" if not reasons else "needs_review",
-                    "review_reasons": reasons,
-                    "reference_language": reference_language,
-                    "reference_file": reference_path.relative_to(ROOT).as_posix(),
-                    "game_source_file": relative_path,
-                    "source_line": unit.source_line,
-                    "source_occurrences": [occurrence],
-                }
-
-                existing = rows_by_id.get(row_id)
-                if existing is None:
-                    rows_by_id[row_id] = row
-                    continue
-
-                same_voice_line = (
-                    existing["speaker"] == row["speaker"]
-                    and existing["english_text"] == row["english_text"]
-                    and existing["tts_text"] == row["tts_text"]
-                )
-                if same_voice_line:
-                    existing["source_occurrences"].extend(row["source_occurrences"])
-                    warnings.append(
-                        f"deduplicated identical global voice ID {row_id} from {relative_path}"
+            reference_file = selected["path"].relative_to(ROOT).as_posix()
+            reference_language = selected["language"]
+            for block, metadata_unit, direct in matches:
+                add_row(
+                    build_row(
+                        row_id=block.block_id,
+                        renpy_id=block.block_id,
+                        relative_path=relative_path,
+                        direct_path=direct_path,
+                        direct=direct,
+                        variables=variables,
+                        skip_speakers=skip_speakers,
+                        reference_language=reference_language,
+                        reference_file=reference_file,
+                        id_source_line=metadata_unit.source_line,
                     )
-                    continue
-
-                conflicts.append(
-                    f"{row_id}: {existing['speaker']} {existing['english_text']!r} "
-                    f"vs {row['speaker']} {row['english_text']!r}"
                 )
+
+        for index, direct in enumerate(direct_units):
+            if index in used:
+                continue
+            row_id = make_unmapped_id(relative_path, direct)
+            add_row(
+                build_row(
+                    row_id=row_id,
+                    renpy_id="",
+                    relative_path=relative_path,
+                    direct_path=direct_path,
+                    direct=direct,
+                    variables=variables,
+                    skip_speakers=skip_speakers,
+                    extra_reasons=["renpy-id-not-resolved"],
+                )
+            )
+
+    for direct_path in sorted(source_root.rglob("*.rpy")):
+        relative_path = direct_path.relative_to(source_root).as_posix()
+        if relative_path in processed_paths:
+            continue
+        for direct in parse_original_dialogue_file(direct_path, character_tokens):
+            row_id = make_unmapped_id(relative_path, direct)
+            add_row(
+                build_row(
+                    row_id=row_id,
+                    renpy_id="",
+                    relative_path=relative_path,
+                    direct_path=direct_path,
+                    direct=direct,
+                    variables=variables,
+                    skip_speakers=skip_speakers,
+                    extra_reasons=["renpy-id-not-resolved"],
+                )
+            )
 
     if conflicts:
         raise RuntimeError(
@@ -299,15 +587,22 @@ def write_manifest(config: dict, rows: list[dict], warnings: list[str]) -> None:
             handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
 
     speaker_counts = Counter(row["speaker"] for row in rows if row["speaker"])
-    source_language_counts = Counter(row["reference_language"] for row in rows)
+    id_language_counts = Counter(
+        row["reference_language"] for row in rows if row.get("reference_language")
+    )
     ready_count = sum(row["status"] == "ready" for row in rows)
     stats = {
+        "source_kind": "canonical_original_english_game_source",
+        "canonical_source_root": original_source_root(config).relative_to(ROOT).as_posix(),
+        "id_metadata_manifest": id_manifest_path(config).relative_to(ROOT).as_posix(),
         "total_lines": len(rows),
         "ready_lines": ready_count,
         "needs_review_lines": len(rows) - ready_count,
+        "unmapped_id_lines": sum(not row.get("renpy_id") for row in rows),
+        "literal_speaker_lines": sum(row.get("speaker_kind") == "literal" for row in rows),
         "speaker_count": len(speaker_counts),
         "speakers": dict(sorted(speaker_counts.items(), key=lambda item: (-item[1], item[0]))),
-        "source_languages": dict(sorted(source_language_counts.items())),
+        "id_metadata_languages": dict(sorted(id_language_counts.items())),
         "warnings": warnings,
     }
     write_json(stats_path, stats)
