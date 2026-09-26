@@ -78,7 +78,10 @@ param(
     [switch]$SkipPullRequest,
 
     [Parameter()]
-    [switch]$AllowPotentialSecrets
+    [switch]$AllowPotentialSecrets,
+
+    [Parameter()]
+    [switch]$SelfTest
 )
 
 Set-StrictMode -Version Latest
@@ -717,6 +720,66 @@ function New-DraftPullRequest {
     }
 }
 
+function Invoke-ImporterSelfTest {
+    [CmdletBinding()]
+    param()
+
+    $testRoot = Join-Path $env:TEMP "voice-importer-selftest-$([guid]::NewGuid().ToString('N'))"
+
+    try {
+        New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $testRoot 'tl\dutch') -Force | Out-Null
+
+        $safeFile = Join-Path $testRoot 'script.rpy'
+        'define mc = Character("MC")' | Set-Content -LiteralPath $safeFile -Encoding utf8NoBOM
+
+        $translatedFile = Join-Path $testRoot 'tl\dutch\script.rpy'
+        'translate dutch test:' | Set-Content -LiteralPath $translatedFile -Encoding utf8NoBOM
+
+        $compiledFile = Join-Path $testRoot 'script.rpyc'
+        [System.IO.File]::WriteAllBytes($compiledFile, [byte[]](1, 2, 3, 4))
+
+        $scan = Get-SourceScan -GameRoot $testRoot
+        if ($scan.SelectedFiles.Count -ne 1) {
+            throw "Self-test expected exactly one selected source file, got $($scan.SelectedFiles.Count)."
+        }
+
+        if ($scan.ExcludedTranslations -ne 1) {
+            throw "Self-test expected one excluded translation file, got $($scan.ExcludedTranslations)."
+        }
+
+        $safeHits = @(Find-PotentialSecret -Files $scan.SelectedFiles)
+        if ($safeHits.Count -ne 0) {
+            throw "Self-test expected zero secret hits, got $($safeHits.Count)."
+        }
+
+        $secretFile = Join-Path $testRoot 'secret.txt'
+        'AIza12345678901234567890123456789012345' | Set-Content -LiteralPath $secretFile -Encoding utf8NoBOM
+        $secretInfo = Get-Item -LiteralPath $secretFile
+        $secretCandidate = [pscustomobject]@{
+            FullName = $secretInfo.FullName
+            RelativePath = 'secret.txt'
+            Extension = '.txt'
+            Length = [int64]$secretInfo.Length
+        }
+
+        $secretHits = @(Find-PotentialSecret -Files @($secretCandidate))
+        if ($secretHits.Count -ne 1) {
+            throw "Self-test expected one secret hit, got $($secretHits.Count)."
+        }
+
+        Write-Status -Level Success -Message 'Importer runtime self-test passed.'
+    }
+    finally {
+        Remove-Item -LiteralPath $testRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+if ($SelfTest) {
+    Invoke-ImporterSelfTest
+    exit 0
+}
+
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $logPath = Join-Path $env:TEMP "Import-OriginalGameVoiceSource-$timestamp.log"
 $voiceWorktreeRoot = $null
@@ -774,7 +837,7 @@ try {
     Write-Status -Message "Translation files excluded: $($scan.ExcludedTranslations)"
     Write-Status -Message "Unsupported/binary files excluded: $($scan.ExcludedUnsupported)"
 
-    $secretHits = Find-PotentialSecret -Files $scan.SelectedFiles
+    $secretHits = @(Find-PotentialSecret -Files $scan.SelectedFiles)
     if ($secretHits.Count -gt 0) {
         foreach ($hit in $secretHits) {
             Write-Status -Level Warning -Message "Potential secret pattern '$($hit.Pattern)' in $($hit.RelativePath)"
