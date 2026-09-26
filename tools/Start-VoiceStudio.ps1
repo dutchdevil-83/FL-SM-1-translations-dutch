@@ -65,6 +65,14 @@ if ($RecreateEnvironment -and (Test-Path $VenvRoot)) {
     Remove-Item $VenvRoot -Recurse -Force
 }
 
+if (Test-Path $VenvPython) {
+    & $VenvPython -c "import sys; raise SystemExit(0 if sys.version_info < (3, 15) else 1)" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host 'Existing GUI environment uses an unsupported Python version. Recreating...'
+        Remove-Item $VenvRoot -Recurse -Force
+    }
+}
+
 if (-not (Test-Path $VenvPython)) {
     New-VoiceGuiEnvironment
 }
