@@ -707,6 +707,119 @@ def command_init_characters(args: argparse.Namespace, config: dict) -> int:
     return 0
 
 
+def load_casting_request(config: dict, speaker: str, entry: dict) -> tuple[Path, dict]:
+    request_dir = root_path(config.get("casting_request_dir", "voice/build/casting/requests"))
+    request_path = request_dir / f"{speaker}.json"
+    if not request_path.is_file():
+        raise SystemExit(
+            f"Voice Design request is missing for {speaker!r}: {request_path.relative_to(ROOT)}. "
+            "Run: python tools/voice_profiles.py export"
+        )
+
+    request = read_json(request_path)
+    voice = request.get("voice")
+    if request.get("store") is not True or not isinstance(voice, dict):
+        raise SystemExit(f"Invalid Voice Design request for {speaker!r}: expected store=true and voice object.")
+
+    expected = {
+        "display_name": entry.get("display_name") or speaker,
+        "language_code": entry.get("language_code") or config.get("spoken_language", "en-US"),
+        "gender": entry.get("gender"),
+        "prompt": entry.get("design_prompt") or "",
+    }
+    actual_prompt = ((voice.get("prompted") or {}).get("input") or "") if isinstance(voice.get("prompted"), dict) else ""
+    actual = {
+        "display_name": voice.get("display_name"),
+        "language_code": voice.get("language_code"),
+        "gender": voice.get("gender"),
+        "prompt": actual_prompt,
+    }
+    mismatches = [name for name in expected if expected[name] != actual[name]]
+    if mismatches:
+        raise SystemExit(
+            f"Voice Design request for {speaker!r} is stale ({', '.join(mismatches)}). "
+            "Regenerate it with: python tools/voice_profiles.py export"
+        )
+
+    if voice.get("type") != "prompted" or not voice.get("model"):
+        raise SystemExit(f"Invalid Voice Design request for {speaker!r}: prompted voice model is required.")
+
+    return request_path, request
+
+
+def provider_time(value) -> str:
+    if value is None:
+        return ""
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    return str(value)
+
+
+def command_create_voice(args: argparse.Namespace, config: dict) -> int:
+    registry_path = root_path(config["characters_file"])
+    registry = read_json(registry_path, {"schema_version": 1, "characters": {}})
+    characters = registry.get("characters", {})
+    entry = characters.get(args.speaker)
+    if not entry:
+        raise SystemExit(f"Unknown speaker {args.speaker!r}. Run init-characters first.")
+    if not entry.get("enabled", True):
+        raise SystemExit(f"Speaker {args.speaker!r} is disabled and cannot receive a provider voice.")
+    if (entry.get("voice_ref") or "").strip():
+        raise SystemExit(
+            f"Speaker {args.speaker!r} uses voice_ref={entry['voice_ref']!r}; create the referenced voice instead."
+        )
+    existing_voice_id = (entry.get("voice_id") or "").strip()
+    if existing_voice_id:
+        raise SystemExit(
+            f"Speaker {args.speaker!r} already has voice_id={existing_voice_id!r}. "
+            "The create-voice command never replaces an existing provider voice."
+        )
+
+    request_path, request = load_casting_request(config, args.speaker, entry)
+    genai = require_genai()
+    client = genai.Client()
+    created = client.voices.create(**request)
+    voice_id = (getattr(created, "id", None) or "").strip()
+    if not voice_id:
+        raise RuntimeError("Gemini created a voice but returned no persistent voice ID.")
+
+    request_digest = hashlib.sha256(
+        json.dumps(request, sort_keys=True, ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    voice = request["voice"]
+    preview_dir = ROOT / "voice" / "previews"
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = preview_dir / f"{args.speaker}.creation.json"
+    write_json(metadata_path, {
+        "schema_version": 1,
+        "speaker": args.speaker,
+        "voice_id": voice_id,
+        "model": voice.get("model", ""),
+        "display_name": voice.get("display_name", ""),
+        "create_time": provider_time(getattr(created, "create_time", None)),
+        "expire_time": provider_time(getattr(created, "expire_time", None)),
+        "request_file": request_path.relative_to(ROOT).as_posix(),
+        "request_sha256": request_digest,
+    })
+
+    entry["voice_id"] = voice_id
+    entry["casting_status"] = "audition_pending"
+    write_json(registry_path, registry)
+
+    sample_audio = getattr(created, "sample_audio", None)
+    sample_data = getattr(sample_audio, "data", None) if sample_audio is not None else None
+    if sample_data:
+        preview_path = preview_dir / f"{args.speaker}.wav"
+        preview_path.write_bytes(decode_audio_data(sample_data))
+        print(f"Saved audition sample: {preview_path.relative_to(ROOT)}")
+    else:
+        print("Gemini returned no sample_audio; the persistent voice ID was still stored.")
+
+    print(f"Stored persistent voice ID for {args.speaker}: {voice_id}")
+    print(f"Creation metadata: {metadata_path.relative_to(ROOT)}")
+    return 0
+
+
 def command_design_voice(args: argparse.Namespace, config: dict) -> int:
     genai = require_genai()
     registry_path = root_path(config["characters_file"])
@@ -716,9 +829,17 @@ def command_design_voice(args: argparse.Namespace, config: dict) -> int:
     entry = characters.get(args.speaker)
     if not entry:
         raise SystemExit(f"Unknown speaker {args.speaker!r}. Run init-characters first.")
+    if not entry.get("enabled", True):
+        raise SystemExit(f"Speaker {args.speaker!r} is disabled and cannot receive a provider voice.")
     if (entry.get("voice_ref") or "").strip():
         raise SystemExit(
             f"Speaker {args.speaker!r} uses voice_ref={entry['voice_ref']!r}; design the referenced voice instead."
+        )
+    existing_voice_id = (entry.get("voice_id") or "").strip()
+    if existing_voice_id:
+        raise SystemExit(
+            f"Speaker {args.speaker!r} already has voice_id={existing_voice_id!r}. "
+            "The design-voice command never replaces an existing provider voice."
         )
 
     voice = {
@@ -889,6 +1010,13 @@ def build_parser() -> argparse.ArgumentParser:
     init_characters = subparsers.add_parser("init-characters", help="Merge discovered speaker IDs into the registry.")
     init_characters.add_argument("--dry-run", action="store_true")
     init_characters.set_defaults(handler=command_init_characters)
+
+    create = subparsers.add_parser(
+        "create-voice",
+        help="Create one persistent Gemini voice from an exported casting request.",
+    )
+    create.add_argument("--speaker", required=True)
+    create.set_defaults(handler=command_create_voice)
 
     design = subparsers.add_parser("design-voice", help="Create one persistent Gemini Voice Design persona.")
     design.add_argument("--speaker", required=True)
