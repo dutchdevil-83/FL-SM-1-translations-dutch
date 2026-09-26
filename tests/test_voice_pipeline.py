@@ -17,6 +17,45 @@ SPEC.loader.exec_module(MODULE)
 
 
 class VoicePipelineTests(unittest.TestCase):
+    def test_merge_character_registry_resets_stale_line_counts(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            registry_path = root / "voice" / "characters.json"
+            registry_path.parent.mkdir(parents=True)
+            registry_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "characters": {
+                            "jc": {"display_name": "Jerk Cop", "line_count": 38},
+                            "mc": {"display_name": "Mike", "line_count": 999},
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                with mock.patch.object(
+                    MODULE,
+                    "load_manifest",
+                    return_value=[
+                        {"speaker": "mc"},
+                        {"speaker": "mc"},
+                    ],
+                ):
+                    registry = MODULE.merge_character_registry(
+                        {"characters_file": "voice/characters.json"},
+                        write=False,
+                    )
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(registry["characters"]["jc"]["line_count"], 0)
+        self.assertEqual(registry["characters"]["mc"]["line_count"], 2)
+
     def test_prepare_tts_text_removes_formatting_and_preserves_pause(self):
         text, unresolved = MODULE.prepare_tts_text(
             "But it {i}is{/i} true.{w} Really.", {}
