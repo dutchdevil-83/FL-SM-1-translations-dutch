@@ -92,7 +92,7 @@ $script:RepositoryRoot = $null
 $script:TranscriptStarted = $false
 $script:RpycdecVersion = '0.2.0'
 $script:RpycdecWheelSha256 = '5354959b7881c67ed87bcbd29a954bf44df10defd200314379a4cad3b98a89ec'
-$script:MinimumManifestCoverage = 0.95
+$script:ManifestCoverageWarningThreshold = 0.95
 
 $script:AllowedExtensions = @(
     '.rpy',
@@ -715,7 +715,10 @@ function New-MaterializedGameSource {
             ArchiveCount = 0
             ArchiveFiles = @()
             LooseCompiledCount = 0
+            EffectiveCompiledCount = 0
             DecompiledScriptCount = 0
+            DecompileCoverage = 1.0
+            DecompileMissingPaths = @()
             ArchiveConflicts = @()
         }
     }
@@ -784,6 +787,36 @@ function New-MaterializedGameSource {
         Get-ChildItem -LiteralPath $decompiledRoot -Filter '*.rpy' -File -Recurse -Force
     )
 
+    $decompiledPathSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($file in $decompiledScripts) {
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($decompiledRoot, $file.FullName))
+        [void]$decompiledPathSet.Add($relativePath)
+    }
+
+    $decompileMissingPaths = [System.Collections.Generic.List[string]]::new()
+    foreach ($compiledFile in $compiledInRaw) {
+        $compiledRelativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($rawRoot, $compiledFile.FullName))
+        $expectedSourcePath = $compiledRelativePath.Substring(0, $compiledRelativePath.Length - 1)
+        if (-not $decompiledPathSet.Contains($expectedSourcePath)) {
+            $decompileMissingPaths.Add($expectedSourcePath)
+        }
+    }
+
+    $effectiveCompiledCount = @($compiledInRaw).Count
+    $decompileCoverage = if ($effectiveCompiledCount -eq 0) {
+        1.0
+    }
+    else {
+        [double]($effectiveCompiledCount - $decompileMissingPaths.Count) / [double]$effectiveCompiledCount
+    }
+
+    if ($decompileMissingPaths.Count -gt 0 -or $decompileCoverage -lt 1.0) {
+        $preview = @($decompileMissingPaths | Select-Object -First 20) -join ', '
+        throw ("Ren'Py decompilation did not reconstruct every effective compiled script. Coverage: {0:P2}; missing {1} path(s). First missing paths: {2}" -f $decompileCoverage, $decompileMissingPaths.Count, $preview)
+    }
+
+    Write-Status -Level Success -Message ("Effective compiled-script reconstruction: {0}/{1} ({2:P2})" -f ($effectiveCompiledCount - $decompileMissingPaths.Count), $effectiveCompiledCount, $decompileCoverage)
+
     foreach ($file in $decompiledScripts) {
         $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($decompiledRoot, $file.FullName))
 
@@ -814,7 +847,10 @@ function New-MaterializedGameSource {
         ArchiveCount = $archiveCount
         ArchiveFiles = @($archiveMetadata)
         LooseCompiledCount = $looseCompiledCount
+        EffectiveCompiledCount = $effectiveCompiledCount
         DecompiledScriptCount = @($decompiledScripts).Count
+        DecompileCoverage = $decompileCoverage
+        DecompileMissingPaths = @($decompileMissingPaths)
         ArchiveConflicts = @($conflicts | Sort-Object -Unique)
     }
 }
@@ -1045,7 +1081,10 @@ function Copy-SourceSnapshot {
             tool_version = $ReconstructionInfo.RpycdecVersion
             archive_count = [int]$ReconstructionInfo.ArchiveCount
             loose_compiled_count = [int]$ReconstructionInfo.LooseCompiledCount
+            effective_compiled_count = [int]$ReconstructionInfo.EffectiveCompiledCount
             decompiled_script_count = [int]$ReconstructionInfo.DecompiledScriptCount
+            decompile_coverage_ratio = [math]::Round([double]$ReconstructionInfo.DecompileCoverage, 6)
+            decompile_missing_count = @($ReconstructionInfo.DecompileMissingPaths).Count
             archive_conflict_count = @($ReconstructionInfo.ArchiveConflicts).Count
             archives = @($ReconstructionInfo.ArchiveFiles)
         }
@@ -1114,7 +1153,9 @@ function Copy-SourceSnapshot {
         '',
         "RPA archives processed: $($manifest.reconstruction.archive_count)",
         "Loose compiled scripts found: $($manifest.reconstruction.loose_compiled_count)",
+        "Effective compiled scripts discovered: $($manifest.reconstruction.effective_compiled_count)",
         "Compiled scripts decompiled: $($manifest.reconstruction.decompiled_script_count)",
+        ("Effective compiled-script reconstruction: {0:P2}" -f [double]$manifest.reconstruction.decompile_coverage_ratio),
         "Archive path conflicts resolved by archive priority: $($manifest.reconstruction.archive_conflict_count)",
         "Reconstruction tool: $(if ($manifest.reconstruction.used) { "rpycdec $($manifest.reconstruction.tool_version)" } else { 'not required' })",
         '',
@@ -1188,6 +1229,7 @@ function New-DraftPullRequest {
             "Expected source coverage: $($CoverageInfo.CoveredCount)/$($CoverageInfo.ExpectedCount) ($('{0:P2}' -f [double]$CoverageInfo.Coverage))",
             "RPA archives processed: $($ReconstructionInfo.ArchiveCount)",
             "Compiled scripts decompiled: $($ReconstructionInfo.DecompiledScriptCount)",
+            "Effective compiled-script reconstruction: $('{0:P2}' -f [double]$ReconstructionInfo.DecompileCoverage)",
             '',
             '### Purpose',
             '',
@@ -1200,7 +1242,8 @@ function New-DraftPullRequest {
             '- RPA archives and compiled Ren''Py scripts are reconstructed in a temporary workspace; binary archives/compiled files are not committed.',
             '- saves, cache, media, archives, compiled files and executables are excluded from the PR.',
             '- SOURCE_MANIFEST.json records SHA-256 hashes, reconstruction provenance and coverage.',
-            '- SOURCE_COVERAGE.json lists any expected .rpy paths still missing.',
+            '- SOURCE_COVERAGE.json compares this installed build to the project translation inventory; mismatches are review diagnostics, not proof that the installed build is incomplete.',
+            '- Every effective compiled script discovered in the installed package must decompile successfully before a PR can be created.',
             '- No Gemini/TTS calls were made by the import script.',
             '',
             '### Review target',
@@ -1391,9 +1434,9 @@ try {
     $coverageInfo = Get-ManifestCoverage -SourceRoot $sourceRoot -ManifestPath $expectedManifestPath
     Write-Status -Message ("Expected source coverage: {0}/{1} ({2:P2})" -f $coverageInfo.CoveredCount, $coverageInfo.ExpectedCount, $coverageInfo.Coverage)
 
-    if ($coverageInfo.Coverage -lt $script:MinimumManifestCoverage) {
+    if ($coverageInfo.Coverage -lt $script:ManifestCoverageWarningThreshold) {
         $preview = @($coverageInfo.MissingPaths | Select-Object -First 20) -join ', '
-        throw ("Reconstructed source coverage is below the required {0:P0}: {1:P2}. Missing {2} expected source path(s). First missing paths: {3}" -f $script:MinimumManifestCoverage, $coverageInfo.Coverage, $coverageInfo.MissingCount, $preview)
+        Write-Status -Level Warning -Message ("Project inventory coverage is {0:P2}, below the {1:P0} review threshold. This inventory is advisory because it may describe a newer/older game build than the installed package. Missing {2} expected path(s). First missing paths: {3}" -f $coverageInfo.Coverage, $script:ManifestCoverageWarningThreshold, $coverageInfo.MissingCount, $preview)
     }
 
     $secretHits = @(Find-PotentialSecret -Files $scan.SelectedFiles)
