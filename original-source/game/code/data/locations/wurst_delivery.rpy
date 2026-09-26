@@ -1,0 +1,31 @@
+init python:
+    sm_locations_data += [
+            {
+                LOCATION: WURST_DELIVERY, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: WD_OUTSIDE,
+                DISCOVERED: True, LOCKED: False, P_NAME: WD_OUTSIDE,
+                FORWARD_MOVE: WD_ENTRANCE, LEFT_MOVE: False, BACK_MOVE: MAP, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True, NAVIGATION_BUTTONS: [WD_ENTRANCE],
+                SCHEDULE:"LSCHEDULE_WD_DEFAULT",
+                },
+            {
+                LOCATION: WURST_DELIVERY, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: WD_ENTRANCE,
+                DISCOVERED: True, LOCKED: False, P_NAME: WD_ENTRANCE,
+                FORWARD_MOVE: WD_COUNTER, LEFT_MOVE: False, BACK_MOVE: WD_OUTSIDE , RIGHT_MOVE: WD_SEATS,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True, NAVIGATION_BUTTONS: [WD_COUNTER, WD_SEATS],
+                SCHEDULE:"LSCHEDULE_WD_DEFAULT",
+                },
+            {
+                LOCATION: WURST_DELIVERY, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: WD_COUNTER,
+                DISCOVERED: True, LOCKED: False, P_NAME: WD_COUNTER,
+                FORWARD_MOVE: False, LEFT_MOVE: False, BACK_MOVE: WD_ENTRANCE, RIGHT_MOVE: WD_SEATS,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True,
+                SCHEDULE:"LSCHEDULE_WD_DEFAULT",
+                },
+            {
+                LOCATION: WURST_DELIVERY, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: WD_SEATS,
+                DISCOVERED: True, LOCKED: False, P_NAME: WD_SEATS,
+                FORWARD_MOVE: False, LEFT_MOVE: False, BACK_MOVE: WD_ENTRANCE, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True,
+                SCHEDULE:"LSCHEDULE_WD_DEFAULT",
+                },
+        ]

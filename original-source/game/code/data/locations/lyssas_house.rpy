@@ -1,0 +1,24 @@
+init python:
+    sm_locations_data += [
+            {
+                LOCATION: LYSSAS_HOUSE, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: LLY_OUTSIDE,
+                DISCOVERED: False, LOCKED: False, P_NAME: LLY_OUTSIDE,
+                FORWARD_MOVE: [LLY_SUB_INSIDE, LLY_OVERVIEW], LEFT_MOVE: False, BACK_MOVE: MAP, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: False, SHOW_NAVIGATION_LIST: False, NAVIGATION_BUTTONS: [[LLY_SUB_INSIDE, LLY_OVERVIEW]],
+                SCHEDULE:"LSCHEDULE_ANYTIME",
+                },
+            {
+                LOCATION: LYSSAS_HOUSE, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: LLY_DOOR,
+                DISCOVERED: True, LOCKED: True, P_NAME: LLY_DOOR,
+                FORWARD_MOVE: [LLY_SUB_INSIDE, LLY_OVERVIEW], LEFT_MOVE: False, BACK_MOVE: LLY_OUTSIDE, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: False, SHOW_NAVIGATION_LIST: False,
+                SCHEDULE:"LSCHEDULE_ANYTIME",
+                },
+            {
+                LOCATION: LYSSAS_HOUSE, SUBLOCATION: LLY_SUB_INSIDE, POSITION: LLY_OVERVIEW,
+                DISCOVERED: True, LOCKED: True, P_NAME: LLY_OVERVIEW,
+                FORWARD_MOVE: False, LEFT_MOVE: False, BACK_MOVE: [DEFAULT_SUBLOCATION, LLY_DOOR], RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True,
+                SCHEDULE:"LSCHEDULE_ANYTIME",
+                },
+        ]

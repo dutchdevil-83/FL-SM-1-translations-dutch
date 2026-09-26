@@ -1,0 +1,1 @@
+default persistent.is_special = True

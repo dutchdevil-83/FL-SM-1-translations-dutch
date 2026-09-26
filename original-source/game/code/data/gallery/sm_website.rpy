@@ -1,0 +1,6 @@
+define sm_website_videos = [
+    {CODENAME: "sm1ms009",      NAME: _("Red-haired maid fucked hard"),                             UNLOCK_CONDITION: [MS, "sm1ms009"],                 THUMBNAIL: "sm1ms009-a120-5 sy-rides-mc-anim-01",           NAMES: {mc: _("Mr. CEO Man"), sy: _("Maid")}},
+    {CODENAME: "sm1cs_tl003",   NAME: _("Sexy brunette fucked in a car"),                           UNLOCK_CONDITION: [TL_STORY, "sm1cs_tl003"],        THUMBNAIL: "sm1cs-tl003-a40-2 mc-sy-tl-anim-01",            NAMES: {mc: _("Officer Johnson"), tl: _("Street Racer")}},
+    {CODENAME: "sm1ms022",      NAME: _("Slutty redhead farmer girl gets her tight ass pounded"),   UNLOCK_CONDITION: [MS, "sm1ms022"],                 THUMBNAIL: "sm1ms022-76 mc-fucks-sy-ass-cucumber-anim_c1",  NAMES: {mc: _("Farmhand Jon"), sy: _("Ms. Jones")}},
+    {CODENAME: "sm1mv01",       NAME: _("Curse of the Pirate Queen"),                               UNLOCK_CONDITION: [MOVIE_PIRATES, "sm1mv01s11i"],   THUMBNAIL: "sm1mv01s09-63 sy-sucks-mc-tl-hold-her-anim_c1", NAMES: {mc: _("Dickhart"), sy: _("Tempestra"), tl: _("Searose")}},
+    ]

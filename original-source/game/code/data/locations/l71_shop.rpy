@@ -1,0 +1,24 @@
+init python:
+    sm_locations_data += [
+            {
+                LOCATION: SHOP_71STORE, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: L71_OVERVIEW,
+                DISCOVERED: False, LOCKED: False, P_NAME: L71_OVERVIEW,
+                FORWARD_MOVE: L71_COUNTER, LEFT_MOVE: L71_FRIDGES, BACK_MOVE: MAP, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True, NAVIGATION_BUTTONS: [L71_COUNTER, L71_FRIDGES],
+                SCHEDULE:"LSCHEDULE_71_DEFAULT",
+                },
+            {
+                LOCATION: SHOP_71STORE, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: L71_FRIDGES,
+                DISCOVERED: True, LOCKED: False, P_NAME: L71_FRIDGES,
+                FORWARD_MOVE: False, LEFT_MOVE: False, BACK_MOVE: False, RIGHT_MOVE: L71_OVERVIEW,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True, NAVIGATION_BUTTONS: [L71_OVERVIEW],
+                SCHEDULE:"LSCHEDULE_71_DEFAULT",
+                },
+            {
+                LOCATION: SHOP_71STORE, SUBLOCATION: DEFAULT_SUBLOCATION, POSITION: L71_COUNTER,
+                DISCOVERED: True, LOCKED: False, P_NAME: L71_COUNTER,
+                FORWARD_MOVE: False, LEFT_MOVE: False, BACK_MOVE: L71_OVERVIEW, RIGHT_MOVE: False,
+                IS_IN_NAVIGATION_LIST: True, SHOW_NAVIGATION_LIST: True,
+                SCHEDULE:"LSCHEDULE_71_DEFAULT",
+                },
+        ]
