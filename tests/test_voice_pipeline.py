@@ -1,4 +1,5 @@
 import csv
+import json
 import importlib.util
 import sys
 import tempfile
@@ -269,6 +270,83 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertEqual(selected["language"], "deutsch")
         self.assertEqual(len(selected["blocks"]), 1)
         self.assertTrue(any("instead of manifest count reference" in warning for warning in warnings))
+
+
+    def test_load_casting_request_accepts_matching_export(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            request_dir = root / "voice" / "build" / "casting" / "requests"
+            request_dir.mkdir(parents=True)
+            request = {
+                "store": True,
+                "voice": {
+                    "model": "gemini-3.8-flash-tts",
+                    "type": "prompted",
+                    "display_name": "Mike",
+                    "gender": "male",
+                    "language_code": "en-US",
+                    "prompted": {"input": "Warm adult male voice."},
+                },
+            }
+            (request_dir / "mc.json").write_text(
+                json.dumps(request), encoding="utf-8"
+            )
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                path, loaded = MODULE.load_casting_request(
+                    {"casting_request_dir": "voice/build/casting/requests", "spoken_language": "en-US"},
+                    "mc",
+                    {
+                        "display_name": "Mike",
+                        "language_code": "en-US",
+                        "gender": "male",
+                        "design_prompt": "Warm adult male voice.",
+                    },
+                )
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(path.name, "mc.json")
+        self.assertEqual(loaded, request)
+
+    def test_load_casting_request_rejects_stale_prompt(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            request_dir = root / "voice" / "build" / "casting" / "requests"
+            request_dir.mkdir(parents=True)
+            (request_dir / "mc.json").write_text(
+                json.dumps({
+                    "store": True,
+                    "voice": {
+                        "model": "gemini-3.8-flash-tts",
+                        "type": "prompted",
+                        "display_name": "Mike",
+                        "gender": "male",
+                        "language_code": "en-US",
+                        "prompted": {"input": "Old prompt."},
+                    },
+                }),
+                encoding="utf-8",
+            )
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                with self.assertRaises(SystemExit) as context:
+                    MODULE.load_casting_request(
+                        {"casting_request_dir": "voice/build/casting/requests", "spoken_language": "en-US"},
+                        "mc",
+                        {
+                            "display_name": "Mike",
+                            "language_code": "en-US",
+                            "gender": "male",
+                            "design_prompt": "New prompt.",
+                        },
+                    )
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertIn("stale", str(context.exception))
 
     def test_id_resolver_deduplicates_identical_ids(self):
         with tempfile.TemporaryDirectory() as temp_dir:
