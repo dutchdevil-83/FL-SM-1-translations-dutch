@@ -33,6 +33,19 @@ class VoiceStudioTests(unittest.TestCase):
         )
         self.assertAlmostEqual(wait, 11.5)
 
+    def test_tpm_guard_waits_until_enough_tokens_expire(self):
+        wait = MODULE.PersistentRateLimiter.compute_tpm_wait(
+            [
+                {"ts": 50.0, "tokens": 60},
+                {"ts": 80.0, "tokens": 30},
+            ],
+            now=100.0,
+            tpm=100,
+            requested_tokens=30,
+            safety_margin_seconds=1.5,
+        )
+        self.assertAlmostEqual(wait, 11.5)
+
     def test_rate_limiter_persists_request_timestamp(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             state = Path(temp_dir) / "rate.json"
@@ -150,7 +163,7 @@ class VoiceStudioTests(unittest.TestCase):
             rpm = 3
             safety_margin_seconds = 1.5
 
-            def wait(self):
+            def wait(self, estimated_tokens=0):
                 return 0.0
 
         attempts = 0
