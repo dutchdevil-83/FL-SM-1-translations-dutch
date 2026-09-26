@@ -655,10 +655,24 @@ def require_genai():
         raise SystemExit(
             "google-genai is not installed. Run: python -m pip install -r requirements-voice.txt"
         ) from exc
-
-    if not os.environ.get("GEMINI_API_KEY"):
-        raise SystemExit("GEMINI_API_KEY is not set.")
     return genai
+
+
+def gemini_api_key() -> str:
+    key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not key:
+        raise SystemExit("GEMINI_API_KEY is not set.")
+    return key
+
+
+def create_genai_client():
+    key = gemini_api_key()
+    if os.environ.get("GOOGLE_API_KEY"):
+        print(
+            "NOTE: GOOGLE_API_KEY is also set; this pipeline explicitly uses GEMINI_API_KEY.",
+            file=sys.stderr,
+        )
+    return genai.Client(api_key=key)
 
 
 def decode_audio_data(data) -> bytes:
@@ -776,8 +790,7 @@ def command_create_voice(args: argparse.Namespace, config: dict) -> int:
         )
 
     request_path, request = load_casting_request(config, args.speaker, entry)
-    genai = require_genai()
-    client = genai.Client()
+    client = create_genai_client()
     created = client.voices.create(**request)
     voice_id = (getattr(created, "id", None) or "").strip()
     if not voice_id:
@@ -821,7 +834,6 @@ def command_create_voice(args: argparse.Namespace, config: dict) -> int:
 
 
 def command_design_voice(args: argparse.Namespace, config: dict) -> int:
-    genai = require_genai()
     registry_path = root_path(config["characters_file"])
     registry = merge_character_registry(config)
     characters = registry["characters"]
@@ -852,7 +864,7 @@ def command_design_voice(args: argparse.Namespace, config: dict) -> int:
     if args.gender:
         voice["gender"] = args.gender
 
-    client = genai.Client()
+    client = create_genai_client()
     created = client.voices.create(store=True, voice=voice)
     entry["display_name"] = voice["display_name"]
     entry["language_code"] = voice["language_code"]
@@ -871,7 +883,6 @@ def command_design_voice(args: argparse.Namespace, config: dict) -> int:
 
 
 def command_synthesize(args: argparse.Namespace, config: dict) -> int:
-    genai = require_genai()
     rows = load_manifest(config)
     registry = merge_character_registry(config)
     characters = registry["characters"]
@@ -898,7 +909,7 @@ def command_synthesize(args: argparse.Namespace, config: dict) -> int:
         print("No dialogue rows matched the requested filters.")
         return 0
 
-    client = genai.Client()
+    client = create_genai_client()
     generated = 0
     skipped = 0
     failures = 0
