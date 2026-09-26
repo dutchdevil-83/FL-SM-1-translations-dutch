@@ -51,3 +51,13 @@ See SOURCE_COVERAGE.json for the exact missing-path review list.
 Review this draft pull request before merging. SOURCE_MANIFEST.json records the original SHA-256 hash and size for every imported file.
 
 After merge, the English voice extractor can be changed to treat original-source/game as the canonical dialogue and character source.
+
+
+## Automated review checks
+
+- Effective compiled Ren'Py reconstruction: 500/500 (100.00%).
+- Imported source payload after review: 499 .rpy files plus script_version.txt.
+- Translation root, compiled files, archives, media, saves and cache are excluded.
+- Credential-bearing non-voice analytics source was removed during review.
+- Project inventory coverage remains 391/444 (88.06%) and is advisory because the installed build reports game version 0.9.20.
+- CI validates manifest hashes, sizes, file counts, source-only scope and credential patterns before merge.
