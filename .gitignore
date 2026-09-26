@@ -1,4 +1,6 @@
 *.bak
+__pycache__/
+*.py[cod]
 *.rar
 desktop.ini
 .DS_Store
