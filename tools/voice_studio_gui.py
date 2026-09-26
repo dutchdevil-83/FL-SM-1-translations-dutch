@@ -832,6 +832,15 @@ class MainWindow(QMainWindow):
         fn: Callable[..., Any],
         on_result: Callable[[Any], None] | None = None,
     ) -> None:
+        if self.busy_count:
+            QMessageBox.information(
+                self,
+                "Voice Studio busy",
+                "Another API/background operation is still running. "
+                "Wait for it to finish before starting the next one.",
+            )
+            return
+
         worker = Worker(fn)
         worker.signals.message.connect(self.log)
         worker.signals.error.connect(lambda trace: self._job_error(title, trace))
@@ -1388,7 +1397,8 @@ class MainWindow(QMainWindow):
     def log(self, message: str, error: bool = False) -> None:
         prefix = "ERROR " if error else ""
         self.log_view.append(f"{prefix}{message}")
-        self.log_view.moveCursor(self.log_view.textCursor().MoveOperation.End)
+        scrollbar = self.log_view.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.player.stop()
