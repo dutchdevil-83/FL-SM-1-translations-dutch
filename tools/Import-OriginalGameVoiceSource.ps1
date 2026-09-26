@@ -118,6 +118,10 @@ $script:ExcludedTopLevelFolders = @(
     'audio'
 )
 
+$script:ExcludedRelativePaths = @(
+    'code/classes/analytics.rpy'
+)
+
 $script:CompiledExtensions = @(
     '.rpyc',
     '.rpymc'
@@ -147,6 +151,7 @@ $script:SecretPatterns = [ordered]@{
     'Google API key' = '\bAIza[0-9A-Za-z_-]{30,}\b'
     'OpenAI-style key' = '\bsk-[A-Za-z0-9_-]{20,}\b'
     'AWS access key' = '\bAKIA[0-9A-Z]{16}\b'
+    'Generic secret assignment' = '(?im)\b(?:secret|secret_key|client_secret|api_key|access_token|auth_token|password)\s*=\s*["''][^"''\r\n]{8,}["'']'
 }
 
 function Write-Status {
@@ -469,6 +474,10 @@ function Test-ExcludedSourcePath {
     )
 
     $normalized = ConvertTo-GameRelativePath -RelativePath $RelativePath
+    if ($script:ExcludedRelativePaths -icontains $normalized) {
+        return $true
+    }
+
     $segments = @($normalized -split '/')
     if ($segments.Count -eq 0) {
         return $false
@@ -1099,6 +1108,7 @@ function Copy-SourceSnapshot {
             compiled = '*.rpyc, *.pyc'
             media_and_archives = 'not selected by source-extension allowlist'
             saves_and_cache = 'game/saves/**, game/cache/**'
+            credential_bearing_non_voice_source = 'game/code/classes/analytics.rpy'
         }
         files = @($manifestFiles)
     }
