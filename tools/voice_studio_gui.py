@@ -644,38 +644,94 @@ class MainWindow(QMainWindow):
         self.now_playing_label.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
+        self.waveform_hover_label = QLabel("")
+        self.waveform_hover_label.setMinimumWidth(72)
+        self.waveform_hover_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         now_row.addWidget(QLabel("Now loaded:"))
         now_row.addWidget(self.now_playing_label, 1)
+        now_row.addWidget(self.waveform_hover_label)
         player_layout.addLayout(now_row)
 
+        self.waveform = WaveformWidget(interactive=True)
+        self.waveform.seekRequested.connect(self._waveform_seek)
+        self.waveform.hoverTimeChanged.connect(self._waveform_hover_time)
+        player_layout.addWidget(self.waveform)
+
         transport = QHBoxLayout()
+
+        self.skip_back_button = QPushButton("-5s")
+        self.skip_back_button.setIcon(ui_icon("fa5s.backward"))
+        self.skip_back_button.setToolTip("Jump 5 seconds backward")
+        self.skip_back_button.clicked.connect(lambda: self._skip_seconds(-5.0))
+
         self.player_play_button = QPushButton("Play")
+        self.player_play_button.setIcon(ui_icon("fa5s.play"))
+        self.player_play_button.setToolTip("Play")
         self.player_play_button.clicked.connect(self._player_play)
+
         self.player_pause_button = QPushButton("Pause")
+        self.player_pause_button.setIcon(ui_icon("fa5s.pause"))
+        self.player_pause_button.setToolTip("Pause")
         self.player_pause_button.clicked.connect(self.player.pause)
+
         self.player_stop_button = QPushButton("Stop")
+        self.player_stop_button.setIcon(ui_icon("fa5s.stop"))
+        self.player_stop_button.setToolTip("Stop and return to the start")
         self.player_stop_button.clicked.connect(self._player_stop)
 
-        self.player_time_label = QLabel("00:00 / 00:00")
-        self.player_time_label.setMinimumWidth(100)
+        self.skip_forward_button = QPushButton("+5s")
+        self.skip_forward_button.setIcon(ui_icon("fa5s.forward"))
+        self.skip_forward_button.setToolTip("Jump 5 seconds forward")
+        self.skip_forward_button.clicked.connect(lambda: self._skip_seconds(5.0))
 
-        self.player_seek = QSlider(Qt.Orientation.Horizontal)
-        self.player_seek.setRange(0, 0)
-        self.player_seek.sliderMoved.connect(self.player.setPosition)
+        self.player_time_label = QLabel("00:00 / 00:00")
+        self.player_time_label.setMinimumWidth(105)
+
+        self.zoom_out_button = QPushButton()
+        self.zoom_out_button.setIcon(ui_icon("fa5s.search-minus"))
+        self.zoom_out_button.setToolTip("Zoom out waveform")
+        self.zoom_out_button.clicked.connect(lambda: self.waveform.zoom(1.5))
+
+        self.zoom_reset_button = QPushButton("Fit")
+        self.zoom_reset_button.setToolTip("Fit the complete waveform")
+        self.zoom_reset_button.clicked.connect(self.waveform.reset_zoom)
+
+        self.zoom_in_button = QPushButton()
+        self.zoom_in_button.setIcon(ui_icon("fa5s.search-plus"))
+        self.zoom_in_button.setToolTip("Zoom in waveform")
+        self.zoom_in_button.clicked.connect(lambda: self.waveform.zoom(0.67))
+
+        self.playback_rate = QComboBox()
+        for rate in (0.75, 1.0, 1.25, 1.5, 2.0):
+            self.playback_rate.addItem(f"{rate:g}x", rate)
+        self.playback_rate.setCurrentText("1x")
+        self.playback_rate.setToolTip("Playback speed")
+        self.playback_rate.currentIndexChanged.connect(self._playback_rate_changed)
 
         self.player_volume = QSlider(Qt.Orientation.Horizontal)
         self.player_volume.setRange(0, 100)
         self.player_volume.setValue(85)
-        self.player_volume.setFixedWidth(120)
+        self.player_volume.setFixedWidth(110)
+        self.player_volume.setToolTip("Volume")
         self.player_volume.valueChanged.connect(
             lambda value: self.audio_output.setVolume(value / 100.0)
         )
 
+        transport.addWidget(self.skip_back_button)
         transport.addWidget(self.player_play_button)
         transport.addWidget(self.player_pause_button)
         transport.addWidget(self.player_stop_button)
+        transport.addWidget(self.skip_forward_button)
+        transport.addSpacing(8)
         transport.addWidget(self.player_time_label)
-        transport.addWidget(self.player_seek, 1)
+        transport.addStretch(1)
+        transport.addWidget(self.zoom_out_button)
+        transport.addWidget(self.zoom_reset_button)
+        transport.addWidget(self.zoom_in_button)
+        transport.addSpacing(8)
+        transport.addWidget(QLabel("Speed"))
+        transport.addWidget(self.playback_rate)
+        transport.addSpacing(8)
         transport.addWidget(QLabel("Volume"))
         transport.addWidget(self.player_volume)
         player_layout.addLayout(transport)
@@ -688,6 +744,7 @@ class MainWindow(QMainWindow):
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
         self.play_design_button = QPushButton("Load & play")
+        self.play_design_button.setIcon(ui_icon("fa5s.play-circle"))
         self.play_design_button.clicked.connect(self.play_design_sample)
         design_layout.addWidget(self.design_sample_path, 1)
         design_layout.addWidget(self.play_design_button)
@@ -698,10 +755,13 @@ class MainWindow(QMainWindow):
         self.demo_count.setRange(1, 20)
         self.demo_count.setValue(int(self.settings["demo_line_count"]))
         self.generate_demo_button = QPushButton("Generate representative demos")
+        self.generate_demo_button.setIcon(ui_icon("fa5s.magic"))
         self.generate_demo_button.clicked.connect(self.generate_demos)
         self.play_selected_demo_button = QPushButton("Load & play selected")
+        self.play_selected_demo_button.setIcon(ui_icon("fa5s.play"))
         self.play_selected_demo_button.clicked.connect(self.play_selected_demo)
         self.open_demo_folder_button = QPushButton("Open demo folder")
+        self.open_demo_folder_button.setIcon(ui_icon("fa5s.folder-open"))
         self.open_demo_folder_button.clicked.connect(self.open_demo_folder)
         demo_controls.addWidget(QLabel("Demo lines:"))
         demo_controls.addWidget(self.demo_count)
@@ -711,21 +771,24 @@ class MainWindow(QMainWindow):
         demo_controls.addStretch(1)
         layout.addLayout(demo_controls)
 
-        self.demo_table = QTableWidget(0, 5)
+        self.demo_table = QTableWidget(0, 6)
         self.demo_table.setHorizontalHeaderLabels(
-            ["Dialogue ID", "Text", "File", "Size", "Status"]
+            ["Dialogue ID", "Text", "Waveform", "File", "Size", "Status"]
         )
         self.demo_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.demo_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.demo_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.demo_table.setAlternatingRowColors(True)
         self.demo_table.itemSelectionChanged.connect(self._demo_selection_changed)
         self.demo_table.doubleClicked.connect(self.play_selected_demo)
         header = self.demo_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        header.resizeSection(2, 220)
         header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
         layout.addWidget(self.demo_table, 1)
 
         self.player_pause_button.setEnabled(False)
@@ -1571,18 +1634,30 @@ class MainWindow(QMainWindow):
         for path, row in found:
             index = self.demo_table.rowCount()
             self.demo_table.insertRow(index)
+            self.demo_table.setRowHeight(index, 58)
+
+            dialogue_id = QTableWidgetItem(path.stem)
+            dialogue_id.setData(Qt.ItemDataRole.UserRole, str(path))
+            self.demo_table.setItem(index, 0, dialogue_id)
+            self.demo_table.setItem(
+                index, 1, QTableWidgetItem((row or {}).get("tts_text", ""))
+            )
+
+            mini_waveform = WaveformWidget(compact=True, interactive=False)
+            try:
+                mini_waveform.load_file(path)
+            except Exception as exc:
+                mini_waveform.clear_waveform()
+                mini_waveform.setToolTip(f"Waveform unavailable: {exc}")
+            self.demo_table.setCellWidget(index, 2, mini_waveform)
+
             values = [
-                path.stem,
-                (row or {}).get("tts_text", ""),
                 str(path.relative_to(vs.ROOT)),
                 f"{path.stat().st_size / 1024:.0f} KB",
                 "Ready",
             ]
-            for column, value in enumerate(values):
-                item = QTableWidgetItem(str(value))
-                if column == 0:
-                    item.setData(Qt.ItemDataRole.UserRole, str(path))
-                self.demo_table.setItem(index, column, item)
+            for offset, value in enumerate(values, start=3):
+                self.demo_table.setItem(index, offset, QTableWidgetItem(str(value)))
 
     def play_design_sample(self) -> None:
         if not self.current_speaker:
@@ -1631,8 +1706,18 @@ class MainWindow(QMainWindow):
             except ValueError:
                 display = str(resolved)
             self.now_playing_label.setText(display)
-            self.player_seek.setValue(0)
             self.player_time_label.setText("00:00 / 00:00")
+            try:
+                self.waveform.load_file(resolved)
+            except Exception as exc:
+                self.waveform.clear_waveform()
+                self.log(f"Waveform decode failed for {display}: {exc}", error=True)
+                self.statusBar().showMessage(
+                    f"Audio loaded, waveform unavailable: {exc}",
+                    8000,
+                )
+            else:
+                self.log(f"WAVEFORM loaded: {display}")
             self.log(f"AUDIO loaded: {display}")
 
         self.tabs.setCurrentWidget(self.audition_tab)
@@ -1656,6 +1741,29 @@ class MainWindow(QMainWindow):
     def _player_stop(self) -> None:
         self.player.stop()
         self.player.setPosition(0)
+        self.waveform.set_playhead(0.0)
+
+    def _skip_seconds(self, delta_seconds: float) -> None:
+        if self.player.source().isEmpty():
+            return
+        target = self.player.position() + int(delta_seconds * 1000)
+        target = max(0, min(target, self.player.duration()))
+        self.player.setPosition(target)
+
+    def _waveform_seek(self, seconds: float) -> None:
+        if self.player.source().isEmpty():
+            return
+        self.player.setPosition(int(seconds * 1000))
+
+    def _waveform_hover_time(self, seconds: float) -> None:
+        self.waveform_hover_label.setText(
+            f"↕ {self._format_media_time(int(seconds * 1000))}"
+        )
+
+    def _playback_rate_changed(self, index: int) -> None:
+        rate = self.playback_rate.itemData(index)
+        if rate is not None:
+            self.player.setPlaybackRate(float(rate))
 
     @staticmethod
     def _format_media_time(milliseconds: int) -> str:
@@ -1668,8 +1776,7 @@ class MainWindow(QMainWindow):
 
     @Slot(int)
     def _media_position_changed(self, position: int) -> None:
-        if not self.player_seek.isSliderDown():
-            self.player_seek.setValue(position)
+        self.waveform.set_playhead(position / 1000.0)
         self.player_time_label.setText(
             f"{self._format_media_time(position)} / "
             f"{self._format_media_time(self.player.duration())}"
@@ -1677,7 +1784,6 @@ class MainWindow(QMainWindow):
 
     @Slot(int)
     def _media_duration_changed(self, duration: int) -> None:
-        self.player_seek.setRange(0, max(0, duration))
         self.player_time_label.setText(
             f"{self._format_media_time(self.player.position())} / "
             f"{self._format_media_time(duration)}"
