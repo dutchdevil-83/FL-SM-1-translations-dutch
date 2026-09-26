@@ -1,0 +1,147 @@
+init python:
+    sm_quest_list.update({
+            "Q-FSIT001-1"   : {STORY_LINE: IT_STORY_LINE, EVENT: "event_ms003_0", HINT: _("Go to sleep")},
+            "Q-FSIT001-2"   : {STORY_LINE: IT_STORY_LINE, EVENT: "event_i001", HINT: _("Go to IT job interview"), MAP_HINT: {IT_OFFICE: _("Enter Orbix for interview")}},
+            "Q-FSIT002"     : {STORY_LINE: IT_STORY_LINE, EVENT: "event_ms003_2", HINT: {"hint_fsit002_weekend": _("Go to the Second interview on Monday"),
+                                                                                        DEFAULT: _("Go to the Second interview in the morning timeslot")}, MAP_HINT: {IT_OFFICE: {"hint_fsit002_weekend": _("Closed during weekend"),
+                                                                                                                                                                                    DEFAULT: _("Enter Orbix during Morning timeslot for interview")}}},
+            "Q-FSIT003"     : {STORY_LINE: IT_STORY_LINE, EVENT: "event_next_morning_working_day", HINT: {"hint_fsit003_ms006_done": _("Progress Main Story"),
+                                                                                                            DEFAULT: _("Go sleep before first working day")}},
+            "Q-FSIT004_2"   : {STORY_LINE: IT_STORY_LINE, EVENT: "event_fsit004_2", HINT: "Progress Main Storyline"},
+            "Q-FSIT004_1"   : {STORY_LINE: IT_STORY_LINE, EVENT: "event_fsit004_1", HINT: {"hint_fsit004_1_nari": _("Progress {}/3 Nari's scenes"),
+                                                                                            "hint_fsit004_1_anna": _("Progress 0/1 Anna's scenes"),
+                                                                                            "hint_fsit004_1_both": _("Progress {}/3 Nari's scenes and 0/1 Anna's scene"),
+                                                                                            DEFAULT: _("Progress 3/3 Nari's scenes and 1/1 Anna's scene")}}, 
+            "Q-FSIT004"     : {STORY_LINE: IT_STORY_LINE, EVENT: "event_after_it_work", HINT: _("Work at Orbix")},
+            "Q-FSIT005"     : {STORY_LINE: IT_STORY_LINE, EVENT: "event_fsit005", HINT: ("hint_fsit005", [
+                                                                _("Work Orbix job 40/40 times and finish renovations"),
+                                                                _("Work Orbix job {}/40 times and finish renovations"),
+                                                                _("Finish renovations"),
+                                                                _("Work Orbix job {}/40 times"),
+                                                                ])},
+            "Q-FSIT005_2"   : {STORY_LINE: IT_STORY_LINE, HINT: {"hint_fsit005_2":_("Get at least {}/15 total relationship points with characters in Orbix"),
+                                                                DEFAULT: _("Get at least 15 total relationship points with characters in Orbix")}, EVENT: "event_fsit005_2" },
+            "Q-FSIT005_3"   : {STORY_LINE: IT_STORY_LINE, HINT: _("Work at Orbix"), EVENT: "event_after_it_work" },
+            "Q-FSIT006"     : {STORY_LINE: IT_STORY_LINE, HINT: _("This quest line will continue in the next release"), AUTO_UNTRACK: True, CURRENT_QUEST_LINE_END: True},
+
+            "Q-NS001"       : {STORY_LINE: NS_STORY, EVENT: "event_ns001", HINT: _("Get 2 relationship points by interacting with Nari"),  },
+            "Q-NS001-01"    : {STORY_LINE: NS_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix")},
+            "Q-NS002"       : {STORY_LINE: NS_STORY, EVENT: "event_ns002", HINT: _("Get 4 relationship points with Nari and work 3 times at Orbix"), RP_LIMIT: {"ns": 8}},
+            "Q-NS002-01"    : {STORY_LINE: NS_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix")},
+            "Q-NS003"       : {STORY_LINE: NS_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix"), OBJ_SCHEDULE: {"ns_panty": "Q-NS003-panty"}},
+            "Q-NS003_1"     : {STORY_LINE: NS_STORY, EVENT: "event_fs_it004_done", HINT: _("Advance the IT Faction Story")},
+            "Q-NS004"       : {STORY_LINE: NS_STORY, EVENT: "event_ns004", HINT: _("Talk with Nari in the morning at work after getting 8 Relationship Points"), SCHEDULE_CONDITION: "event_ns004_points", SCHEDULE: {"ns": "Q-NS004"}},
+            "Q-NS005"       : {STORY_LINE: NS_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix"), RP_LIMIT: {"ns": 12}},
+            "Q-NS006"       : {STORY_LINE: NS_STORY, EVENT: "event_ns006", HINT: _("Get 10 Relationship Points with Nari then work at Orbix")},
+            "Q-NS007_01"    : {STORY_LINE: NS_STORY, EVENT: "event_ns007_01", HINT: _("Get 12 Relationship Points with Nari"), RP_LIMIT: {"ns": 20}},
+            "Q-NS007_02"    : {STORY_LINE: NS_STORY, HINT: _("Talk with Nari before work at Orbix"), CHAR_INTR: {"ns": "io-NS007_02"}},
+            "Q-NS007_03"    : {STORY_LINE: NS_STORY, EVENT: "event_ns007_03", HINT: _("Go to Orbix in the evening")},
+            "Q-NS008"       : {STORY_LINE: NS_STORY, HINT: _("Talk with Nari during the day"), CHAR_INTR: {"ns": "io-NS008"}},
+            "Q-NS009"       : {STORY_LINE: NS_STORY, HINT: _("Wait a few days"), DAYS_PASSED: [{TARGET: "sm1cs_ns008", DAYS: 2}]},
+            "Q-NS009_2"     : {STORY_LINE: NS_STORY, EVENT: "event_ns009", HINT: _("Talk to Nari after 11 PM"), WHOLE_LOCATION_SCHEDULE: {IT_OFFICE: "LSCHEDULE_IT_11PM_OPEN"}, SCHEDULE: {"ns": "Q-NS009"}},
+            "Q-NS010"       : {STORY_LINE: NS_STORY, HINT: _("Wait for one day"), DAYS_PASSED: [{TARGET: "sm1cs_ns009", DAYS: 1}]},
+            "Q-NS010_2"     : {STORY_LINE: NS_STORY, HINT: _("Talk with Stacy about Nari"), CHAR_INTR: {"sy": "io-NS010"}},
+            "Q-NS010_3"     : {STORY_LINE: NS_STORY, HINT: _("Text Nari during the evening"), CHAT: {"ns": "sms-ns010"}},
+            "Q-NS011"       : {STORY_LINE: NS_STORY, HINT: _("Finish renovation"), EVENT: "event_renovation_finished"},
+            "Q-NS011_2"     : {STORY_LINE: NS_STORY, HINT: _("Wait a few days"), DAYS_PASSED: [{TARGET: "sm1ms020", DAYS: 2}]},
+            "Q-NS011_3"     : {STORY_LINE: NS_STORY, HINT: _("Talk with Nari"), CHAR_INTR: {"ns": "io-NS011_3"}},
+            "Q-NS012_1"     : {STORY_LINE: NS_STORY, HINT: _("Get 22 Relationship Points with Nari"), EVENT: "event_ns0012_1", RP_LIMIT: {"ns": 25}},
+            "Q-NS012_2"     : {STORY_LINE: NS_STORY, HINT: _("Talk with Nari in the evening"), CHAR_INTR: {"ns": "io-NS012_2"}, SCHEDULE: {"ns": "Q-NS012_2"}},
+            "Q-NS013_1"     : {STORY_LINE: NS_STORY, HINT: _("Wait a few days"), DAYS_PASSED: [{TARGET: "sm1cs_ns012", DAYS: 2}]},
+            "Q-NS013_2"     : {STORY_LINE: NS_STORY, HINT: _("Talk with Stacy in the evening"), CHAR_INTR: {"sy": "io-NS013_2"}},
+            "Q-NS014"       : {STORY_LINE: NS_STORY, HINT: _("This quest line will continue in the next release"), AUTO_UNTRACK: True, CURRENT_QUEST_LINE_END: True},
+
+            "Q-CW001_01"    : {STORY_LINE: CW_STORY, EVENT: "event_cw001_01", HIDDEN: True, SCHEDULE: {"cw": "q_cw001"}},
+            "Q-CW001_02"    : {STORY_LINE: CW_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix")},
+            "Q-CW002"       : {STORY_LINE: CW_STORY, EVENT: "event_cw002", HINT: _("Get 5 relationship points with Claire and then talk with her at her desk"), SCHEDULE: {"cw": "q_cw002"}},
+            "Q-CW002_2"     : {STORY_LINE: CW_STORY, EVENT: "event_cw002_2", HINT: _("Be ready for a lunch next day")},
+            "Q-CW003"       : {STORY_LINE: CW_STORY, HINT: _("Talk with Stacy about Claire"), CHAR_INTR: {"sy": "io-CW003"}}, 
+            "Q-CW004"       : {STORY_LINE: CW_STORY, HINT: _("Get 8 relationship points with Claire and talk with her"), EVENT: "event_cw004", RP_LIMIT: {"cw": 10}},
+            "Q-CW004_2"     : {STORY_LINE: CW_STORY, HINT: _("Talk with Claire On Friday evening"), EVENT: "event_cw004_2", SCHEDULE: {"cw": "q_cw004_2"}, RP_LIMIT: {"cw": 20}},
+            "Q-CW004_3"     : {STORY_LINE: CW_STORY, EVENT: "event_cw004_3", OFFRAMP: {"sm1cs-cw004-offramp": {CHAR_INTR: {"cw": "io-CW004-offramp"}, SCHEDULE: {"cw": "q_cw004_2"}}}},
+            "Q-CW006"       : {STORY_LINE: CW_STORY, HINT: _("Wait a few days"), DAYS_PASSED: [{TARGET: "sm1cs_cw005", DAYS: 6}], },
+            "Q-CW006_2"     : {STORY_LINE: CW_STORY, HINT: _("Work at Orbix"), EVENT: "event_after_it_work" ,},
+            "Q-CW007"       : {STORY_LINE: CW_STORY, HINT: _("This quest line will continue in the next release"), AUTO_UNTRACK: True, CURRENT_QUEST_LINE_END: True, OFFRAMP: {
+                                                                                                                                    "sm1ms_cw006_offramp_1": {CHAR_INTR: {"cw": "io-CW006-off-1"}},
+                                                                                                                                    "sm1ms_cw006_offramp_2": {CHAR_INTR: {"cw": "io-CW006-off-2"}}
+                                                                                                                                    },},
+
+            "Q-AG001"       : {STORY_LINE: AG_STORY, EVENT: "event_ag001", HINT: _("Work 5 days at Orbix")},
+            "Q-AG001-01"    : {STORY_LINE: AG_STORY, EVENT: "event_talk_ag", HINT: _("Talk with Anna during the day")},
+            "Q-AG002"       : {STORY_LINE: AG_STORY, EVENT: "event_ag002", HINT: {"hint_ag002": _("Progress Orbix's story line"),
+                                                                                    "hint_ag002_2": _("Work at Orbix {}/20 times"),
+                                                                                    DEFAULT: _("Work at Orbix")}, RP_LIMIT: {"ag": 10}},
+            "Q-AG002_2"     : {STORY_LINE: AG_STORY, HINT: _("Talk with Anna"), CHAR_INTR: {"ag": "io-AG002_2"}},
+            "Q-AG003_1"     : {STORY_LINE: AG_STORY, HINT: _("Wait a few days"), DAYS_PASSED: [{TARGET: "sm1cs_ag002", DAYS: 2}], SCHEDULE: {"ag": "q_ag003", "ec": "ec_q_ag003"}},
+            "Q-AG003_2"     : {STORY_LINE: AG_STORY, HINT: _("Ask Claire about Anna"), CHAR_INTR: {"cw": "io-AG003_2"}, SCHEDULE: {"ag": "q_ag003", "ec": "ec_q_ag003"}},
+            "Q-AG003_3"     : {STORY_LINE: AG_STORY, EVENT: "event_ag003", HINT: _("Find Anna in coffe shop"), SCHEDULE: {"ag": "q_ag003", "ec": "ec_q_ag003"}},
+            "Q-AG004"       : {STORY_LINE: AG_STORY, HINT: _("This quest line will continue in the next release"), AUTO_UNTRACK: True, CURRENT_QUEST_LINE_END: True},
+
+            "Q-AM001"       : {STORY_LINE: AM_STORY, EVENT: "event_am001", HINT: _("Get 2 relationship points with April, then work at Orbix")},
+            "Q-AM002"       : {STORY_LINE: AM_STORY, EVENT: "event_am002", HINT: _("Get 4 relationship points with April, then work at Orbix")},
+            "Q-AM003"       : {STORY_LINE: AM_STORY, EVENT: "event_am003", HINT: _("Find April in the park during the day timeslot"), SCHEDULE: {"am": "Q-AM003"}},
+            "Q-AM004"       : {STORY_LINE: AM_STORY, EVENT: "event_am004", HINT: _("Talk to April during the evening in Orbix on Monday or Thursday"), SCHEDULE: {"am": "Q-AM004"}},
+            "Q-AM005_01"    : {STORY_LINE: AM_STORY, EVENT: "event_am005_1" , HINT: _("Wait for one day"), RP_LIMIT: {"am": 8}},
+            "Q-AM005_02"    : {STORY_LINE: AM_STORY, EVENT: "event_after_it_work", HINT: _("Work at Orbix")},
+            "Q-AM005_03"    : {STORY_LINE: AM_STORY, AUTO_UNTRACK: True, HIDDEN: True, CHAR_INTR: {"am": "io-AM005_03"}}, 
+            "Q-AM006"       : {STORY_LINE: AM_STORY, HINT: _("Get 8 relationship points with April, then talk with her"), CHAR_INTR: {"am": "io-AM006"}},
+            "Q-AM007"       : {STORY_LINE: AM_STORY, HINT: _("Wait a few days"), RP_LIMIT: {"am": 12}, DAYS_PASSED: [{TARGET: "sm1cs_am006", DAYS: 2}, {TARGET: "sm1fs_i005", DAYS: 2}]},
+            "Q-AM007_2"     : {STORY_LINE: AM_STORY, HINT: _("Talk with April when she is working"), EVENT: "event_am007_2"},
+            "Q-AM008"       : {STORY_LINE: AM_STORY, HINT: _("This quest line will continue in the next release"), AUTO_UNTRACK: True, CURRENT_QUEST_LINE_END: True}, 
+        })
+
+
+
+    IT_job_quest_line_list = [
+            "Q-FSIT001-1", "Q-FSIT001-2", "sm1fs_i001",
+            "Q-FSIT002", "sm1fs_i002", PAUSE,
+            "Q-FSIT003", "sm1fs_i003",
+            "Q-FSIT004_2", "Q-FSIT004_1", "Q-FSIT004", "sm1fs_i004",
+            "Q-FSIT005", "Q-FSIT005_2", "Q-FSIT005_3", "sm1fs_i005",
+            "Q-FSIT006",
+        ]
+
+    NS_quest_line_list = [
+            "Q-NS001", "Q-NS001-01", "sm1cs_ns001",
+            "Q-NS002", "Q-NS002-01", "sm1cs_ns002",
+            "Q-NS003", "sm1cs_ns003", "Q-NS003_1",
+            "Q-NS004", "sm1cs_ns004",
+            "Q-NS005", "sm1cs_ns005",
+            "Q-NS006", "sm1cs_ns006",
+            "Q-NS007_01", "Q-NS007_02", "sm1cs_ns007i", "Q-NS007_03", "sm1cs_ns007",
+            "Q-NS008", "sm1cs_ns008",
+            "Q-NS009", "Q-NS009_2", "sm1cs_ns009",
+            "Q-NS010", "Q-NS010_2", "sm1cs_ns010i", "Q-NS010_3", "sm1cs_ns010",
+            "Q-NS011", "Q-NS011_2", "Q-NS011_3", "sm1cs_ns011i", "sm1cs_ns011",
+            "Q-NS012_1", "Q-NS012_2", "sm1cs_ns012i", "sm1cs_ns012",
+            "Q-NS013_1", "Q-NS013_2", "sm1cs_ns013i", "sm1cs_ns013",
+            "Q-NS014",
+        ]
+
+    CW_quest_line_list= [
+            "Q-CW001_01", "sm1cs_cw001i", "Q-CW001_02", "sm1cs_cw001",
+            "Q-CW002", "sm1cs_cw002", "Q-CW002_2", "sm1cs_cw002_2",
+            "Q-CW003", "sm1cs_cw003i", "sm1cs_cw003",
+            "Q-CW004", "sm1cs_cw004i", "Q-CW004_2", ["sm1cs_cw004", "Q-CW004_3"],
+            "sm1cs_cw005",
+            "Q-CW006", "Q-CW006_2", "sm1cs_cw006",
+            "Q-CW007"
+        ]
+
+    AG_quest_line_list = [
+            "Q-AG001", "Q-AG001-01", "sm1cs_ag001",
+            "Q-AG002", "Q-AG002_2", "sm1cs_ag002i", "sm1cs_ag002",
+            "Q-AG003_1", "Q-AG003_2", "sm1cs_ag003i", "Q-AG003_3", "sm1cs_ag003",
+            "Q-AG004",
+        ]
+
+    AM_quest_line_list= [
+            "Q-AM001", "sm1cs_am001",
+            "Q-AM002", "sm1cs_am002",
+            "Q-AM003", "sm1cs_am003",
+            "Q-AM004", "sm1cs_am004i", "sm1cs_am004",
+            "Q-AM005_01", "Q-AM005_02", "sm1cs_am005", "Q-AM005_03", "sm1cs_am005b",
+            "Q-AM006", "sm1cs_am006",
+            "Q-AM007", "Q-AM007_2", "sm1cs_am007",
+            "Q-AM008",
+        ]

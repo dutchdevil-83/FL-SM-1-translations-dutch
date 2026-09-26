@@ -1,0 +1,3072 @@
+{
+  "schema_version": 1,
+  "import_tool": "Import-OriginalGameVoiceSource.ps1",
+  "import_tool_version": "202609.26",
+  "imported_at_utc": "2026-09-26T00:22:48.5787922Z",
+  "source_kind": "original_english_renpy_game_source",
+  "source_folder_name": "materialized",
+  "repository": "dutchdevil-83/FL-SM-1-translations-dutch",
+  "base_branch": "voice/english-gemini-tts",
+  "import_branch": "voice/import-original-source-20260926-022221",
+  "file_count": 501,
+  "total_bytes": 6872903,
+  "reconstruction": {
+    "used": true,
+    "tool": "rpycdec",
+    "tool_version": "0.2.0",
+    "archive_count": 5,
+    "loose_compiled_count": 451,
+    "effective_compiled_count": 500,
+    "decompiled_script_count": 500,
+    "decompile_coverage_ratio": 1.0,
+    "decompile_missing_count": 0,
+    "archive_conflict_count": 0,
+    "archives": [
+      {
+        "path": "video.rpa",
+        "size_bytes": 1416460060,
+        "sha256": "3c4db626463e5335cb42a506210a00d3b7dc67c5a35ac2d024d87d5e5f152e7f"
+      },
+      {
+        "path": "images.rpa",
+        "size_bytes": 6906477657,
+        "sha256": "782b5b054a5e586892c383510afbc97716ac04ad4c08c8b881b94adc33438242"
+      },
+      {
+        "path": "fonts.rpa",
+        "size_bytes": 24034834,
+        "sha256": "c55bcc8d4c8cec038f9654ef8e5c437638fc5615c303c1ea64bdbd43fe9a62d2"
+      },
+      {
+        "path": "code.rpa",
+        "size_bytes": 20628397,
+        "sha256": "7f33975066346561cf9e0d38df84a6cb099cc69207b9f6438dc68e89983c755f"
+      },
+      {
+        "path": "audio.rpa",
+        "size_bytes": 2383814711,
+        "sha256": "7d751c097663b51299e5cdda0ed5d11d39c1c26868a05767b6c70542f785559f"
+      }
+    ]
+  },
+  "expected_source_coverage": {
+    "expected_paths": 444,
+    "covered_paths": 391,
+    "missing_paths": 53,
+    "coverage_ratio": 0.880631
+  },
+  "excluded": {
+    "translations": "game/tl/**",
+    "compiled": "*.rpyc, *.pyc",
+    "media_and_archives": "not selected by source-extension allowlist",
+    "saves_and_cache": "game/saves/**, game/cache/**"
+  },
+  "files": [
+    {
+      "path": "game/options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 39,
+      "source_sha256": "a43757802d6c5f8954cf9795d0508729c04e1358791018863d7f3420edcd57aa"
+    },
+    {
+      "path": "game/script_version.txt",
+      "extension": ".txt",
+      "size_bytes": 9,
+      "source_sha256": "a8d0ea87c43506eaca512019044496f6b46d7a01f601ce42fdb8e36cd4ccbb53"
+    },
+    {
+      "path": "game/taboo.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36,
+      "source_sha256": "fa03db7fdd2c27201d25c158a2f1dd6ea4a55e531e270a35fef87fd845046469"
+    },
+    {
+      "path": "game/code/variables.rpy",
+      "extension": ".rpy",
+      "size_bytes": 162,
+      "source_sha256": "6bab475e5f056adb56f6def93d035ab996277f25bff956fd5dda55e08b4b2e14"
+    },
+    {
+      "path": "game/code/classes/analytics.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15550,
+      "source_sha256": "56fdcb5edaf082a23cd9d28960772e88579b3e8948b9a53afa9bde5714ceab7c"
+    },
+    {
+      "path": "game/code/classes/character_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6088,
+      "source_sha256": "86aef55d9acf8b3401e4367f3564d31a983191b232a6c53203ce8a33015f0047"
+    },
+    {
+      "path": "game/code/classes/character.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22786,
+      "source_sha256": "7970caae7ce3b89aa1b757b4255bf5d6b2342538f457dd3d664cefb7770685af"
+    },
+    {
+      "path": "game/code/classes/chat_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 13733,
+      "source_sha256": "d3dd8a5c5b1ed20ae95e143d430c9387d56ea7503ae45317bfa83ef4dcf77f5e"
+    },
+    {
+      "path": "game/code/classes/dress_code.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3053,
+      "source_sha256": "13b63648bbb66f4e3c554dda5273f51e38c17c3efbf1a3b2890bcaffe378c57a"
+    },
+    {
+      "path": "game/code/classes/event_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1464,
+      "source_sha256": "b7e92e565be66c0bb851ab3029705801ee20547a929968d0694469eb2b4f933f"
+    },
+    {
+      "path": "game/code/classes/gallery.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1751,
+      "source_sha256": "b544e0ebf2571c075288ba014bce49dc0217513b4e3bc881460d881a032a8957"
+    },
+    {
+      "path": "game/code/classes/gametime.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8897,
+      "source_sha256": "ce14d623c655106e23e42a8706caf276a5b8aace3f9abe2b7bbbd056859663a0"
+    },
+    {
+      "path": "game/code/classes/interaction_character_option.rpy",
+      "extension": ".rpy",
+      "size_bytes": 12023,
+      "source_sha256": "423fef53d2b92e2117d1f69f753718fa34d2774c24cf02c1cdcca9e5f8c7df5e"
+    },
+    {
+      "path": "game/code/classes/interaction_location_option.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5326,
+      "source_sha256": "2d9e4a81ac39137442138ca555343aeeabe107dadb209d703448f8e5b3fd1c20"
+    },
+    {
+      "path": "game/code/classes/interaction_object_option.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5521,
+      "source_sha256": "0d930a82a7e3e5c49ebb3ffebfebb7f059c21619b6d1e54907b38a5a8bb4996f"
+    },
+    {
+      "path": "game/code/classes/it_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2884,
+      "source_sha256": "c62d0d46a2173a35f60508f159e61ed11a94b7649ecfa992ea6cb52a503c5f16"
+    },
+    {
+      "path": "game/code/classes/location_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8851,
+      "source_sha256": "a447a33350b1ea54645b563a04f638b4b1eaf889a003d2170aa89cbbbdca5309"
+    },
+    {
+      "path": "game/code/classes/location.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15627,
+      "source_sha256": "17fd77fdb9b8a94e39d1edba0f9c113ec80af7a8ec4749a445f679611fdf9a8f"
+    },
+    {
+      "path": "game/code/classes/map_location.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4079,
+      "source_sha256": "bbc032f060d51f3c81d35f46c33575bb6c67e198a7392911378d897d488d4b43"
+    },
+    {
+      "path": "game/code/classes/movie_controllers.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5646,
+      "source_sha256": "9f061e67c9a0f6f7b912e912e4bcfcdfdcbd8afd37c15316df27984b08b395df"
+    },
+    {
+      "path": "game/code/classes/object_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1545,
+      "source_sha256": "a5ded571ea173c3d0426f1e3d018a9b98c1437d4b4030178f9ddcd85b3fcc847"
+    },
+    {
+      "path": "game/code/classes/object.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8458,
+      "source_sha256": "557c4b608c165b42b6d2866b16652493645cf8b268e3a306369944d89e1b7e96"
+    },
+    {
+      "path": "game/code/classes/pager.rpy",
+      "extension": ".rpy",
+      "size_bytes": 250,
+      "source_sha256": "069c84c005621036ecac69bcf65ea84336f7c232f623d1619c64c76baf19851a"
+    },
+    {
+      "path": "game/code/classes/player_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2135,
+      "source_sha256": "7ecf02be67cb625de63d910aaa9efee7a9eba51ed9ab13caf4e8e6f1ba78f7af"
+    },
+    {
+      "path": "game/code/classes/player.rpy",
+      "extension": ".rpy",
+      "size_bytes": 21369,
+      "source_sha256": "a6e9803f822191df22bb605128b750c6fcabec297d50c9eda252096b4e0d64cc"
+    },
+    {
+      "path": "game/code/classes/quest_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 16644,
+      "source_sha256": "4d9fd4c05a502e612f124fa38451e17e24fd42053e4d4790aface93e07e297dd"
+    },
+    {
+      "path": "game/code/classes/renovation_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9512,
+      "source_sha256": "02cb3eefc4ef20938575e4a7f31448a0ac69d6719c0de766eba1237ad02a877f"
+    },
+    {
+      "path": "game/code/classes/sc_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 689,
+      "source_sha256": "268f3a91d219a81c1b42205a0f7b02d003abdf724b4dd6c8c547f697ccb99b60"
+    },
+    {
+      "path": "game/code/classes/schedule.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5648,
+      "source_sha256": "ecc1e51eae39db85e61eea67fa1a51e3e3250da695dd8d82d29baa6d262b2b9b"
+    },
+    {
+      "path": "game/code/classes/story_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10432,
+      "source_sha256": "78501580ee36683ed5b84ce9aa50102b6a57e912615786eea7d6102f3865d3b7"
+    },
+    {
+      "path": "game/code/classes/th_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7586,
+      "source_sha256": "0675f80aa551b0dc748e07bbbb1f51fa3f3b85f43ab59cfa5b2fe9c04da4ceb8"
+    },
+    {
+      "path": "game/code/classes/vn_mode_controller.rpy",
+      "extension": ".rpy",
+      "size_bytes": 13071,
+      "source_sha256": "5cc4d990857d04cc0acad29f85e0b5257017ea57c489f9255427be22b3f2e356"
+    },
+    {
+      "path": "game/code/data/objects.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1737,
+      "source_sha256": "f51ebe1a72d3393c211673f4783543070a71ad27eac3cc4cd58e6321c748ac7b"
+    },
+    {
+      "path": "game/code/data/audio/audio_sandbox.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7155,
+      "source_sha256": "83eac21f113b8c95f3cd7c1677e32fd3ffc564e93da171e54c6c2cdce3c1f64b"
+    },
+    {
+      "path": "game/code/data/audio/audio.rpy",
+      "extension": ".rpy",
+      "size_bytes": 485733,
+      "source_sha256": "b55b4cf8b966a6a98e254599621f8d4df76e3f09a726895f5b15e53f6e962e2f"
+    },
+    {
+      "path": "game/code/data/characters/characters.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9662,
+      "source_sha256": "4cbbda3ba6a8ae52e85c856352f413a51e5e088b50177a5217795e116e60a7aa"
+    },
+    {
+      "path": "game/code/data/characters/dress_codes.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1172,
+      "source_sha256": "8d635a28c09d2addddeadacfb4a4c5a7fc928cbe95b24850cd69531087f431bc"
+    },
+    {
+      "path": "game/code/data/characters/names.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6466,
+      "source_sha256": "e2b4c465a1ddf8d7e710ed765017fe96e2c5108a145707fa4c7af08f3596979f"
+    },
+    {
+      "path": "game/code/data/character_schedules/GR_Bar/schedules_rd.rpy",
+      "extension": ".rpy",
+      "size_bytes": 631,
+      "source_sha256": "8a07e272902b7ba13fbfbf291e6da29a9b6d64612f44d864b2cfc6c9f2b5a542"
+    },
+    {
+      "path": "game/code/data/character_schedules/IT_office/schedules_ag.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7051,
+      "source_sha256": "d6e86fd330629e1f954b3b13a69a1be8a19075992424a490746deefb73adc9dc"
+    },
+    {
+      "path": "game/code/data/character_schedules/IT_office/schedules_am.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6770,
+      "source_sha256": "1e87d022e8b9cd83d9f5ec251d1ba39ee602e19f2f8f8b8ff0f4033c7ed5a3cd"
+    },
+    {
+      "path": "game/code/data/character_schedules/IT_office/schedules_cw.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9445,
+      "source_sha256": "15f33f7bb74e43286d7415fd1911ee337a9959ca1a9b600f6ad9f379b18ae9bc"
+    },
+    {
+      "path": "game/code/data/character_schedules/IT_office/schedules_it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10673,
+      "source_sha256": "20730c7dba7c38dd3b27fb5120154a06df9b7a8a1c41d7705a1e0534d98a8f4b"
+    },
+    {
+      "path": "game/code/data/character_schedules/IT_office/schedules_ns.rpy",
+      "extension": ".rpy",
+      "size_bytes": 12541,
+      "source_sha256": "e36f09de9690462c7a0349c62d8b80c2ca4b22195d5e107d9f557c06e199bc08"
+    },
+    {
+      "path": "game/code/data/character_schedules/Neutral/schedules_71.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2059,
+      "source_sha256": "122e8a566ab000980c19e8bd0bc756e789257f9aabd644ddeb0208452bfaad0d"
+    },
+    {
+      "path": "game/code/data/character_schedules/Neutral/schedules_dc.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5902,
+      "source_sha256": "2b2e3a26b2c55f8e7681cdc7f99f53a2864eec2827321d3c11e9f6d6df2c0b7f"
+    },
+    {
+      "path": "game/code/data/character_schedules/Neutral/schedules_mes.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1593,
+      "source_sha256": "dbb434f4b134045b492a4cc519c480a79510a0f30143b290b4c4130dfc3e2684"
+    },
+    {
+      "path": "game/code/data/character_schedules/Neutral/schedules_my.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7472,
+      "source_sha256": "86900e39e4bc652fede4b03aba4de597684cb3ba7c8a0884fd9f66dc6ce9dd58"
+    },
+    {
+      "path": "game/code/data/character_schedules/Neutral/schedules_sy.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15470,
+      "source_sha256": "bd2665ed7e6c53f0d2cc68b6e52d4e1b172afb66ea94b838158f89c27e333722"
+    },
+    {
+      "path": "game/code/data/character_schedules/park/schedules_background.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1324,
+      "source_sha256": "934539f0fc41f849a430fc9dcfcb66b9294d63c0fc9ec0c50ebef77cb1b45fdb"
+    },
+    {
+      "path": "game/code/data/character_schedules/Photo_dojo/schedules_bg.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4238,
+      "source_sha256": "a8d9488d7c9d881c1452e78e9b6bdc7b2da64909ef4c3a4991517a8c43417fee"
+    },
+    {
+      "path": "game/code/data/character_schedules/Photo_dojo/schedules_kv.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11157,
+      "source_sha256": "06c3aee10cf68ea756fd7894d85bdb4a68b45376c94cd97f4d2737fc0484665e"
+    },
+    {
+      "path": "game/code/data/character_schedules/Starducks/schedules_cs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1174,
+      "source_sha256": "dc06a40b911ed71ab753eb0947b0b246a66506269fdc75dcbafa69bf1efe39fd"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_dvh.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4163,
+      "source_sha256": "5221909b422fb523dafbf3e4abbac5d8a2b1ebe58429f4332fcb416db1b16d90"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_ec.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3587,
+      "source_sha256": "4f81fa498dd158c316edb373cf4b0f7eef11b441ce5aabaebf9061ee5a5a844c"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_km.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3955,
+      "source_sha256": "4df18abf7ee2f5e9aecdd61969d19905e446fb57b548b36d29536061ec9759f0"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_kw.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3029,
+      "source_sha256": "5ff1c6b1a41915f68aed64249fa42c4d6dcc45c47cecc7b538d818243492f303"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_sb.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2831,
+      "source_sha256": "464e29197f539773e1fc6bf9435154a6365faf01cab9e751b3b1029c3e3555ea"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_sj.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3130,
+      "source_sha256": "68c3c62fe37e14ee8d27ac7dc1bbc9714fb615f6b14a1f7fa60b5f04ae237775"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_tl.rpy",
+      "extension": ".rpy",
+      "size_bytes": 14270,
+      "source_sha256": "d0e2a9ea88ad686a764186785bd097ba8909e346c239bc8da78a0b360e4697fd"
+    },
+    {
+      "path": "game/code/data/character_schedules/Theater/schedules_vs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3863,
+      "source_sha256": "5b5f08adc3d2a72d03605b96285058711d8a1ef58b548ac70ff494afa171c390"
+    },
+    {
+      "path": "game/code/data/character_schedules/Wurst/schedules_ms.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6512,
+      "source_sha256": "d714fff5b842cb1f046aada185d776769f5a0bb1f51dbb656a6c50517e9e36e2"
+    },
+    {
+      "path": "game/code/data/character_schedules/Wurst/schedules_nr.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2639,
+      "source_sha256": "57eda3c4ac10da938deabf26232f8221b4ad1d902bdbc82015beb7f8bb786cd4"
+    },
+    {
+      "path": "game/code/data/chat/chat_bg.rpy",
+      "extension": ".rpy",
+      "size_bytes": 632,
+      "source_sha256": "ed318a0f504d3f583af519db0e5848083981fff5e09a1e70c53f7fe0e8180aab"
+    },
+    {
+      "path": "game/code/data/chat/chat_cw.rpy",
+      "extension": ".rpy",
+      "size_bytes": 982,
+      "source_sha256": "6340cf07c5d2496de6368b1de83bb6e3fab0e836576578967d56afee7aa4f821"
+    },
+    {
+      "path": "game/code/data/chat/chat_dc.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2804,
+      "source_sha256": "09f33f492e5f8ccba8ff6fe34868996a55b60783085730678a13738a710ea5d8"
+    },
+    {
+      "path": "game/code/data/chat/chat_dvh.rpy",
+      "extension": ".rpy",
+      "size_bytes": 607,
+      "source_sha256": "fcbebe473527e68421098dee8fd21f514b41d54b5801a4d6f65ee07e28bbb935"
+    },
+    {
+      "path": "game/code/data/chat/chat_km.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1281,
+      "source_sha256": "e192b746b888a9a61e2c1b4a7c4828c2d957420805020c392b7ffe0b44383dfc"
+    },
+    {
+      "path": "game/code/data/chat/chat_kv.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2976,
+      "source_sha256": "5af3d36e93f277775f3100064e3765ac21bf2b51847d0e6dddf719c7c974a2cb"
+    },
+    {
+      "path": "game/code/data/chat/chat_mes.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3479,
+      "source_sha256": "2f9e73de1dcacb65895234da5b19fd15bffac455de08000b6b4b018238af98c6"
+    },
+    {
+      "path": "game/code/data/chat/chat_mh.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1987,
+      "source_sha256": "6fdc05a2c4efd7f4c0ad82cfbe7b259f4e63fc7f67f22138ab1043ccb8a8bb35"
+    },
+    {
+      "path": "game/code/data/chat/chat_my.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1892,
+      "source_sha256": "a27043434712e1e802477bc7d4c1f3f0bafc7ea14b320b66210b65e92984bebb"
+    },
+    {
+      "path": "game/code/data/chat/chat_ns.rpy",
+      "extension": ".rpy",
+      "size_bytes": 954,
+      "source_sha256": "2a84d141df091e02b0a95de956dc2c0b696b9fdf1e1a2851017baf878a9d8423"
+    },
+    {
+      "path": "game/code/data/chat/chat_tl.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3524,
+      "source_sha256": "fc63c530d2632f9b2d204d3f9880b1be5ef0e84c5408df5f3bea37792f75c2ea"
+    },
+    {
+      "path": "game/code/data/chat/chat_vs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3289,
+      "source_sha256": "c5bf1c61fcc15ea52cd2af69fc7fc7d4c1cf57179f365d852f40f789a7c0a8cc"
+    },
+    {
+      "path": "game/code/data/constants/constants.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15610,
+      "source_sha256": "5d3279c7a070b595089dcce329db6df76ba8f88f58b7b831103ca1c0a9b600cd"
+    },
+    {
+      "path": "game/code/data/constants/location_constants.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8135,
+      "source_sha256": "f3586c212c108dbcb80c2a1416bb7bdbae631336ccf5a7e2f51a26a3c67ad535"
+    },
+    {
+      "path": "game/code/data/constants/traits.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9218,
+      "source_sha256": "16bddd693803502c1325e34a8360c1e0f4a0d2cb1713590d5089e72ae1c0a0ce"
+    },
+    {
+      "path": "game/code/data/gallery/replay_gallery.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3102,
+      "source_sha256": "d78c3193eca3d23ce4a8bec550683513bd89fa206785270f68716cdd8557de87"
+    },
+    {
+      "path": "game/code/data/gallery/sm_website.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1113,
+      "source_sha256": "3fab3a13db847a59282c160d49b1406fb9ce20bb9f455520c10656df2a06b876"
+    },
+    {
+      "path": "game/code/data/interaction_options/interaction_character_options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33608,
+      "source_sha256": "35d52422f225aa315492d19af3b505b178c53a528b582dc512e627cdcd02ebcb"
+    },
+    {
+      "path": "game/code/data/interaction_options/interaction_conditions.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2669,
+      "source_sha256": "f91ce8bbd0a9ea3406dc87c1ac6a29d64c13853d0064a9e8e45c3d33d4c9eb55"
+    },
+    {
+      "path": "game/code/data/interaction_options/interaction_location_options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1665,
+      "source_sha256": "46e3b80015286d5e0e2ab6eda440e010b424167c68e6c18a2e249bb331f2049f"
+    },
+    {
+      "path": "game/code/data/interaction_options/interaction_object_options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4790,
+      "source_sha256": "963417162e67a229538f8afdf74a7065d84b2b9f07ae2606ccfe0649c0b6eb0c"
+    },
+    {
+      "path": "game/code/data/interaction_options/store_item_options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1165,
+      "source_sha256": "b99b37fc9fa3fc748e971001935a5eb2ad25ffa79190f14668ff9f865a9e1844"
+    },
+    {
+      "path": "game/code/data/locations/gr_bar.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2240,
+      "source_sha256": "f0d7ad3a9653ca5252c12a9aecf238196229926d7778b08ea59d9141682a9e36"
+    },
+    {
+      "path": "game/code/data/locations/it_office.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7962,
+      "source_sha256": "9b0dd41a0ad235a421146837d246ba60d644ddda40baa4d06a52e2d5f10c78c6"
+    },
+    {
+      "path": "game/code/data/locations/l71_shop.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1427,
+      "source_sha256": "5afb74b281e75315049477606b5a0431d6821af7c104c0e341f021178eb4b776"
+    },
+    {
+      "path": "game/code/data/locations/location_functions.rpy",
+      "extension": ".rpy",
+      "size_bytes": 501,
+      "source_sha256": "f7d9ba60db9439299abb1efcd4f7aa86ae9b44f02c850d831de5c259cd3a7276"
+    },
+    {
+      "path": "game/code/data/locations/lyssas_house.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1435,
+      "source_sha256": "beca6090e466d18f26f3995609688cc6e01f560a5362bfe5e61fdfba460ff2ca"
+    },
+    {
+      "path": "game/code/data/locations/map_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1253,
+      "source_sha256": "d340d3f3c48bfd01a834af0b8702fca527c3b1dcd4f678a01c60d1690d3f4003"
+    },
+    {
+      "path": "game/code/data/locations/park.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3174,
+      "source_sha256": "8eb89ae23857574646cc323b8b79cdbbbc3e5e12a3cbab2b68b35dab72198b9b"
+    },
+    {
+      "path": "game/code/data/locations/photo_dojo.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2322,
+      "source_sha256": "22867d06210b0b6d1387333a6087b35455058dc0ce75d75ef0ebe09fb6a7877f"
+    },
+    {
+      "path": "game/code/data/locations/starducks.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2375,
+      "source_sha256": "386a0b4a6b954dd85fb2a2afce135eab3465984a76874e88bd5404d5e937a9e1"
+    },
+    {
+      "path": "game/code/data/locations/studio.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6742,
+      "source_sha256": "304a1b2cf8b38f808dc8ee95183823faf442313b9e4968006a12553dfab5182b"
+    },
+    {
+      "path": "game/code/data/locations/theater.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11675,
+      "source_sha256": "b42aa52ca4437b7b3c6d74f8f4b233b203dab0624e09bf37a1b83a4e12460bb6"
+    },
+    {
+      "path": "game/code/data/locations/wurst_delivery.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1847,
+      "source_sha256": "cdbc2ca4cc7c2d3971417a76322532d42c967d42decd8a75ecb72683314b5559"
+    },
+    {
+      "path": "game/code/data/location_schedules/generic_schedules.rpy",
+      "extension": ".rpy",
+      "size_bytes": 202,
+      "source_sha256": "4936a500b04a56dad3a2a0e5016789f9d096b6c4f57467cfda515d6aa2c0bdf7"
+    },
+    {
+      "path": "game/code/data/location_schedules/gr_bar.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1169,
+      "source_sha256": "96f49b131bd66ba6d8e13754acdb54b05063eaa3bc7977507d2eb2c9c14ffe47"
+    },
+    {
+      "path": "game/code/data/location_schedules/it_office.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1143,
+      "source_sha256": "e02ca7eba642664c0b3792a6f2c9345a1b75a78c0bbae60c23fae6f1e18e6c80"
+    },
+    {
+      "path": "game/code/data/location_schedules/l71_store.rpy",
+      "extension": ".rpy",
+      "size_bytes": 577,
+      "source_sha256": "a62ad281822efaa17bc58b61726d5a8907012f75e2194e8ab8aaef128adb9164"
+    },
+    {
+      "path": "game/code/data/location_schedules/photo_dojo.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3379,
+      "source_sha256": "6edf3c55d5d367b0ebd4d4013d1aa4186419ac901bbaf06f7c1abf7b9708138b"
+    },
+    {
+      "path": "game/code/data/location_schedules/starducks.rpy",
+      "extension": ".rpy",
+      "size_bytes": 578,
+      "source_sha256": "71b7f72b6fa63014c2e50b35c4c97acbff2f9c83c4aef5b2577b36e0f6684018"
+    },
+    {
+      "path": "game/code/data/location_schedules/theater.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5819,
+      "source_sha256": "9759da6d88cd26e51e22e43dfc3ec8471535ece78682f577c6d8747535e8b563"
+    },
+    {
+      "path": "game/code/data/location_schedules/wurst_delivery.rpy",
+      "extension": ".rpy",
+      "size_bytes": 576,
+      "source_sha256": "41cfd5703c620771137f5e31f94675423189714e65da9a4a92d62778228f00fc"
+    },
+    {
+      "path": "game/code/data/location_states/location_states.rpy",
+      "extension": ".rpy",
+      "size_bytes": 825,
+      "source_sha256": "0df7b4617e39142bcbdbc86f313ab421114a7491aedbaa633928a0c39652e272"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_bed.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1891,
+      "source_sha256": "11998cf4409277cd5fe91230edc322700006c60dba6b9c8ec42efb17eed0068b"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_couch.rpy",
+      "extension": ".rpy",
+      "size_bytes": 914,
+      "source_sha256": "13dde710feb64b3e6187c6a6746387d550117c67e2704ca5aeb22f3b4c63d5ee"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_drinkmachine.rpy",
+      "extension": ".rpy",
+      "size_bytes": 629,
+      "source_sha256": "74585c56f9fecefda240517cf83edbef629246d98de20c166c9aaf486b3446ba"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_IT.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2031,
+      "source_sha256": "44775d2cf9c8731c877e0668816c76b71e558c46dd05847e39bfbefcc43ecec2"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_ns_panty.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1177,
+      "source_sha256": "8fc0cd1b9758be3536fca43ab9c5346896dddb973bf323c559b01c701b7e8815"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_shower.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1316,
+      "source_sha256": "dd1a24866114dfac7d1181c3c2c7a622d3fffbe401f647f3144ce2f5c755db16"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_Starducks.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1124,
+      "source_sha256": "b59b9f03cb84f913d791736eaf0994d5d5c46e3c337940a878d68b8b79dee8da"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_studio_laptop.rpy",
+      "extension": ".rpy",
+      "size_bytes": 955,
+      "source_sha256": "49834acc757cd66057f72c333761c2a681a4b2129e65ce73149468d7b4d9a47b"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_th_signs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1770,
+      "source_sha256": "e5991d8013f66cd343c1a08d3cbbaa2b79255b454666981646a6eb3a6705012c"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_Theather.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1191,
+      "source_sha256": "03434259d5f4dbc1a285fa84544364562279836931618bbd022b795f6f7cc810"
+    },
+    {
+      "path": "game/code/data/object_schedules/schedules_toilet.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1919,
+      "source_sha256": "b28c411614bf2fd40068db945df2cfb2b2e4b5a322566fd4c93c91ae4c4122b2"
+    },
+    {
+      "path": "game/code/data/quests/events_quest.rpy",
+      "extension": ".rpy",
+      "size_bytes": 31204,
+      "source_sha256": "c456fb7dd210d808bbede07b09e48439647f8b0fc41e2b5676a226e141f2a459"
+    },
+    {
+      "path": "game/code/data/quests/line_list_quests.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3347,
+      "source_sha256": "728f0d7af7f375d363d5479c07a90cd9a0daba6e7ee011fdfcf5c6de3a8402bc"
+    },
+    {
+      "path": "game/code/data/quests/quests_it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 14598,
+      "source_sha256": "e37e2fbb629792901cc7fc54a988251c944307fc655ff157db6cb1b137f66d97"
+    },
+    {
+      "path": "game/code/data/quests/quests_movies.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4733,
+      "source_sha256": "8577d314748641ab093ff09c931d1543a84fc2d8d90cc8e25a791261ba7739d7"
+    },
+    {
+      "path": "game/code/data/quests/quests_neutral.rpy",
+      "extension": ".rpy",
+      "size_bytes": 25271,
+      "source_sha256": "025e1e4e0e2865ecc4ce185343656b4a4db1e7e1d3aecec6e1e448d965994766"
+    },
+    {
+      "path": "game/code/data/quests/quests_theater.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10778,
+      "source_sha256": "ec98963f460d357f3539b437afdcfbfa0e0c904eb632a78a2ea9e6deb89b9780"
+    },
+    {
+      "path": "game/code/data/quests/smart_hints_quest.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7611,
+      "source_sha256": "d3952b4238a3b510d222b0e9ba10b4f1e0689986b55bbac9ca2f6b9926992cd5"
+    },
+    {
+      "path": "game/code/data/quests/vn_mode_conditions.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1273,
+      "source_sha256": "0c283cccd119d3694768b3b1918fecf0906dba80f948d3a2183890e31b06cfd9"
+    },
+    {
+      "path": "game/code/data/quests/vn_mode_data.rpy",
+      "extension": ".rpy",
+      "size_bytes": 46631,
+      "source_sha256": "f94b29fa68b04ff073cc1c30c6f886ab57b209315b169c497e9508a4dc1000b6"
+    },
+    {
+      "path": "game/code/data/quick_interactions/GR_Bar/q-inter-rd.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1995,
+      "source_sha256": "19999f78e2f518bc6e84efe552227e04e43e9b9a517555d7cac503a8e0e3e621"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-ag.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8057,
+      "source_sha256": "18a089ca43ac621faa906de4438121319ed926dd06c9c98e38fadb022d24ca9e"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-am.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17931,
+      "source_sha256": "c685abce4761a37b9df1d9bce0c59ecccf92f4a2b7bee9b3c124bf7d0778a6b2"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-cw.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6976,
+      "source_sha256": "768437fff8edcf8ced658b54151354c40a7a59f597d653f1fc99603961ce4551"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-en.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2023,
+      "source_sha256": "301631bb2691b108423afb7bbd7096ecd1f25711d10764e56b7d0c33a23bbbc8"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-jh.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2638,
+      "source_sha256": "61a27bcd47ac141f7c287dff53b698a730256dc0ce3d9d66e0b4740a19f8b6f7"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-lm.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2289,
+      "source_sha256": "b74b7924b27b392b82156ecfd043241553a53fa5725878844a31ad6998ab221f"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-mj.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2127,
+      "source_sha256": "43176664656fda995a4f7f036883ffafd800f7c3d2a67c9020b4ad7a8fc9cdbf"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-ns.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24174,
+      "source_sha256": "25ff2370749cdcf3ed82aac908eae26d98e354e1047d89be4fedfabe03880891"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-pm.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2872,
+      "source_sha256": "22c525ef9ebfa4db0b59b15abe17e747f2b1a69ad5463e5ad0139210d2969255"
+    },
+    {
+      "path": "game/code/data/quick_interactions/IT_office/q-inter-sr.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2390,
+      "source_sha256": "34b814aa325649ec3adb122188086effd20abf1c3d67f17112e81acb15178c3a"
+    },
+    {
+      "path": "game/code/data/quick_interactions/l71_shop/q-inter-ic.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2640,
+      "source_sha256": "78d8252f3a715aa9d5d7593171dd0546fb520f45ac5f399cc002157ab5e3313d"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Neutral/q-inter-dc.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5079,
+      "source_sha256": "845ca366b841a667fd6191e3a426dd0c98605173dbb9ac2a16d73e38a66ab0bb"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Neutral/q-inter-mes.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3806,
+      "source_sha256": "bf0887db5e9f31caff716c34f168d1c922c4d728903b5b8710197a77f8d43484"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Neutral/q-inter-my.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7311,
+      "source_sha256": "903da058843f5d92139bfb2c56eb6c63a33afc0cf5e6bc3e25a47bbd474b8bba"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Neutral/q-inter-sy.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11573,
+      "source_sha256": "8be8d8fc26b29140f2a280ce446033be311928d841fda4357094b3e4a0409018"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Photo_dojo/q-inter-bg.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2990,
+      "source_sha256": "fe42744bf5e2aa31ddafc104bd9a6c616fcc22c9f1f3e27bfca26b257ef2fa98"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Photo_dojo/q-inter-kv.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2695,
+      "source_sha256": "ab24422d8c8706088b85ef82d42503babd84fa4f49ce6d8104cb88939a442840"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Starducks/q-inter-cs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2854,
+      "source_sha256": "1072c9d865e2c7605e0cbbfe6c3f598f13e0988266a42f6c77d9ea9b6f939158"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/q-inter-dvh.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2330,
+      "source_sha256": "e6b1bd184c2280ec0fad741d460873c20d3d83ad3576f874448bc5dfd5c19a69"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/q-inter-km.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6022,
+      "source_sha256": "eaf8dc70e55f044356c02f7e8ca4d40aaa4a5a5eab7c3f622a539bc3e6151116"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/q-inter-tl.rpy",
+      "extension": ".rpy",
+      "size_bytes": 12003,
+      "source_sha256": "9deda5ee49a3ac923b46aa635c29c3981220fa8e15a3e0fd16de5594e4df885b"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/q-inter-vs.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6359,
+      "source_sha256": "06c4f9eaa467a7bce2988e2ca1991139278f605912a50d322b2ee2b618c10c86"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/background_chars/q-inter-ec.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4391,
+      "source_sha256": "79dc583ebd8fcf204064d1746617407bc9cbf0758cde791f00938ae90c9e728a"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/background_chars/q-inter-kw.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3874,
+      "source_sha256": "e15767b10134c208e8f3a6896abcac8e7f1ce7d4bb2d2e1833b288851d8e8366"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/background_chars/q-inter-sb.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2061,
+      "source_sha256": "57e1d5c6308ff01f4af9a37b9f1352eb1ad78210442843dc599003d8e19c23c2"
+    },
+    {
+      "path": "game/code/data/quick_interactions/Theater/background_chars/q-inter-sj.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3886,
+      "source_sha256": "d7b5c02a41c36a3d4c52863c693cfd60024a80ae3eb6a0b475a10ea2a595ba71"
+    },
+    {
+      "path": "game/code/data/quick_interactions/wurst_delivery/q-inter-ms.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22994,
+      "source_sha256": "89236ceda1c69fefb2057bbf9c1e68bcb776408b434fb8993a8b18c385ac49bd"
+    },
+    {
+      "path": "game/code/data/quick_interactions/wurst_delivery/q-inter-nr.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5468,
+      "source_sha256": "f4c3938fcf94d73d22848e85b48ee15514cfba3830d981509068f5a409e9273d"
+    },
+    {
+      "path": "game/code/data/renpy/credits.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1993,
+      "source_sha256": "6f28fdb16d2fa4300fa225a2684981273332151c18f91e9e567e3383e25ccc2d"
+    },
+    {
+      "path": "game/code/data/renpy/defaults.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1402,
+      "source_sha256": "8575371cc8d6d9d5e12d5252958711ccdff5aa3f8d069c323a806f341b48378f"
+    },
+    {
+      "path": "game/code/data/renpy/images.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3834,
+      "source_sha256": "7814c8f48fb476913c7d44f1547a626aa631cf93744014d21ec40e1f785f5003"
+    },
+    {
+      "path": "game/code/functions/compatability.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18320,
+      "source_sha256": "8bbefeb0b37a21551b18ddba9259ffdce651067c047578334d1d5da554e5755b"
+    },
+    {
+      "path": "game/code/functions/functions.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6888,
+      "source_sha256": "ec18f1e96fa3301a74cd194517dfeeb6bf6050f9fa789017e902c67992c75727"
+    },
+    {
+      "path": "game/code/functions/init.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1964,
+      "source_sha256": "9ebac0750735c101952df835242009a122409b0e3fcef948aad0ac4516516602"
+    },
+    {
+      "path": "game/code/functions/release_1.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1228,
+      "source_sha256": "1ccc667c6876af33f0d24ea09d9d36a84c62d81abb7291964ccb50fbafde13ee"
+    },
+    {
+      "path": "game/code/minigames/nonogram/nonogram_class.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5615,
+      "source_sha256": "285301be80197734cbf21ebe5ca3bf6c2eba212e0d8c173a49accd68f723747a"
+    },
+    {
+      "path": "game/code/minigames/nonogram/nonogram_game.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5085,
+      "source_sha256": "36f8aff2bfe7e000e8f1bcaa37ddf7bbf632dba6936ad0402e2906beeab9de81"
+    },
+    {
+      "path": "game/code/minigames/nonogram/nonogram_lables.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1086,
+      "source_sha256": "ce4721697952883cfd3d98ce94bfdfcafa821589ce8e58f0821e3c82d953d59c"
+    },
+    {
+      "path": "game/code/minigames/nonogram/nonogram_puzzles.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2229,
+      "source_sha256": "9ebb32fc2c5d2e10b006c83181a5d47f2c051b0173837a2a97ef8dcd3ef469eb"
+    },
+    {
+      "path": "game/code/minigames/nonogram/nonogram_tutorial.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4818,
+      "source_sha256": "117b8951230b23978b58c1492ff27bbbf74e8ee084ef92c5df5678730a27c327"
+    },
+    {
+      "path": "game/code/minigames/simon_says/simon_says_class.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6513,
+      "source_sha256": "06a4bbac33841152e67c23b8b07eea020a5c69a03c6d49ac0180c56698228272"
+    },
+    {
+      "path": "game/code/minigames/simon_says/simon_says_game.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5694,
+      "source_sha256": "21b5a7e53037fb15ba78cbd077e481db1307b285f23d8e90eaff9b7c327fa0e9"
+    },
+    {
+      "path": "game/code/minigames/simon_says/simon_says_lables.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1234,
+      "source_sha256": "01d3ad6705a068f168a0b11aec5eafe282a8b276fd0a276d7c9b672cef937c0c"
+    },
+    {
+      "path": "game/code/minigames/wurst_delivery/wurst_delivery_class.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4124,
+      "source_sha256": "ba9d78625146b72915e5b45e81dc3f67a28f8756c25fbba432061b4f30f797b6"
+    },
+    {
+      "path": "game/code/minigames/wurst_delivery/wurst_delivery_game.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2572,
+      "source_sha256": "50116e06555e6a9acd4fbff56258010e601c9509191209fc27a9bc900d417511"
+    },
+    {
+      "path": "game/code/minigames/wurst_delivery/wurst_delivery_labels.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2274,
+      "source_sha256": "82f950ab9a55374a082d4e8ed6544e1e83f58fc20735d60e7a74000a5060f1a5"
+    },
+    {
+      "path": "game/code/renpy/config/build.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3308,
+      "source_sha256": "94c8c36b314db308e6ee9271b3e80ab927a6746727c4a6f2d6a1dbc255a61ff4"
+    },
+    {
+      "path": "game/code/renpy/config/gui.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6483,
+      "source_sha256": "05f0e4a29a3b307c2c3ff7a166aa8fc2dfc16915923bb55dc9cd97adf780d3e9"
+    },
+    {
+      "path": "game/code/renpy/config/options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 745,
+      "source_sha256": "4a7c133e244f2288531dd6ada92693e0cecc157da1a216d8442c970bef86260a"
+    },
+    {
+      "path": "game/code/renpy/labels/actions.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11963,
+      "source_sha256": "bb35cd852db0c3c2df83e4335ba26e575c7a2e16a036ecc0b7f2e430823ebabd"
+    },
+    {
+      "path": "game/code/renpy/labels/it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1001,
+      "source_sha256": "29decd8965038b152479430efb28241d8d2b0d51beeead4d68a11515543866cb"
+    },
+    {
+      "path": "game/code/renpy/labels/labels.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1864,
+      "source_sha256": "5a5dce508fbc59c34fd08e016eb7da7d794e0d1eb0ed671f8152931b3a659116"
+    },
+    {
+      "path": "game/code/renpy/labels/theater.rpy",
+      "extension": ".rpy",
+      "size_bytes": 619,
+      "source_sha256": "119a27d6721b9d65267b815f60b737a649c8c69135ee149c697d405ac580ead5"
+    },
+    {
+      "path": "game/code/renpy/labels/vn_mode.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3584,
+      "source_sha256": "a463b828309eeab05afbd7474f740d88133dd1bd40fbf90bafd75f85048321f6"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/l71_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 927,
+      "source_sha256": "7878a426f0a5bda41286124b105e9129dfab87d5d1f92753e7b897c6c5ccef0f"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lgr_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1198,
+      "source_sha256": "278bb21941557b7ed79571546d05e9990fea3604535a100578e5d00d1318c49a"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lit_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5224,
+      "source_sha256": "3b7492d03dcf85c675ae1ad9cbc4b2196735d1dc29e6134a3eac614394ad57a1"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lly_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 758,
+      "source_sha256": "f1ee746e5aaf31d249659122c9697f9793ac503466645400d03ca2fce1c1776b"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lpa_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2068,
+      "source_sha256": "caa2edf7ca758e699bfc1d454a0e3c2f30204f01e7a28363660d92b0d0bb872a"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lpd_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1357,
+      "source_sha256": "340e4379311bb934ee8c24c64258c7cfa4fc4e54352c7de8fbb704dd058fedf6"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lsc_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1268,
+      "source_sha256": "14c5de0c69e306bdd49d05add90d77ada3499c083969662691bb43187a2c1707"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lst_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3822,
+      "source_sha256": "a2bdd794dbd1d7fd05d8a01cb37b0f30683ef6db96724462cb520331d28f2505"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lth_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5814,
+      "source_sha256": "2bb3fd84c64a8589ebe16887de010f5752a272da910882bdfdd2752826b4e7f8"
+    },
+    {
+      "path": "game/code/renpy/labels/locations/lwd_locations.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1229,
+      "source_sha256": "928e89bbe7eaf8e4ca68179e0c15d92a8eb9df2c87ae1be8d8171315561025a1"
+    },
+    {
+      "path": "game/code/renpy/screens/character.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4495,
+      "source_sha256": "fb5519b3eb949580d9e2e01111daa5c4eeb5d70747c9d0bf6aebdddc0f572029"
+    },
+    {
+      "path": "game/code/renpy/screens/difficulity.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2972,
+      "source_sha256": "0f4977c397b55fb68bac9b59c313371c059f05d00ebc5956cd28d077f98ebf8a"
+    },
+    {
+      "path": "game/code/renpy/screens/faction_it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3716,
+      "source_sha256": "0c8942eeffcd52aa2ad4b9b7f0f85e66e1fb6216bfa355e75618912649eb2aca"
+    },
+    {
+      "path": "game/code/renpy/screens/faction_th.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4727,
+      "source_sha256": "434d7cd95185095ee29412443a084aa1505d1e33577e304424e0a70d9f761f46"
+    },
+    {
+      "path": "game/code/renpy/screens/flashback.rpy",
+      "extension": ".rpy",
+      "size_bytes": 419,
+      "source_sha256": "1983ca623e2c602a03f1c0d018f6c8f6e71641dca06417d71d00bab6feeebc95"
+    },
+    {
+      "path": "game/code/renpy/screens/gallery.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9313,
+      "source_sha256": "4ea22d8509da16670c2c734880972e34f8560c563cbb88b71895991b8772d71c"
+    },
+    {
+      "path": "game/code/renpy/screens/game_menus.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8653,
+      "source_sha256": "9a66f28f158540faf7381c53e4ebf858225bc579a9774e90ffae4ca175e65d38"
+    },
+    {
+      "path": "game/code/renpy/screens/interaction.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2685,
+      "source_sha256": "66c68416da1b6f7828de82f985e4813a778b975b39b1018dde8e50d9dbe088cd"
+    },
+    {
+      "path": "game/code/renpy/screens/map.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1109,
+      "source_sha256": "c246bdf8ce4490b53ebee22b868614298760a22e9d9c22b58f134decf681a0f8"
+    },
+    {
+      "path": "game/code/renpy/screens/money_statement.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6260,
+      "source_sha256": "cfa49ec93d2447430d7be427cbef32e2fb34568023ecbd62722ec9dd2e822dba"
+    },
+    {
+      "path": "game/code/renpy/screens/movie_progress.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10338,
+      "source_sha256": "233a6292a4f101c52fa33684c4c4166b1031a7da9986ab7559599b29722bcc81"
+    },
+    {
+      "path": "game/code/renpy/screens/neutral_characters.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2138,
+      "source_sha256": "3a1da4fe31fc42b69913cc7b0e444dec4174da7cc39adebc429188ff40adfa11"
+    },
+    {
+      "path": "game/code/renpy/screens/notification.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1460,
+      "source_sha256": "39c69b8e28f26a9c0add41a2da7bcfaa6adac9c96cdcf8ca4edfd0b55244c67b"
+    },
+    {
+      "path": "game/code/renpy/screens/others.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8258,
+      "source_sha256": "01d86959cd11b91960a9419fb6d2fc46457b2834520264f4f60bb4588273f0dd"
+    },
+    {
+      "path": "game/code/renpy/screens/phone_chat.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8587,
+      "source_sha256": "0da7e2d24d2d2e98d967bb0c49ca58ecbf4d84dff653dc51786f2a33dc10f4d2"
+    },
+    {
+      "path": "game/code/renpy/screens/phone.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6341,
+      "source_sha256": "1f3a72545be5f706274c93e2fbfbd61edbd876d1af366375cd82aa41ba5f452d"
+    },
+    {
+      "path": "game/code/renpy/screens/pirates_movie.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18982,
+      "source_sha256": "10173e80a614adf0647634c1a9fe9b1ca0ebffa07a7810285d80d8fd5fb1492c"
+    },
+    {
+      "path": "game/code/renpy/screens/quests.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6624,
+      "source_sha256": "8c8737af346868d67feac24d930d6d92f028048ac718e944379baf411fa50ccb"
+    },
+    {
+      "path": "game/code/renpy/screens/renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8035,
+      "source_sha256": "ebe8689a12936de7fec4c7477f6a45cb579fb148bd26e1e3d2f02d74f1406f89"
+    },
+    {
+      "path": "game/code/renpy/screens/sandbox.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6358,
+      "source_sha256": "650cf0d71cffd7370a071a051d8981db4dd9c0b5c5dbcbff5710bf9a2d390a1a"
+    },
+    {
+      "path": "game/code/renpy/screens/scifi_movie.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20135,
+      "source_sha256": "a0b1c76d4c9051cdd508b0e68f1ba45687258b61374e79dd65f28a21290ff4b9"
+    },
+    {
+      "path": "game/code/renpy/screens/screens.rpy",
+      "extension": ".rpy",
+      "size_bytes": 30775,
+      "source_sha256": "63c32e7fd3cb2b3fe40c0526c8bcb90d5c8ef0df8172351c0319f1355818129d"
+    },
+    {
+      "path": "game/code/renpy/screens/sm_website.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4730,
+      "source_sha256": "125bc85bdc7d532c469eb91488a8430628033be085ba5144f423678290c2bbe4"
+    },
+    {
+      "path": "game/code/renpy/screens/studio_laptop.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1791,
+      "source_sha256": "63443f724adfc605d15d53b8e272ea3f11fffb22a2a15d48764787bc9abed02b"
+    },
+    {
+      "path": "game/code/renpy/screens/topics.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1993,
+      "source_sha256": "ab008dd00656f9adcae3f1e33d3299092b36b4bcd0b0936947989156d7afcd27"
+    },
+    {
+      "path": "game/code/renpy/screens/ui.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3055,
+      "source_sha256": "74847f1b37e354b97f52df4cb6fcdec01e7c0576798f8390cfb8c875170f049c"
+    },
+    {
+      "path": "game/code/renpy/screens/vn_mode.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8431,
+      "source_sha256": "b3bc79f0ed0425c1cdbee21d046a131efc0ddbee377dab69d8a5d646fcb0b113"
+    },
+    {
+      "path": "game/code/renpy/screens/wait.rpy",
+      "extension": ".rpy",
+      "size_bytes": 478,
+      "source_sha256": "bdea4a6380d2b6b23d4ecf5b9197a96ddee99eb90424b0e53a7a6bd36778c017"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/arj/sm1cs-arj001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18041,
+      "source_sha256": "267bd18f8e22d99c3c45b7d8d9446332ae7f54e2aec69e52096396dea564774f"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/arj/sm1cs-arj001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1909,
+      "source_sha256": "af18f831e2d6503dfa5410a05c962cfc07adbaa9beffae4c7d56337f084114ac"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 29034,
+      "source_sha256": "bf9006bcf65c0bd4259c623734d59d9848f49bcf0933e542329e7431ee9467ad"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 42072,
+      "source_sha256": "fa2cbbdb2f14c9af08d875891963d305ee12a5375f6beb9d5c04d716a1105f3f"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 780,
+      "source_sha256": "c98f96c567efb5baec3167974f7272c37f6851865b8fc047415fbe073c6493c1"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 47054,
+      "source_sha256": "6d856b7286e669a2f67467cce89a0ffc8193be506e740c874c30f083607eaabe"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 871,
+      "source_sha256": "41497580da6e63e4080f8096b5af3128dabe99ed4052ba1c2711cc227d400057"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/bg/sm1cs-bg004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36540,
+      "source_sha256": "071c3bb9e4b8941483bb5d46ff4317203e22c9f83a9dc97b9ce27f09cdc49b55"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/cs/sm1cs-cs001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4824,
+      "source_sha256": "3887ed3dcdd78e8b623165f941c1de6e2db7a187ff1bf9f8225ac5f0dcecc06e"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc-renovation_i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1818,
+      "source_sha256": "891ec9eb7a34cf77191641c205c1946da1cb1f9280e17c010eaf18e0ea4d54ff"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 19045,
+      "source_sha256": "91e181c9d6ec99492341f801fd12979d9b99a51be71af5ae098741eeb0098e2b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1143,
+      "source_sha256": "4eb1a42e27e3a17a4d7e51f4b0fdb5cd1e56fbab78757b01dfe38a362b80f79b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17218,
+      "source_sha256": "00c3650984546bc4b67ac1a533df0c5b5a329ed60ad8be50babb4435fbeab6e4"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17059,
+      "source_sha256": "0f52a343bb461fface67ba67b7f82e75ba7c2887979e2af771de3ffacc07a1a7"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1173,
+      "source_sha256": "4945c0e0ae3e217ab4bf90e297e180cd3c7c93342a4592e68e59b6faba63ca68"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2750,
+      "source_sha256": "82ffc641ccf497fd913bcb92c65a9952accf998988ea2bc757fb98bf52a5f372"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 531,
+      "source_sha256": "142ff94f47d4de49a0d52edeba5456075385ac47e9ab5fcd962ed74768be6689"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc005i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 882,
+      "source_sha256": "bbc34189f20cb73d90509bce2232a3d806e991a10fe681a36c96414a71adb628"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24794,
+      "source_sha256": "7baf8e3b9ec9e2fb18db8c10c51d9045c47521fe131408ef6e9415c8d1eb8d97"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc006i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2433,
+      "source_sha256": "88b21413e26f7f6ba5f3b73c99e26c5fd7a4beeba749339ed117459228fc9360"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 25803,
+      "source_sha256": "790467248fe1ac032e2c7d1a2763c9d598d06aca06a3cd8776da663fd5523f1b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/dc/sm1cs-dc008.rpy",
+      "extension": ".rpy",
+      "size_bytes": 21987,
+      "source_sha256": "5f8b58c812281e406519a078a1719d457aa0911d2c77a427c92cb3ef294d4cb1"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 13561,
+      "source_sha256": "9a3451080348aedd1cf3576db0f9dcdf38832c5038793f792905150823211282"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv000i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2416,
+      "source_sha256": "012c7f9547bf43f431c4609b718c2f74f047d21e571e6b9452a6593ffd1a6d60"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15629,
+      "source_sha256": "66fe9d7c630e5d513e6b9f8dc37e99fbf2972636e76733b26deb9c3ffedfcdba"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15545,
+      "source_sha256": "1b3b0667c44ae5089d4061ea57d33f08bd4210a0138fed3d554dabd344e20de8"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32204,
+      "source_sha256": "436b8eafacb2d9e58ade65a7172b622d0024d62b93dc97495fe46aa56f33235b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv004_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2176,
+      "source_sha256": "623b64a90cd18a2cf5977993bb7257f4187595c5709f2cecab39d3afc5af79da"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 41645,
+      "source_sha256": "5d3151133c592cde298c1e6f3698348cce2506d89e791b6453a6fbb4747d09ed"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/kv/sm1cs-kv005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33458,
+      "source_sha256": "1debdd70a6408e47c70a7063660947828607a8733af6c9d0775372e02b7dc50f"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mas/sm1cs-mas001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6423,
+      "source_sha256": "79260add417ff61613c5e3aa8af3c2e8a3ba7069e1b75ac8040ba31e683ed2d2"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mas/sm1cs-mas002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10521,
+      "source_sha256": "16d66d04fe52beac507c418c098daf172ed6a0bc09eb280ada5d43f6c8f2e1f9"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mas/sm1cs-mas003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 47346,
+      "source_sha256": "216363d6c569c330adaf6706bd150812cd00a932a7608b8a54d5e61d1ac9b52b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32823,
+      "source_sha256": "9325101483956156c9ca27f14262a0fdc0125bd47b86a7596bd3cbe22200a3ae"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 4303,
+      "source_sha256": "14bf90a91ed7a6e0e6a379f8228ab1c3ef68d3a69e3e04580de94e355fc0e468"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 46780,
+      "source_sha256": "644c8987c3f76b09abd89488e0d02238c1ddf1077cf0fb72fb4c71506f81958d"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 26963,
+      "source_sha256": "7b8932de880a6825fc8d25d06a96be5bf1c63adf013239e705d69af0f9fbe061"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 31209,
+      "source_sha256": "c59120d4b57f93a31e45186e1f43ec9676c159c46a7d98503fd05218bece9156"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 92102,
+      "source_sha256": "11d5648b79a29564da60e2fb502433130e07632c03340fe520521626a5ab7fa4"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mes/sm1cs-mes007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 37752,
+      "source_sha256": "edae80265ce03b0ed0ac436b8705378a1e8d79ba0ec93c1b67f13e668809e434"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1942,
+      "source_sha256": "5f6b7be218860f8e72d5de041557718087e55b760394244b3b6d878551313669"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh002-00i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 625,
+      "source_sha256": "fe6e0af601e84451b4249e1c705de907aab25a702c0e586da32a2f3591eb8519"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 13494,
+      "source_sha256": "5e0b82dc9dddb95de584b5b117f33877b0c5252e7b3ee322f9ff314bc0416767"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh003_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3700,
+      "source_sha256": "899e211a8e7c2da2eefe9d820e8bdd0ceb62009fa93a7fc3a2040579fe3f7ef2"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24440,
+      "source_sha256": "9678ba71f2727bdfbaaf449e61d38cfa57b4de8feca3a8b243d84a6a4cbbd04c"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 611,
+      "source_sha256": "7d6506012a797536e810f54c0c0666410d93381dd3ac17d009e1c9bc9c2ad3e8"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh004_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2567,
+      "source_sha256": "b0059775a671b74909594e4c1fda2094cb5f17e16bd35af3e34372e45d80a878"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 19180,
+      "source_sha256": "2047e4d7480d0121b4fc032812eaee731bb4f30c1df3f3c834591b1502d1eaec"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1665,
+      "source_sha256": "e4872f3ddf4783f88e743bc1bb66c4ac46b425eb2bb885e333816984b82b00bf"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 35145,
+      "source_sha256": "aea0d63d7f413f68a99c552aeddb6d048e788b4a8496f9b3aa77e356062d6326"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh005i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1480,
+      "source_sha256": "e930e31ae06d22bb67a717199289585d05b886b1350425870b6aacc2b820155a"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36073,
+      "source_sha256": "62b56c067f690ac81d85420f72b717988ed5499f6ef6c36d180c9ade7494a0de"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh006i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1128,
+      "source_sha256": "f96bf7a4fb2fd968280e2328c7d7164b850fccd8c54716fbe9ab75bebedb4382"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 28253,
+      "source_sha256": "f430866e9b1a2a790a9a8bee3b6aadbab85de30a70f2801e6c7b4aa021f5c24f"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh008.rpy",
+      "extension": ".rpy",
+      "size_bytes": 63286,
+      "source_sha256": "8b272cd3ecd5dc0ca41b40ecd0e909d17fa03f63938b4305d5aa5c41af665dfc"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh009.rpy",
+      "extension": ".rpy",
+      "size_bytes": 61538,
+      "source_sha256": "5654c71dda147ec12ba65c6ad413dcc0c530b65976150e892657b2b83aa15a75"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh010.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18729,
+      "source_sha256": "5084e2c5d7730f349be1b881856a9068d7d94b06539a8d24cda3f08d947049de"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/mh/sm1cs-mh010i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2568,
+      "source_sha256": "2728384a4fd4757193425dc9905590e1a61555d9abfa76963ebaa5ef1a323a8b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 37896,
+      "source_sha256": "caff2cd3869271be12b03e538388d37f541707a45b5ac8f2982e4fe38f474b40"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 420,
+      "source_sha256": "fe7068afde4c0801ae6dbcb6b377a3c4d2f102ca027c2fad5675921308ee401e"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36454,
+      "source_sha256": "da81f34bb8075d45235887899cdf90f0f83e3b21594f071a4cc76e5804798f81"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 833,
+      "source_sha256": "43495800d8371ce25cae07a13217a34f77d99573e805978c049976facaed799a"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 40460,
+      "source_sha256": "f028f3c822373dd62c06f93d02109889d51641ce32fb8868c2a097ae6a3dc587"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 732,
+      "source_sha256": "2159dd1d6708e602c60eb3bf3d7051dbcf616e4dba7c9e429ead7a791e7167c5"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 43322,
+      "source_sha256": "21173cee463a8989030710257c56b76de7ea6535dc750740977d37ef3216ec39"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/my/sm1cs-my004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 752,
+      "source_sha256": "632a7bb146446815921701d429004bae20b11f6abd12ac3de99729c381bd30e6"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/nr/sm1cs-nr001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1632,
+      "source_sha256": "0b5b6f23b2fc96f8cd4f2bc1ffa7800e1169060b28f68aba74317d454b88fd3f"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/rd/sm1cs_rd001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 436,
+      "source_sha256": "a35d7a970e18df07d3872cf899493b7dd6073dddd9f009997d6238d5400733ef"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 26332,
+      "source_sha256": "edb2b17667eae385ba17b75f711712359e8fe4179beb57e8ecadb82fce48cdc8"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2100,
+      "source_sha256": "04ed3dc6da4fb352b956d745149458b29b19fd892a30e1bed6e1a1815b92f404"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33297,
+      "source_sha256": "f463dde7aaeda307c1839407a631a3e64dbe54f25c3c676ed50ca80a6d517e71"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3481,
+      "source_sha256": "21c039117300baf259f25c6b699edf034a87f078090ff5890ce6faf0e8c36c5b"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32958,
+      "source_sha256": "32e1a2eb407493ad210808274bbadd451b00a9fdbe6f0dc7ce4d827b870c8bf7"
+    },
+    {
+      "path": "game/code/scenes/character_scenes/sy/sm1cs-sy003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1792,
+      "source_sha256": "ab88c700454da72cd88b82f3bc0efc164557af7cb41c03401fe43dc4c909a5d4"
+    },
+    {
+      "path": "game/code/scenes/it_office/sm1fs-i001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22000,
+      "source_sha256": "0eaa0260cb04cef3c7f7aadaa68904b66c49633868e4b7bf632df7fcc685ed1b"
+    },
+    {
+      "path": "game/code/scenes/it_office/sm1fs-i002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18786,
+      "source_sha256": "38af1c729009d0a12c5a5f7cd9696214bf5ca96bd30eea0b2e1d4baecb5caf16"
+    },
+    {
+      "path": "game/code/scenes/it_office/sm1fs-i003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33089,
+      "source_sha256": "8669b462ffb7ec5aff02c0ca3b300a03e61e0e7edcd43b1b5f78707b2fba9134"
+    },
+    {
+      "path": "game/code/scenes/it_office/sm1fs-i004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24537,
+      "source_sha256": "b08a46fb390087e868df07b3d37a2531c2da08d7f48f8feabb96ca46adbc049d"
+    },
+    {
+      "path": "game/code/scenes/it_office/sm1fs-i005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 44137,
+      "source_sha256": "5a4b9ed437986c2a85e75d0a59c42dbed554c92b9a919319a5a4c0d9dec8ee44"
+    },
+    {
+      "path": "game/code/scenes/it_office/ag/sm1cs-ag001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24084,
+      "source_sha256": "f69291488d0a34b267146f125bb8d4b20c2e9ee9479a7571a393442df9e716f8"
+    },
+    {
+      "path": "game/code/scenes/it_office/ag/sm1cs-ag002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20239,
+      "source_sha256": "b11081c4cf3669d396cb1feaae62fb73adb4aff58d2b48ebba60780bcb452429"
+    },
+    {
+      "path": "game/code/scenes/it_office/ag/sm1cs-ag002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 895,
+      "source_sha256": "6e9b248d7305bded89fbb026e5ceeae3e87142131380ac3ebb4cd4d3721e8d14"
+    },
+    {
+      "path": "game/code/scenes/it_office/ag/sm1cs-ag003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20065,
+      "source_sha256": "70ef87c48edcb8a65b95f4e82509fb3c2d975a1575dafc5545bdfd620b4c26f1"
+    },
+    {
+      "path": "game/code/scenes/it_office/ag/sm1cs-ag003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 986,
+      "source_sha256": "f35b2024cbd30d2b01ca5acd4d8d37fafc3d124f16dafa6c12a60d050e8af184"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 19289,
+      "source_sha256": "18d18f1057ac797aafefe5d728a07ec5b5d5eed29f2b29b273cf01cfb82ee166"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 29499,
+      "source_sha256": "9c8c908a323d4d9a62d6ad4e739a1102eb2092babcd5a4363bd9ecc64e1ffa08"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 16573,
+      "source_sha256": "42a07c187a589d6f1366e621bb7a7e0d463e1902d6070df6a3823a54137cef5d"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 27885,
+      "source_sha256": "3b0751d491d4293dc835b61134c2d55c23a09a17a6bb8bf59168d8a56e6a2f6b"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 57945,
+      "source_sha256": "52a408a44bd21806ab6ac34e9e8633b61845c73ec5a6a8c0c8132aab41a72911"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1979,
+      "source_sha256": "285c980dcda7fc4d0e0d7bd88bdcef67135526a5b2bf4b9f6fb80d795a2dd97f"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33093,
+      "source_sha256": "2c40c8d37d6ae2f398a4fb9c454bfd354ca2bf7a3008364caa568b1c9fba9cd4"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am005b.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2227,
+      "source_sha256": "46f3b72e892993bf6ec037ee8185dad374d202b5144f7be743eeff4a7a22618e"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36544,
+      "source_sha256": "cef57dd5373b8bcd0802010f2017f08381ab71371c97e8de663bda8c1f21e138"
+    },
+    {
+      "path": "game/code/scenes/it_office/am/sm1cs-am007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 62115,
+      "source_sha256": "3f809b8578b5ce6e1251682f1526bc22b650085d8889f1a86faa5a37253982e6"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22183,
+      "source_sha256": "a679d4958f9b5639113d5c4811fd0a45252fece8501852a3a346bba4de306e86"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 527,
+      "source_sha256": "64a84f5c062fae91d6b7966d100a2b7c986761ef9fecb8027a8b7a54fe0144b5"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw002_2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 25009,
+      "source_sha256": "79a4966e9ae8c520b9de52a293153749283485567d48f1a8b1741cd423179836"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7015,
+      "source_sha256": "59014fc7ff80b4406e9b1f5d359fbaa42af80f285a8310a54afa4f025c98922d"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 12205,
+      "source_sha256": "a8aa0f0f8cda08ba0d8af7e6fd18cc1e18f20b504ff432fc70070180494e0e61"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 416,
+      "source_sha256": "a6a7cf27b8a38dba7b4189f345ff91b32741e6cb6114e9b1745e704ba040ec37"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 56028,
+      "source_sha256": "2ee54c59a23110584d9d5cad93d69feca4ed9ae64352fdda6f52e7d154924609"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1167,
+      "source_sha256": "ef5c8b66d9972a8d8b1974404b26536b3fef2882b6fddd5783cc5e9b4a98f46e"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 68981,
+      "source_sha256": "03944479a8a17f8f711d2e080bdc553d7d4485402aff13df489c6bee0a35e12c"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw006_onramp.rpy",
+      "extension": ".rpy",
+      "size_bytes": 967,
+      "source_sha256": "eaecbdb5c76d7c196f4ab26b23e259de88f21683fb063e0984949a97ccf401e6"
+    },
+    {
+      "path": "game/code/scenes/it_office/cw/sm1cs-cw006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 46270,
+      "source_sha256": "9e8788df5ed7d03e6209e5ce13f74a87a0d094dac1ee2be32a655d463f6a7932"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns-pee01.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1393,
+      "source_sha256": "22cfc371e9fcb4221bc04e212f45f991c8375a6dfd86fce640ec956c087488af"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11656,
+      "source_sha256": "61911132a833f9f85fe62d0a1323df55ea3ca63b76f730f5d8e71bc28039f2c3"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18991,
+      "source_sha256": "65c061aa423cabf1e11bbde5d948b7c04e54318e8fe66a0a0373abc34f364708"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24685,
+      "source_sha256": "f686168de69fbf5145abd6351be99e3b6645a6ab3225ad869b6f900e10071892"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32969,
+      "source_sha256": "7723b409c13f4f589d08e35c10e6dcd5ee702eb5a1df1aa736983bcd0c837510"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 26045,
+      "source_sha256": "e6988afb935bef9201971adf34576108b8c8949ed8af9acda70f113e914d016f"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 34339,
+      "source_sha256": "8629140f47fd5ac8c5506c13b1fc60fc079fb9f3df9ae61d48f2edab62385aa0"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 24692,
+      "source_sha256": "37abde3d9aaed1e9495dbc25bbe8e21826f5d0c30087eca091e8600c1bc505b4"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 57701,
+      "source_sha256": "4126711368d4cd1462ede5353d981767bba7e951265dea377a0d4854d8d507e2"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns007i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2682,
+      "source_sha256": "ffe485d54d01decfa241e66f2d28b58f00ec834f17798dfb48c7366222b216d5"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns008.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17133,
+      "source_sha256": "489f05e9c2559110dcd572bf0fcf83c8ebb23a7285f047743b700e9954f6af8c"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns009.rpy",
+      "extension": ".rpy",
+      "size_bytes": 37368,
+      "source_sha256": "e6972d0bbfc752d5d4cb1e5f161376070b91308fe943edc10a2c558d477dc142"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns010.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20683,
+      "source_sha256": "94d5744543c1ccd22e0bbe6021afd8953b1779cbe67aca1cbf3d199044eafd9f"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns010i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7466,
+      "source_sha256": "1499c5a7e95be942c9d34c592faf9ec2a0ddf1a5fd95defd210cd91816e69d2b"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns011.rpy",
+      "extension": ".rpy",
+      "size_bytes": 30145,
+      "source_sha256": "f05720a95a20bee08cda952a0604ea9981f32891b8ab63967ad1e41e337107af"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns011i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1082,
+      "source_sha256": "24dc42fdc2480dfbde1977899111dc4320c5251cbf7c51db16b06719faf19e32"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns012.rpy",
+      "extension": ".rpy",
+      "size_bytes": 59925,
+      "source_sha256": "7c1b4d2812a028f2fb56675f50bceda9d5f806076c8ea5a3756783d913ebf796"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns012i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1677,
+      "source_sha256": "baf74a01d2adc2aaa3bbc0660ea81dd6eaf32f8d5efcfc467a9c3134079d2005"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns013.rpy",
+      "extension": ".rpy",
+      "size_bytes": 50942,
+      "source_sha256": "36ece6e87385e55654a0e11ebf65aeda4546d6e682234628bf992d02a0086de0"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns013i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 594,
+      "source_sha256": "1d196bd512a31d1ce47617c848b4f05a68e8dbb8b0fb4ac6ff0bd88f45f171a4"
+    },
+    {
+      "path": "game/code/scenes/it_office/ns/sm1cs-ns014.rpy",
+      "extension": ".rpy",
+      "size_bytes": 31163,
+      "source_sha256": "f253c46c7c8103e3b5d08e6a9c76172761e3f66f64c20643509b52c1fb330868"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms001-02.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3124,
+      "source_sha256": "79bfe672b35608933a11ca26cef1f2baa714d4809ab3837f94e5de66ce966993"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17904,
+      "source_sha256": "e1d3ec5c2f907163b8d0b84fb6d92b621b4b1a1169a99966a753c85d325697a9"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms002_it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8703,
+      "source_sha256": "205548bb133f8dbf01194e03cd54bbd5eafa866e8c9881d60c3b8dcc5fa258cc"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms002_t.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5205,
+      "source_sha256": "20b28d77f6c9c617b1d0f35f385a0785c46b01349a7fbed53b5e3fb151bda3b2"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8231,
+      "source_sha256": "4c51d8d019a129eae81af26c125b76dd4775b86e769f10e5039b73b9ec74d0f4"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 26611,
+      "source_sha256": "158f79f2464764855babd388a76122da633c2aa3d44167f98964348b0f3a0b3a"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15896,
+      "source_sha256": "8f9d50aefa3570cad52375cc28968ec6a8d2a9ced6728b66697f12629e9cba2a"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms005_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 951,
+      "source_sha256": "1b22be90bccdccb5333f657f9317a02e9c5055f190ed89213e80cd3fe7c2ea35"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms005_02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2151,
+      "source_sha256": "ff76cb877697685b2789e5b0c93b42d9a6250e48fcc5ff7c5596b59847cff5da"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 30090,
+      "source_sha256": "e38f4fc3e71f7141f51e1e551fd4c3047af2a5a04b7c95c6593aa48e57db136e"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 25520,
+      "source_sha256": "61830e3869b331aaeb03148b6f0cae6b23849caa2be7d7376c34464a6fdeab52"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms007_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 759,
+      "source_sha256": "aaba8e95dbb34131cb823b07b493d119caf3c3420f4bf8cfc245ab7a6ba87b25"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17728,
+      "source_sha256": "a87fcda1ee217dcf7611c5ee3f24a082411ba1092d5e358462104807a40d8ae5"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms008_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1788,
+      "source_sha256": "a8d4bd5ceb8c9c904e87c46edd8a303e5e2b50d1d40b1263ab0c3a94e5c062e3"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms008.rpy",
+      "extension": ".rpy",
+      "size_bytes": 30514,
+      "source_sha256": "564f88153a658d42a16d082b3fae1d21308ff6318db7ae7ffb679a88fed412f3"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms009_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 638,
+      "source_sha256": "c4adea1481d611cef101c295d5e57fd430ef949c1282baa7a69a651744f45f9d"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms009.rpy",
+      "extension": ".rpy",
+      "size_bytes": 80780,
+      "source_sha256": "d50fbaa0c3779f7bea10bfe7768d09df6e12e8d8bb287ad2e513d9c3dd6526e2"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms010.rpy",
+      "extension": ".rpy",
+      "size_bytes": 41694,
+      "source_sha256": "15cfd1b2d8c462831fad8b7c68ced1446ac6a349e1804355adde96d54a874c6c"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms010i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 658,
+      "source_sha256": "b44776eb48c61c462830de36dc038827ac7b0cf7120f193829d77862b8cee02b"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms011_it.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15320,
+      "source_sha256": "0bb65fc05394fdab7f5b00447e8d30867423bcd1d7ffcf2921f54d9ce5b8fff5"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms011_t.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8488,
+      "source_sha256": "d613fd805f04f5df334d7380cebb0900927e9340f9f843ee395b8b1381e24625"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms011-01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 7096,
+      "source_sha256": "b3c29a0dcf640c3b9dd82192426ce09ca6c1f4481ed300216e4a5c745d540f41"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms011-02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 6503,
+      "source_sha256": "5620830546e0af27a6b240e16a46ab7fb04e0943896b5db7d0d9c8c923caefb2"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms011.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3687,
+      "source_sha256": "5436cc39b40cefe912bc12eb6f4f552a0c0c165380d035ddccdccd30f2a0e3a5"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms012.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15432,
+      "source_sha256": "2295b9faa150b3dd662b523ed5cd7f79780f9ccf0c2d4bcef38351adfb0a12c8"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms012i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 698,
+      "source_sha256": "7e94e0c09dcbdba143bd900b7de9b9dd3eb8b7689ec6290b470289d0fc225597"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms013.rpy",
+      "extension": ".rpy",
+      "size_bytes": 31116,
+      "source_sha256": "bfeeee78b8bd82dc338665920919775dd410f812ec06068da48e04579c8bcab6"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms013i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1204,
+      "source_sha256": "e3c796ecc8875dc7956294b917f34d88d53a5a93bc4693dfc3928fd67c189d7f"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms014.rpy",
+      "extension": ".rpy",
+      "size_bytes": 26311,
+      "source_sha256": "11891e0a9916bdf67974191500a0dd1d54eb1ccdd7024dd7d28221ee87285f69"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms014i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 364,
+      "source_sha256": "fd288b8345a728bcdfb0e77fda24e2f4b5ef04c1622335e6b3fa7e06d58ad3c0"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms015_18.rpy",
+      "extension": ".rpy",
+      "size_bytes": 363,
+      "source_sha256": "50361381eaea7350b95ce39ab4772ac749224a2c33ddf2f1f150789ea0fd86e0"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms015.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22002,
+      "source_sha256": "d2a57c3b82e8d7a905e5662e08593f75e536da3fdd0c70ddef7c104bc67ff9b3"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms016.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20798,
+      "source_sha256": "8666abc8c107d8d808203b6e44ec5ce9d69e1dc2eab0bbfddcba686e26699b83"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms017.rpy",
+      "extension": ".rpy",
+      "size_bytes": 28217,
+      "source_sha256": "612dd4d45d137eaa72d5d391260caf4fd291e9c363aea66cd57835e5caaa1ef9"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms018.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18214,
+      "source_sha256": "4766f88c0894463f194dc57f3287f12a43734aa7e87cc30b6b33b38af1eada21"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms019.rpy",
+      "extension": ".rpy",
+      "size_bytes": 29094,
+      "source_sha256": "ceabc4c835bd2c38e5b6842a99a8109abce1c109e223c55f316344a636250adb"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms019i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 475,
+      "source_sha256": "8569aef058a369d8c32a5db71da2f364d6bc4adc65b7a5589cb4a5dacba8e68d"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms020.rpy",
+      "extension": ".rpy",
+      "size_bytes": 33162,
+      "source_sha256": "61af886b3365f26d8452f844cb3d3332ab5277353733d81eb1146e6eb7b4432b"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms021.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17276,
+      "source_sha256": "f652d85670da54fec09b807861acf533e770cf3a4602dd6cde9d5fac6078bc46"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms021i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1518,
+      "source_sha256": "5b27352ff1a02d3e426923551302ddbb5adc1bea6d5ff5720b32f447ab19811a"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms022.rpy",
+      "extension": ".rpy",
+      "size_bytes": 47914,
+      "source_sha256": "2ba235a75c1a67917375802217c7a01a22bb54e7256fc9ca2cf7af86d0e1ff28"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms022i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1678,
+      "source_sha256": "b4763e2871387a8081869d75ca485d6d71d27b1e25ccf0446faa25ae760815e8"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms023_02.rpy",
+      "extension": ".rpy",
+      "size_bytes": 9708,
+      "source_sha256": "b4d35069c1f21f81839811ffc542c49dd4d57415f99b8d91313bff0f058f27a6"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms023_02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 631,
+      "source_sha256": "8a8519fa1bce60feb6261f5226b3f1f74a0a8fabac85f14486ee03b708f0188d"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms023.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8752,
+      "source_sha256": "df9a7fa9df6822013818c474f26857d5de7f80f9cabfebac5b38f07a04f93139"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms023i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 409,
+      "source_sha256": "29ed549cd75bd6ca7853eb7644d17d651a3abb5011de6d631cdf428f8e3a2167"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms024.rpy",
+      "extension": ".rpy",
+      "size_bytes": 19394,
+      "source_sha256": "0f4ad3ca1396faeeebcddc7c93c656178fdb8e9929a3b69093cbe58c4febcc43"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms024i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 385,
+      "source_sha256": "e99a3f999225f49e376137811d98b757cb90bbe51cda4fcc0b5fd312300564be"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms025.rpy",
+      "extension": ".rpy",
+      "size_bytes": 17507,
+      "source_sha256": "7eaad88a5b9c6f9a16eb1476dea82e5d139c6347895d1f1d621285832d241b2f"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms025i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 581,
+      "source_sha256": "ce45f177696d600c291c32bd1f8e620f29bc571450b9881b6dd4732a6abcfcaa"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms026.rpy",
+      "extension": ".rpy",
+      "size_bytes": 16040,
+      "source_sha256": "88250b39066a359c2bfdd5c9fd31890881024f5eaf758265dca9de75bc27dbe0"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms026i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1180,
+      "source_sha256": "ec3d21785394ee4344308f505547b80f4e27ff46b5236ecf8af226dcf21aca98"
+    },
+    {
+      "path": "game/code/scenes/main_story/sm1ms027.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10481,
+      "source_sha256": "ad8a904958ffb17f72aee00710234542f42f8a3e608c68f55765ced50e0e3b0f"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s01.rpy",
+      "extension": ".rpy",
+      "size_bytes": 23915,
+      "source_sha256": "a02bf53c83ee7973688c4810e2636209bf9e6d1244160879db52ea8e5f4a848a"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s02.rpy",
+      "extension": ".rpy",
+      "size_bytes": 48302,
+      "source_sha256": "c5a224a3952d2dfaab0db7872f9177ef0b76e5814ea6ec4d3ce77f86dc6ce42b"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1176,
+      "source_sha256": "48ccef47a8a397f51e8a0d1fef77d8db0ed681d15a0aced09d10691fbbfafe52"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s03_1.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11839,
+      "source_sha256": "e4de8a1e978385030869b09d5c5bc12a032161ffdb768da6d7da7176386fef41"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s03_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 840,
+      "source_sha256": "930f587807974a1c1d1977901d878173bf8a1c1ac3c3a5e1331caa5c7a334845"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s03_2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 45112,
+      "source_sha256": "09e84d34b6f413a49e34441aa10ae44a4ebdc5e6e39594d379bdb746ed97db27"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s04_2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 420,
+      "source_sha256": "eec9ba751900f2bc213e9da98d521ceed8ea13613912541ec63506da2a17b4c3"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s04.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22524,
+      "source_sha256": "a7e3521266994a41aa8eecd6696667383837a57731a6f89ba4610fc869b0e834"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s04i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2043,
+      "source_sha256": "85a744f5f2c4026fc78319b0ef705a46f0e1520547f2877b2060e10cdcec44fd"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s05.rpy",
+      "extension": ".rpy",
+      "size_bytes": 44383,
+      "source_sha256": "3584438bcae87307ba49f23e64851c1f6704de8ff009ba2fea0f3962965086f3"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s05i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1044,
+      "source_sha256": "b259d5beae96d816b833312f1f20df767c401b31d0963104e6e00face2511467"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s06.rpy",
+      "extension": ".rpy",
+      "size_bytes": 46818,
+      "source_sha256": "d6955f3e1fd3870cddf1fd3eb4c5a32b014dd681ebbe55c48e89a17fa85d8164"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s06i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 796,
+      "source_sha256": "beb3247b92b748b64210a93664e144bfc4ee4f731dba11e53e49ec21065680cc"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s07_2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 25173,
+      "source_sha256": "4fb028c572f9a4ba425b7a72f9fa1f1e0648d88c41fc0055a534577f62fe8e95"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s07.rpy",
+      "extension": ".rpy",
+      "size_bytes": 5982,
+      "source_sha256": "a64420d9acd86d2c5b8f1a76d7992df69109eb7ff84056c13cd12b19bac4283c"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s07i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 407,
+      "source_sha256": "48048c6690c1aeed298fe77c4076a8e9545c644d686a6d128fe2b878a85b81f1"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s08.rpy",
+      "extension": ".rpy",
+      "size_bytes": 47150,
+      "source_sha256": "5c6e6dff1c4d66725ff8ff01d2b491b20b79c94aa9baeafa15d1e01f1ad6c11a"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s09.rpy",
+      "extension": ".rpy",
+      "size_bytes": 54203,
+      "source_sha256": "806db24819fd4e17f756e87556ce4cc11422dd4d284b3d143e9905ec3166f2d4"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s10.rpy",
+      "extension": ".rpy",
+      "size_bytes": 21114,
+      "source_sha256": "23f01d6250d7928964445ddf599b2c728f5de6e0aaf5a3e38dfbac2fc83ec537"
+    },
+    {
+      "path": "game/code/scenes/movies/movie01/sm1mv01s11i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2454,
+      "source_sha256": "091eb93eacc4ec41d1208d8de0c022b053fbfeb06653c635c76ad3db9d9ccd7c"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s01.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15726,
+      "source_sha256": "e19f629e231d4e44a9e4372e6311e4d9aca7608ea00d3f0fba5b629f9cf1c532"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s02_01i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2149,
+      "source_sha256": "bb4fa4b27b584b3033dd6c7be52041ff99a493d8e6dc55d195bd1be1172ce439"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s02_02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2562,
+      "source_sha256": "b44f52b58899b40a86858b093050d63783ce5ab92a9235ef3042d3a0f83db994"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s02.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10714,
+      "source_sha256": "2205704e70ec022ea05d27b53953d10624be12ed5d364d7948a417eb51deafea"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s02i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 850,
+      "source_sha256": "feb2561e72b42149b6f40f4313cbcc2f4dc63373b84c021df04c9c628ea9b060"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s03_1.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18081,
+      "source_sha256": "38a8d31fe9d27a59a04718a163eaac380c1c47d2da4e86c2d0b99dc925638b70"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s03_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 532,
+      "source_sha256": "35f8c600b90b0a67a948c5e3a1bfef877b4d2ebeb5e830c28d10eca0a1774e4d"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s03_2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18284,
+      "source_sha256": "fd82b481606a6afefeaeba37d0a067177f970cf0618964c05f9ab6ebb3a6f2a9"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s03_2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 671,
+      "source_sha256": "d54cd56986f77fb6bd20fe23fb085dceec0423a168111afb1af916da68734b57"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s03i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1186,
+      "source_sha256": "1fbce5b9d281314d9008fce23c48c5bccdf251853e51788369d3799ec5c1893e"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s04.rpy",
+      "extension": ".rpy",
+      "size_bytes": 34676,
+      "source_sha256": "aa7c5da53fbaebe6f900f73766e245b753c42a22cc9a6d7e124f61c1bb659dbb"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s04i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1023,
+      "source_sha256": "3bbf5bab4f1afea093282c228d853b079d61f373ec50314cafed48163a305c2c"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s05_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 945,
+      "source_sha256": "157d798fe29d5d88400ef6dfeaf90b211455dbc0be765fcd2d171e883c88a659"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s05.rpy",
+      "extension": ".rpy",
+      "size_bytes": 65708,
+      "source_sha256": "59d9e25269de9e99d44d3e3dff7c32e6ad5805949571c5f583743ae9dfabf7f9"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s05i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1515,
+      "source_sha256": "62b87208208ae37b0277602ac2651554aef6900051cec664964fb60c219dac0d"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s06.rpy",
+      "extension": ".rpy",
+      "size_bytes": 51351,
+      "source_sha256": "e02881af711ba77abeef63781daebb2c372d22935124ba871b1fcbd30cb9f8ef"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s06i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 640,
+      "source_sha256": "6932348677ab7f6c84437cf22da1f5c48275f6668cc7f8f2983c700d85981efc"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 142,
+      "source_sha256": "7541b0b1052937cb09cd5edb20f65a05c769457e074dcb1198d08e1f2f12bb2b"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07_2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 142,
+      "source_sha256": "b3c3637db5357d33c5d99ebabe1c44a3b83c5d234ebc955a30e7c8e70c649d9b"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07.rpy",
+      "extension": ".rpy",
+      "size_bytes": 133,
+      "source_sha256": "6f632d73472a7a2ae7ac85202d9de92e3a0239d0e91f4396c7b680c61eab7b57"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07a_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1582,
+      "source_sha256": "53418906b1bf7b57f6f9a106199cfa8954c4cc083f63aa48d13ea9d4637362f2"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07a_2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2708,
+      "source_sha256": "0c69b0e3cbeedd5ee02ff049621dee9db0692f8aedd5ddd5fef9135b61362fb2"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07a.rpy",
+      "extension": ".rpy",
+      "size_bytes": 41912,
+      "source_sha256": "c0fea793bede48b7baf6e0dfa0b3c9db49bdf3ce50d1b26b042ee59a31acaad0"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07b_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1627,
+      "source_sha256": "9e9dda066b027f791b84f229d3f7d3c1d053139583890df13dd70ab054aec608"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07b_2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1102,
+      "source_sha256": "3deb33b91fb39d8ee8ced7f7d9e3cdeb899caedaab5403cdfca5238a753e9732"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s07b.rpy",
+      "extension": ".rpy",
+      "size_bytes": 40740,
+      "source_sha256": "6b60abab9ffc47a640827ff878e42b4802560f75a5a9f36c1a8735aef8afbe55"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s08_1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1573,
+      "source_sha256": "21dacebb7d598485d96a833c28da8ba3ab3e656630b739488a5fa30e1241e177"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s08.rpy",
+      "extension": ".rpy",
+      "size_bytes": 40586,
+      "source_sha256": "9682f8832f10a438e2bd99692d5d785857cf846d10d690c52c1338f99b14061d"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s08i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1646,
+      "source_sha256": "bfcbdc8d5414edc59a56e89e58984c848cdb4068d42ad3f2d369675367d815d2"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s09.rpy",
+      "extension": ".rpy",
+      "size_bytes": 65240,
+      "source_sha256": "cfc943e465ca283f4fcd8220c2ea616028107be7507da41490a52155f6f3614d"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s09i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 576,
+      "source_sha256": "d7a17873a6be89457133d7941181940e64a612df9d11d5a1f6881042a45d4890"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s10_screen.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2397,
+      "source_sha256": "a533462263c4ed1a3a486c7655a0d122c4f4557ede45d67a65bb978e6b93e1ee"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s10.rpy",
+      "extension": ".rpy",
+      "size_bytes": 59386,
+      "source_sha256": "6bcb1d074e3fed10abc1d6186f614dd3cb491c867ac31b92b738939fec83a1b5"
+    },
+    {
+      "path": "game/code/scenes/movies/movie02/sm1mv02s10i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 921,
+      "source_sha256": "0ba4bc52fe4b7d97ad8e5e101cae9482f95dfbc9daf4f3b00d598eca63789335"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32853,
+      "source_sha256": "00036f5df3286ba07f85aa5d5a8e5ea885d2f0e8ef4fd093b572a0459bcb3224"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 57156,
+      "source_sha256": "caf24e3de4eb3f12a2d6835c048fd8aaff4ebba1a4e4f17560dfa03086cd83c1"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32879,
+      "source_sha256": "0b138511046801d7e0010aaa8882a639d7226be6b5597bced0ed75a2f158b756"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 44496,
+      "source_sha256": "7cad0bb1cc53909e62470929618a0f46a6fe243f2579e45c745cd0709493c434"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 815,
+      "source_sha256": "8f4907ba0101973d62d888cb8ae089edfd0d066e69d608eec0b4290336c782b2"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18442,
+      "source_sha256": "eec8e4bca00fd610303cda9dc21c22278c0c7827219e11e958148bd43bcc239f"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11474,
+      "source_sha256": "a2cfde093df29da7db9cc0393e0345ae138ec160adc4c49031f1f9a86dd6f6cc"
+    },
+    {
+      "path": "game/code/scenes/theatre/sm1fs-t007i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2495,
+      "source_sha256": "8dabe55100d6ef941b2490e0419f8d053242844abbd76eb2fb211166e8644be3"
+    },
+    {
+      "path": "game/code/scenes/theatre/dvh/sm1cs-dvh001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 13636,
+      "source_sha256": "c6a8f5a16c9f190373e6d969e1d8841e1a482ac1d0aaa0630c51ad88090fd09f"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 19819,
+      "source_sha256": "737b10c79f972c383d77abe618863973c5448b72633f33d6b1696731051d7b28"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1145,
+      "source_sha256": "9f4dce460d33de5947f50c84074c6bd8dc9ad564e2571d9674bbcfc69f62c696"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 12449,
+      "source_sha256": "b9dd01c94e83252f6f5b92b9fad522da0971f7e1667354a3c046e9dc351ed71c"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km003-2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 20073,
+      "source_sha256": "124e656701d0b7e4e82a8958c6b21554702593aa5c6638cf29a84dc60baae41b"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km003-2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 8302,
+      "source_sha256": "ca783a9d722d504af9cde02b49247867585e02dc3ef4f0179b6abacc70054b0a"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 10527,
+      "source_sha256": "f6e2e77c4b73904221c264dc0a4732eb41cb8157d76a1b8524b34e614cb1ed66"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 47883,
+      "source_sha256": "32d31a8a158b5094d1da1744f6886112e673110baac596218010128e336161e4"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 886,
+      "source_sha256": "439fd14375de817e87a936118cc11813b4b95fb1536fc6a3e41e2c4d5cfa7191"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36472,
+      "source_sha256": "beee5ba89cdef8fd067050c8032787dcbab1c1071130ca9617e6cbb47fab68f0"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km006-1i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1500,
+      "source_sha256": "dbc4a9acdbed5cb05ee65652216eae73dad54788549a7c2c305d7676b47dd930"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km006-2i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1653,
+      "source_sha256": "851cb57abca3a0f1042605575fc7359eb5f5e14ef929771b97da60a83762c682"
+    },
+    {
+      "path": "game/code/scenes/theatre/km/sm1cs-km006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 87301,
+      "source_sha256": "cb48330aa8853e3c802059fab4e40492d474a2472f42374b5d645e0d5a8e6482"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl-pee01.rpy",
+      "extension": ".rpy",
+      "size_bytes": 962,
+      "source_sha256": "cba690d4454cc1ffe533d022e02e6155cb40df061c63d72ba26130853d16f97e"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl-renovation-i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 610,
+      "source_sha256": "3831c77125fb49af612d8d2055fc3a4c545ae67e350deb0385730ebb325e6317"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 11601,
+      "source_sha256": "4b994c8fab3704392ba0352d62ccd0465e09eeb2807edcc32e5e00926f3c1dd9"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 16397,
+      "source_sha256": "93ef502057aa4a12a62f88ed7c89a10c132fe8ff71a6965b39fe2036a2bf0c2b"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl001i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 972,
+      "source_sha256": "28d1ff90c24c23bb7b2f587e502909d5357926279060a06967e4ae0f3361207e"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22044,
+      "source_sha256": "c0f9e3d00507ec2e06ed16a2da17ef9e0137857a52aba1f31bccd6ad7704754d"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2751,
+      "source_sha256": "ca40b608f3e9cdc9c89fc217af4bb1287172190f81cdaf68fcc355f8f902fe9c"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 37130,
+      "source_sha256": "46e06b9e712981ae2c50e16d5784fbb7f1639ce9f15720a5ddcad76e7d0f29d0"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl003i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 929,
+      "source_sha256": "6ffac12336663c73061d06ff94c5b8e1c8bd00e4e5ab3b01102ca2a83ab4e3ff"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 30009,
+      "source_sha256": "12db55a68832d3fcba0917c36f8981ffee4168d6d28db0d257a4d67f48d313a9"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl004i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1137,
+      "source_sha256": "ba4b797696d9f4be6a3e252dbc9b51e54a0c2f75e0913100e53367b75a55715c"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18699,
+      "source_sha256": "70d87ee8e7d7427fc9e32d8dd6e94b131382f791a0604d9811670446aeac29f6"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl006.rpy",
+      "extension": ".rpy",
+      "size_bytes": 57764,
+      "source_sha256": "0e75db9621c137404d9a456dd229c89cbc33cbf8152e3774ec84c676a4dd72d6"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl006i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1977,
+      "source_sha256": "15ed092d9b364fe186d804c9256ec59994f09b54110d91f727a3f83aae100576"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl007.rpy",
+      "extension": ".rpy",
+      "size_bytes": 22602,
+      "source_sha256": "d3f339e501495f397523097be62cd2a225743f39e73f731850e91a8b01d34d78"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl007i_1.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1522,
+      "source_sha256": "0e5491dab97bd1915b2287e164a5001f30ae80cd9a0f566eff494a0d87536ce5"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl007i_2.rpy",
+      "extension": ".rpy",
+      "size_bytes": 877,
+      "source_sha256": "8a3f04acac3231e2604a65d57550a216386615e91d3cbf98c898cc1a0adebf2e"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl007i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1052,
+      "source_sha256": "93cae7f85d8cee2e96e197d420401d3f57c765b6e9dcb9e4c6ce025fd29bf282"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl008.rpy",
+      "extension": ".rpy",
+      "size_bytes": 32345,
+      "source_sha256": "f91797a95dd9a657f562dc3bff6f339a604fb5edd37f60d9150a88d787fd8b14"
+    },
+    {
+      "path": "game/code/scenes/theatre/tl/sm1cs-tl008i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 2272,
+      "source_sha256": "73169f2b8de4ca13d119f00349f988bbca499e9fb065c4cbe9e002cf798b0d56"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs-renovation.rpy",
+      "extension": ".rpy",
+      "size_bytes": 18257,
+      "source_sha256": "5cc49425544d8429fbb054102b98f8cb4ac8b153f70ae3500f35bd956b8f4cb7"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs001.rpy",
+      "extension": ".rpy",
+      "size_bytes": 15440,
+      "source_sha256": "0443ec5e90cd04b758f93720f995a199b59aa1d85c40ada2d7cbf4e5bec7e054"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs002.rpy",
+      "extension": ".rpy",
+      "size_bytes": 28185,
+      "source_sha256": "e14e6ccc13b4714a0b40d4a8224883b1cad3596cd7224c897ad96d568ffce1d3"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs002i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 3947,
+      "source_sha256": "3612b193d383bb8e390c73cfd9f1f975250e4c3c4aedcbafcf4bae8a3f4203df"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs003.rpy",
+      "extension": ".rpy",
+      "size_bytes": 43026,
+      "source_sha256": "17314b218cfc9eef446f16c1d80623a2edb802d5b7e7e6e8fd6d7f887d7c47a0"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs004.rpy",
+      "extension": ".rpy",
+      "size_bytes": 21054,
+      "source_sha256": "ed6b8a230edf69a83d1470bf233244980c78afe29d06897dc23b3356259e4fd2"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs005.rpy",
+      "extension": ".rpy",
+      "size_bytes": 43369,
+      "source_sha256": "4404977fa9f4c094b85db21842009915bd28132022ea298f6c844e2ca1cd7961"
+    },
+    {
+      "path": "game/code/scenes/theatre/vs/sm1cs-vs005i.rpy",
+      "extension": ".rpy",
+      "size_bytes": 1944,
+      "source_sha256": "5299fb08d0442b3ea370a61c4026923e3c0661a8e7c1aadd4332a8731063e1f4"
+    }
+  ]
+}

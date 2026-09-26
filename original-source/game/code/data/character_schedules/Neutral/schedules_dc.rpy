@@ -1,0 +1,47 @@
+init 1 python:
+    DEFAULT_CHARACTERS_TIMETABLES["default_dc"] = {
+            PRIORITY: 0,
+
+            EVEN_WORK_DAYS: {
+                TIMESLOT_3: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], QUICK)],
+                TIMESLOT_4: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_5: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_6: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], QUICK)],
+                TIMESLOT_7: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], QUICK)],
+            },
+            SATURDAY: {
+                TIMESLOT_4: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_5: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_6: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], QUICK)],
+                TIMESLOT_7: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], QUICK)],
+            },
+
+            ODD_WORK_DAYS: {
+                TIMESLOT_6: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_7: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+            },
+
+        }
+    DEFAULT_CHARACTERS_TIMETABLES["Q_DC004"] = {
+            PRIORITY: 0,
+
+            EVEN_WORK_DAYS: {
+                TIMESLOT_3: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], BUSY)],
+                TIMESLOT_4: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+                TIMESLOT_5: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_6: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], QUICK)],
+                TIMESLOT_7: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], BUSY)],
+            },
+            SATURDAY: {
+                TIMESLOT_4: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+                TIMESLOT_5: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+                TIMESLOT_6: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+                TIMESLOT_7: [ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_ENTRANCE, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CENTER, ["coffee01"]), ScheduleSlot(STARDUCKS, DEFAULT_SUBLOCATION, LSC_CORRIDOR, ["coffee01"], BUSY)],
+            },
+
+            ODD_WORK_DAYS: {
+                TIMESLOT_6: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+                TIMESLOT_7: [ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_FORK, ["stand01_50"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_CENTER, ["stand01_90"]), ScheduleSlot(PARK, DEFAULT_SUBLOCATION, LPA_EXIT, ["stand01_10"], BUSY)],
+            },
+
+        }
