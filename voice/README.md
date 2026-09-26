@@ -108,6 +108,8 @@ pwsh -NoProfile -File "X:\dev\repos\personal\FL-SM-1-translations-dutch\tools\Im
     .\.venv-voice\Scripts\Activate.ps1
     python -m pip install --upgrade pip
     python -m pip install -r requirements-voice.txt
+    # Optional Windows GUI:
+    python -m pip install -r requirements-voice-gui.txt
 }
 ```
 
@@ -117,6 +119,47 @@ Set the Gemini API key only in your local environment or GitHub secret storage. 
 $env:GEMINI_API_KEY = "<your-key>"
 ```
 
+## PySide6 Windows Voice Studio
+
+For normal Windows use, the PySide6 desktop app is the recommended frontend. It uses
+the same backend, registry, rate limiter, retry logic, token ledger and approval files as
+the terminal studio.
+
+Install the GUI dependencies once:
+
+```powershell
+python -m pip install -r requirements-voice-gui.txt
+```
+
+Launch directly:
+
+```powershell
+python tools/voice_pipeline.py gui
+```
+
+Or use the Windows launcher, which checks PySide6 and securely asks for the Gemini key
+when the current PowerShell process does not already contain one:
+
+```powershell
+pwsh -NoProfile -File tools/Start-VoiceStudio.ps1
+```
+
+The desktop app provides:
+
+- searchable character list with Needs voice / Audition / Approved / Disabled / Alias filters;
+- character profile, line counts, provider voice ID and editable Voice Design prompt;
+- one-click Voice Design creation, provider-sample refresh, approval and rejection/retry;
+- built-in Qt WAV playback for design samples and generated dialogue demos;
+- representative dialogue demo generation in a background worker;
+- shared persistent RPM/TPM limiting and TTS retry/backoff;
+- exact provider token usage when returned by Gemini plus clearly marked estimates otherwise;
+- local usage dashboard and recent-request table;
+- rate/retry settings dialog persisted in ignored `voice/runtime.local.json`;
+- resumable final generation for an approved voice;
+- activity log and busy protection so overlapping API jobs cannot accidentally fight over quota.
+
+The UI never stores the Gemini API key itself. It inherits `GEMINI_API_KEY` from the
+launching process.
 ## Interactive Voice Studio
 
 For normal casting and production work, prefer the interactive studio instead of calling
