@@ -13,3 +13,4 @@ desktop.ini
 /voice/generated/
 /voice/previews/
 /voice/variables.local.json
+/voice/runtime.local.json
