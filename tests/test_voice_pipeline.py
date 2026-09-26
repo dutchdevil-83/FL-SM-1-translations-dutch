@@ -4,6 +4,7 @@ import importlib.util
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -271,6 +272,31 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertEqual(len(selected["blocks"]), 1)
         self.assertTrue(any("instead of manifest count reference" in warning for warning in warnings))
 
+
+    def test_create_genai_client_explicitly_uses_gemini_api_key(self):
+        class FakeGenai:
+            def __init__(self):
+                self.received_api_key = None
+
+            def Client(self, *, api_key):
+                self.received_api_key = api_key
+                return object()
+
+        fake = FakeGenai()
+        with mock.patch.dict(
+            MODULE.os.environ,
+            {"GEMINI_API_KEY": "gemini-key", "GOOGLE_API_KEY": "stale-google-key"},
+            clear=True,
+        ):
+            with mock.patch.object(MODULE, "require_genai", return_value=fake):
+                MODULE.create_genai_client()
+
+        self.assertEqual(fake.received_api_key, "gemini-key")
+
+    def test_gemini_api_key_rejects_empty_value(self):
+        with mock.patch.dict(MODULE.os.environ, {}, clear=True):
+            with self.assertRaises(SystemExit):
+                MODULE.gemini_api_key()
 
     def test_load_casting_request_accepts_matching_export(self):
         with tempfile.TemporaryDirectory() as temp_dir:
