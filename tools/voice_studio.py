@@ -43,7 +43,9 @@ DIALOGUE_PREVIEW_DIR = DESIGN_PREVIEW_DIR / "dialogue"
 DEFAULT_RUNTIME_SETTINGS = {
     "schema_version": 1,
     "preview_rpm": 3,
+    "preview_tpm": 0,
     "final_rpm": 3,
+    "final_tpm": 0,
     "voice_api_rpm": 3,
     "max_retries": 4,
     "retry_base_delay_seconds": 15.0,
@@ -163,6 +165,7 @@ class PersistentRateLimiter:
         bucket: str,
         rpm: int,
         safety_margin_seconds: float,
+        tpm: int = 0,
         state_path: Path = RATE_STATE_PATH,
         clock: Callable[[], float] = time.time,
         sleeper: Callable[[float], None] = time.sleep,
@@ -171,6 +174,7 @@ class PersistentRateLimiter:
             raise ValueError("rpm must be >= 1")
         self.bucket = bucket
         self.rpm = rpm
+        self.tpm = max(0, int(tpm))
         self.safety_margin_seconds = max(0.0, safety_margin_seconds)
         self.state_path = state_path
         self.clock = clock
@@ -196,36 +200,95 @@ class PersistentRateLimiter:
 
         return max(0.0, max(waits))
 
+    @staticmethod
+    def compute_tpm_wait(
+        token_events: list[dict[str, float]],
+        now: float,
+        tpm: int,
+        requested_tokens: int,
+        safety_margin_seconds: float,
+    ) -> float:
+        if tpm <= 0 or requested_tokens <= 0:
+            return 0.0
+        recent = sorted(
+            (
+                {"ts": float(item["ts"]), "tokens": max(0, int(item["tokens"]))}
+                for item in token_events
+                if float(item.get("ts", 0)) > now - 60.0
+            ),
+            key=lambda item: item["ts"],
+        )
+        current = sum(item["tokens"] for item in recent)
+        if current + requested_tokens <= tpm:
+            return 0.0
+
+        remaining = current
+        for item in recent:
+            remaining -= item["tokens"]
+            if remaining + requested_tokens <= tpm:
+                return max(
+                    0.0,
+                    item["ts"] + 60.0 + safety_margin_seconds - now,
+                )
+        return 60.0 + safety_margin_seconds
+
     def _load(self) -> dict[str, Any]:
         return read_json(self.state_path, {"schema_version": 1, "buckets": {}})
 
     def _save(self, state: dict[str, Any]) -> None:
         write_json_atomic(self.state_path, state)
 
-    def wait(self) -> float:
+    def wait(self, estimated_tokens: int = 0) -> float:
         total_wait = 0.0
+        estimated_tokens = max(0, int(estimated_tokens))
         while True:
             state = self._load()
             buckets = state.setdefault("buckets", {})
+            token_buckets = state.setdefault("token_buckets", {})
             raw = buckets.get(self.bucket, [])
             timestamps = [float(item) for item in raw if isinstance(item, (int, float))]
             now = self.clock()
             timestamps = [ts for ts in timestamps if ts > now - 60.0]
-            wait_seconds = self.compute_wait(
+
+            raw_token_events = token_buckets.get(self.bucket, [])
+            token_events = [
+                item
+                for item in raw_token_events
+                if isinstance(item, dict)
+                and isinstance(item.get("ts"), (int, float))
+                and isinstance(item.get("tokens"), (int, float))
+                and float(item["ts"]) > now - 60.0
+            ]
+
+            rpm_wait = self.compute_wait(
                 timestamps,
                 now,
                 self.rpm,
                 self.safety_margin_seconds,
             )
+            tpm_wait = self.compute_tpm_wait(
+                token_events,
+                now,
+                self.tpm,
+                estimated_tokens,
+                self.safety_margin_seconds,
+            )
+            wait_seconds = max(rpm_wait, tpm_wait)
             if wait_seconds <= 0.001:
                 timestamps.append(now)
                 buckets[self.bucket] = timestamps[-max(self.rpm * 3, 20):]
+                if estimated_tokens > 0:
+                    token_events.append({"ts": now, "tokens": estimated_tokens})
+                token_buckets[self.bucket] = token_events[-200:]
                 self._save(state)
                 return total_wait
 
+            dimensions = [f"{self.rpm} RPM"]
+            if self.tpm > 0:
+                dimensions.append(f"{self.tpm} TPM")
             print(
                 f"[rate-limit] {self.bucket}: waiting {wait_seconds:.1f}s "
-                f"to stay within {self.rpm} RPM."
+                f"to stay within {' / '.join(dimensions)}."
             )
             self.sleeper(wait_seconds)
             total_wait += wait_seconds
@@ -275,6 +338,7 @@ def api_call_with_retry(
     label: str,
     idempotent: bool,
     retry_permission: bool = False,
+    estimated_tokens: int = 0,
 ) -> tuple[Any, int]:
     max_retries = int(settings["max_retries"]) if idempotent else 0
     base_delay = float(settings["retry_base_delay_seconds"])
@@ -283,7 +347,7 @@ def api_call_with_retry(
 
     while True:
         attempt += 1
-        limiter.wait()
+        limiter.wait(estimated_tokens=estimated_tokens)
         started = time.perf_counter()
         try:
             result = action()
@@ -683,10 +747,11 @@ class VoiceStudio:
             self._client = vp.create_genai_client()
         return self._client
 
-    def limiter(self, bucket: str, rpm: int) -> PersistentRateLimiter:
+    def limiter(self, bucket: str, rpm: int, tpm: int = 0) -> PersistentRateLimiter:
         return PersistentRateLimiter(
             bucket=bucket,
             rpm=rpm,
+            tpm=tpm,
             safety_margin_seconds=float(self.settings["rate_safety_margin_seconds"]),
         )
 
@@ -950,6 +1015,7 @@ class VoiceStudio:
         limiter = self.limiter(
             f"tts:{model}",
             int(self.settings["preview_rpm"]),
+            int(self.settings["preview_tpm"]),
         )
         output_dir = DIALOGUE_PREVIEW_DIR / speaker
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -988,6 +1054,7 @@ class VoiceStudio:
                     label=row["id"],
                     idempotent=True,
                     retry_permission=True,
+                    estimated_tokens=max(1, math.ceil(len(text) / 4)),
                 )
                 output_audio = field_value(interaction, "output_audio")
                 audio_data = field_value(output_audio, "data") if output_audio else None
@@ -1084,7 +1151,12 @@ class VoiceStudio:
             if mode == "preview"
             else self.settings["final_rpm"]
         )
-        limiter = self.limiter(f"tts:{model}", rpm)
+        tpm = int(
+            self.settings["preview_tpm"]
+            if mode == "preview"
+            else self.settings["final_tpm"]
+        )
+        limiter = self.limiter(f"tts:{model}", rpm, tpm)
         sample_rate = int(self.config.get("sample_rate", 24000))
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1144,6 +1216,7 @@ class VoiceStudio:
                     label=row["id"],
                     idempotent=True,
                     retry_permission=True,
+                    estimated_tokens=max(1, math.ceil(len(text) / 4)),
                 )
                 output_audio = field_value(interaction, "output_audio")
                 audio_data = field_value(output_audio, "data") if output_audio else None
@@ -1579,11 +1652,23 @@ class VoiceStudio:
             1,
             1000,
         )
+        self.settings["preview_tpm"] = prompt_int(
+            "Preview input TPM (0 = do not enforce)",
+            int(self.settings["preview_tpm"]),
+            0,
+            1000000000,
+        )
         self.settings["final_rpm"] = prompt_int(
             "Final TTS RPM",
             int(self.settings["final_rpm"]),
             1,
             1000,
+        )
+        self.settings["final_tpm"] = prompt_int(
+            "Final input TPM (0 = do not enforce)",
+            int(self.settings["final_tpm"]),
+            0,
+            1000000000,
         )
         self.settings["voice_api_rpm"] = prompt_int(
             "Voices API RPM",
@@ -1739,8 +1824,10 @@ class VoiceStudio:
             )
             print(
                 "Rate limits: "
-                f"preview={self.settings['preview_rpm']} RPM  "
-                f"final={self.settings['final_rpm']} RPM  "
+                f"preview={self.settings['preview_rpm']} RPM/"
+                f"{self.settings['preview_tpm'] or 'unlimited'} TPM  "
+                f"final={self.settings['final_rpm']} RPM/"
+                f"{self.settings['final_tpm'] or 'unlimited'} TPM  "
                 f"voices={self.settings['voice_api_rpm']} RPM"
             )
             print("-" * 90)
