@@ -1262,11 +1262,116 @@ class VoiceStudio:
 
         return generated, skipped, failed, total_usage
 
-    def generate_final_character(self, speaker: str) -> None:
+    def final_generation_plan(self, speaker: str) -> dict[str, Any]:
         registry = load_registry(self.config)
         characters = registry["characters"]
         canonical = self.canonical_voice_token(characters, speaker)
         canonical_entry = characters[canonical]
+        related_tokens = {
+            token
+            for token in characters
+            if self.canonical_voice_token(characters, token) == canonical
+        }
+
+        all_rows = [
+            row
+            for row in self.manifest
+            if row.get("speaker") in related_tokens
+        ]
+        eligible_rows = [
+            row
+            for row in all_rows
+            if row.get("status") == "ready" and row.get("renpy_id")
+        ]
+        output_dir = vp.root_path(self.config["wav_output_dir"])
+        pending_rows = [
+            row
+            for row in eligible_rows
+            if not (output_dir / f"{row['id']}.wav").exists()
+        ]
+
+        status_counts = Counter((row.get("status") or "unknown") for row in all_rows)
+        review_reasons = Counter()
+        for row in all_rows:
+            for reason in row.get("review_reasons") or []:
+                review_reasons[str(reason)] += 1
+
+        stored_line_count = int(canonical_entry.get("line_count") or 0)
+        return {
+            "speaker": speaker,
+            "canonical": canonical,
+            "canonical_entry": canonical_entry,
+            "related_tokens": related_tokens,
+            "all_rows": all_rows,
+            "eligible_rows": eligible_rows,
+            "pending_rows": pending_rows,
+            "status_counts": status_counts,
+            "review_reasons": review_reasons,
+            "missing_renpy_id_count": sum(not row.get("renpy_id") for row in all_rows),
+            "stored_line_count": stored_line_count,
+            "source_missing_hints": self.source_missing_hints(canonical),
+        }
+
+    def source_missing_hints(self, speaker: str) -> list[str]:
+        registry = load_registry(self.config)
+        entry = registry.get("characters", {}).get(speaker) or {}
+        evidence_ids = [
+            str(value).lower()
+            for value in ((entry.get("profile") or {}).get("evidence_ids") or [])
+            if value
+        ]
+        if not evidence_ids:
+            return []
+
+        coverage_path = ROOT / "original-source" / "SOURCE_COVERAGE.json"
+        coverage = read_json(coverage_path, {"missing_paths": []})
+        matches: list[str] = []
+        for raw_path in coverage.get("missing_paths") or []:
+            path = str(raw_path)
+            stem = Path(path).stem.lower().replace("-", "_")
+            if any(
+                evidence == stem
+                or evidence.startswith(stem + "_")
+                or stem in evidence
+                for evidence in evidence_ids
+            ):
+                matches.append(path)
+        return sorted(set(matches))
+
+    @staticmethod
+    def describe_final_plan(plan: dict[str, Any]) -> str:
+        total = len(plan["all_rows"])
+        eligible = len(plan["eligible_rows"])
+        pending = len(plan["pending_rows"])
+        stored = int(plan.get("stored_line_count") or 0)
+        lines = [
+            f"Current canonical source rows: {total}",
+            f"Final-ready rows: {eligible}",
+            f"Pending WAV files: {pending}",
+        ]
+        if stored != total:
+            lines.append(
+                f"Registry line_count: {stored} (stale/historical versus current source)"
+            )
+        if plan.get("missing_renpy_id_count"):
+            lines.append(
+                f"Rows without Ren'Py ID: {plan['missing_renpy_id_count']}"
+            )
+        if plan.get("review_reasons"):
+            top = ", ".join(
+                f"{reason}={count}"
+                for reason, count in plan["review_reasons"].most_common(5)
+            )
+            lines.append(f"Review reasons: {top}")
+        if plan.get("source_missing_hints"):
+            lines.append("Matching missing source files:")
+            lines.extend(f"  - {path}" for path in plan["source_missing_hints"])
+        return "\n".join(lines)
+
+    def generate_final_character(self, speaker: str) -> None:
+        plan = self.final_generation_plan(speaker)
+        canonical = plan["canonical"]
+        canonical_entry = plan["canonical_entry"]
 
         if canonical_entry.get("casting_status") != "approved":
             print(
@@ -1275,37 +1380,28 @@ class VoiceStudio:
             )
             return
 
-        related_tokens = {
-            token
-            for token in characters
-            if self.canonical_voice_token(characters, token) == canonical
-        }
-        rows = [
-            row
-            for row in self.manifest
-            if row.get("speaker") in related_tokens
-            and row.get("status") == "ready"
-            and row.get("renpy_id")
-        ]
-        output_dir = vp.root_path(self.config["wav_output_dir"])
-        pending = [
-            row
-            for row in rows
-            if not (output_dir / f"{row['id']}.wav").exists()
-        ]
-        if not pending:
-            print("All ready dialogue lines for this voice identity already have WAV output.")
+        print()
+        print(self.describe_final_plan(plan))
+
+        if not plan["eligible_rows"]:
+            if not plan["all_rows"]:
+                print(
+                    "No dialogue rows for this voice identity exist in the current "
+                    "canonical source manifest. No TTS request was made."
+                )
+            else:
+                print(
+                    "Dialogue rows exist, but none are final-ready. Resolve the review "
+                    "reasons/Ren'Py ID mapping before final generation."
+                )
+            return
+
+        if not plan["pending_rows"]:
+            print("All final-ready dialogue lines already have WAV output.")
             return
 
         rpm = int(self.settings["final_rpm"])
-        estimated_minutes = len(pending) / rpm
-        print()
-        print(
-            f"Final generation for {canonical_entry.get('display_name', canonical)} "
-            f"covers tokens {sorted(related_tokens)}."
-        )
-        print(f"Ready rows : {len(rows)}")
-        print(f"Pending    : {len(pending)}")
+        estimated_minutes = len(plan["pending_rows"]) / rpm
         print(f"Rate limit : {rpm} RPM")
         print(
             f"Best-case request time at configured RPM: "
@@ -1315,9 +1411,9 @@ class VoiceStudio:
             return
 
         generated, skipped, failed, totals = self._generate_rows(
-            rows,
+            plan["eligible_rows"],
             mode="final",
-            output_dir=output_dir,
+            output_dir=vp.root_path(self.config["wav_output_dir"]),
             force=False,
         )
         print(
