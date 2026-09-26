@@ -1,6 +1,5 @@
 import csv
 import importlib.util
-import json
 import sys
 import tempfile
 import unittest
@@ -30,42 +29,72 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertEqual(text, "Please tell me, [mcname].")
         self.assertEqual(unresolved, ["mcname"])
 
-    def test_extract_uses_embedded_english_not_translation(self):
+    def _write_character_definitions(self, root: Path) -> None:
+        path = root / "original-source" / "game" / "code" / "data" / "characters"
+        path.mkdir(parents=True, exist_ok=True)
+        (path / "names.rpy").write_text(
+            'define narrator = Character(None)\n'
+            'define mc = Character("[mcname]")\n'
+            'define arj = Character("Amber-Rose")\n',
+            encoding="utf-8",
+        )
+
+    def _write_id_manifest(self, root: Path, relative_path: str, language: str = "deutsch") -> None:
+        manifest = root / "manifest.csv"
+        with manifest.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=[
+                    "relative_path",
+                    "count_reference_language",
+                    "present_in_languages",
+                ],
+            )
+            writer.writeheader()
+            writer.writerow(
+                {
+                    "relative_path": relative_path,
+                    "count_reference_language": language,
+                    "present_in_languages": language,
+                }
+            )
+
+    def _config(self) -> dict:
+        return {
+            "original_source_root": "original-source/game",
+            "id_manifest": "manifest.csv",
+            "id_reference_language_priority": ["deutsch", "french"],
+            "variables_file": "voice/variables.local.json",
+            "skip_speakers": ["extend"],
+        }
+
+    def test_extract_uses_original_source_and_translation_only_for_id(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
-            (root / "deutsch" / "code" / "scenes").mkdir(parents=True)
-            source = root / "deutsch" / "code" / "scenes" / "sample.rpy"
-            source.write_text(
+            self._write_character_definitions(root)
+
+            direct = root / "original-source" / "game" / "code" / "scenes"
+            direct.mkdir(parents=True)
+            (direct / "sample.rpy").write_text(
+                'label sample:\n'
+                '    arj "Hello there."\n',
+                encoding="utf-8",
+            )
+
+            translated = root / "deutsch" / "code" / "scenes"
+            translated.mkdir(parents=True)
+            (translated / "sample.rpy").write_text(
                 'translate deutsch sample_1234:\n\n'
                 '    # arj "Hello there."\n'
                 '    arj "Hallo."\n',
                 encoding="utf-8",
             )
-            docs = root / "docs" / "dutch"
-            docs.mkdir(parents=True)
-            manifest = docs / "PHASE0_FILE_MANIFEST.csv"
-            with manifest.open("w", encoding="utf-8", newline="") as handle:
-                writer = csv.DictWriter(
-                    handle,
-                    fieldnames=["relative_path", "count_reference_language"],
-                )
-                writer.writeheader()
-                writer.writerow(
-                    {
-                        "relative_path": "code/scenes/sample.rpy",
-                        "count_reference_language": "deutsch",
-                    }
-                )
+            self._write_id_manifest(root, "code/scenes/sample.rpy")
 
             old_root = MODULE.ROOT
             try:
                 MODULE.ROOT = root
-                config = {
-                    "source_manifest": "docs/dutch/PHASE0_FILE_MANIFEST.csv",
-                    "variables_file": "voice/variables.local.json",
-                    "skip_speakers": ["extend"],
-                }
-                rows, warnings = MODULE.iter_source_rows(config)
+                rows, warnings = MODULE.iter_source_rows(self._config())
             finally:
                 MODULE.ROOT = old_root
 
@@ -76,10 +105,19 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertEqual(rows[0]["tts_text"], "Hello there.")
         self.assertEqual(rows[0]["status"], "ready")
         self.assertEqual(rows[0]["renpy_id"], "sample_1234")
+        self.assertTrue(rows[0]["source_file"].startswith("original-source/game/"))
+        self.assertTrue(rows[0]["reference_file"].startswith("deutsch/"))
 
     def test_extract_marks_variable_line_for_review(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
+            self._write_character_definitions(root)
+
+            direct = root / "original-source" / "game"
+            (direct / "sample.rpy").write_text(
+                'mc "Hi [mcname]."\n',
+                encoding="utf-8",
+            )
             (root / "deutsch").mkdir()
             (root / "deutsch" / "sample.rpy").write_text(
                 'translate deutsch sample_5678:\n'
@@ -87,28 +125,111 @@ class VoicePipelineTests(unittest.TestCase):
                 '    mc "Hoi [mcname]."\n',
                 encoding="utf-8",
             )
-            (root / "manifest.csv").write_text(
-                "relative_path,count_reference_language\nsample.rpy,deutsch\n",
-                encoding="utf-8",
-            )
+            self._write_id_manifest(root, "sample.rpy")
 
             old_root = MODULE.ROOT
             try:
                 MODULE.ROOT = root
-                config = {
-                    "source_manifest": "manifest.csv",
-                    "variables_file": "voice/variables.local.json",
-                    "skip_speakers": ["extend"],
-                }
-                rows, _ = MODULE.iter_source_rows(config)
+                rows, _ = MODULE.iter_source_rows(self._config())
             finally:
                 MODULE.ROOT = old_root
 
         self.assertEqual(rows[0]["status"], "needs_review")
         self.assertIn("unresolved-variable:mcname", rows[0]["review_reasons"])
 
+    def test_literal_speaker_is_not_spoken_as_part_of_dialogue(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_character_definitions(root)
 
-    def test_source_resolver_avoids_conflicting_duplicate_ids(self):
+            direct = root / "original-source" / "game"
+            (direct / "sample.rpy").write_text(
+                '"BDSM Model" "Hello there."\n',
+                encoding="utf-8",
+            )
+            (root / "deutsch").mkdir()
+            (root / "deutsch" / "sample.rpy").write_text(
+                'translate deutsch sample_literal:\n'
+                '    # "BDSM Model" "Hello there."\n'
+                '    "BDSM-Modell" "Hallo."\n',
+                encoding="utf-8",
+            )
+            self._write_id_manifest(root, "sample.rpy")
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                rows, _ = MODULE.iter_source_rows(self._config())
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["speaker"], "")
+        self.assertEqual(rows[0]["speaker_label"], "BDSM Model")
+        self.assertEqual(rows[0]["english_text"], "Hello there.")
+        self.assertEqual(rows[0]["tts_text"], "Hello there.")
+        self.assertIn("literal-speaker:BDSM Model", rows[0]["review_reasons"])
+
+    def test_stale_translation_comment_never_replaces_original_source(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_character_definitions(root)
+
+            direct = root / "original-source" / "game"
+            (direct / "sample.rpy").write_text(
+                'arj "Canonical original line."\n',
+                encoding="utf-8",
+            )
+            (root / "deutsch").mkdir()
+            (root / "deutsch" / "sample.rpy").write_text(
+                'translate deutsch stale_1234:\n'
+                '    # arj "Stale metadata line."\n'
+                '    arj "Veraltet."\n',
+                encoding="utf-8",
+            )
+            self._write_id_manifest(root, "sample.rpy")
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                rows, warnings = MODULE.iter_source_rows(self._config())
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["english_text"], "Canonical original line.")
+        self.assertEqual(rows[0]["renpy_id"], "")
+        self.assertIn("renpy-id-not-resolved", rows[0]["review_reasons"])
+        self.assertTrue(any("does not match the canonical original source" in warning for warning in warnings))
+
+    def test_narrator_is_resolved_from_original_source(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self._write_character_definitions(root)
+
+            direct = root / "original-source" / "game"
+            (direct / "sample.rpy").write_text('"A quiet room."\n', encoding="utf-8")
+            (root / "deutsch").mkdir()
+            (root / "deutsch" / "sample.rpy").write_text(
+                'translate deutsch narrator_1234:\n'
+                '    # "A quiet room."\n'
+                '    "Ein ruhiger Raum."\n',
+                encoding="utf-8",
+            )
+            self._write_id_manifest(root, "sample.rpy")
+
+            old_root = MODULE.ROOT
+            try:
+                MODULE.ROOT = root
+                rows, _ = MODULE.iter_source_rows(self._config())
+            finally:
+                MODULE.ROOT = old_root
+
+        self.assertEqual(rows[0]["speaker"], "narrator")
+        self.assertEqual(rows[0]["status"], "ready")
+        self.assertEqual(rows[0]["renpy_id"], "narrator_1234")
+
+    def test_id_resolver_avoids_conflicting_duplicate_ids(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             for language in ("french", "deutsch"):
@@ -119,8 +240,8 @@ class VoicePipelineTests(unittest.TestCase):
                 '    # mc "Correct line."\n'
                 '    mc "Ligne correcte."\n'
                 'translate french line_1234:\n'
-                '    # mct "Wrong duplicate."\n'
-                '    mct "Mauvais doublon."\n',
+                '    # arj "Wrong duplicate."\n'
+                '    arj "Mauvais doublon."\n',
                 encoding="utf-8",
             )
             (root / "deutsch" / "sample.rpy").write_text(
@@ -133,13 +254,13 @@ class VoicePipelineTests(unittest.TestCase):
             old_root = MODULE.ROOT
             try:
                 MODULE.ROOT = root
-                selected, warnings = MODULE.select_source_file(
+                selected, warnings = MODULE.select_id_metadata_file(
                     "sample.rpy",
                     {
                         "count_reference_language": "french",
                         "present_in_languages": "french;deutsch",
                     },
-                    {"reference_language_priority": ["deutsch", "french"]},
+                    {"id_reference_language_priority": ["deutsch", "french"]},
                 )
             finally:
                 MODULE.ROOT = old_root
@@ -149,7 +270,7 @@ class VoicePipelineTests(unittest.TestCase):
         self.assertEqual(len(selected["blocks"]), 1)
         self.assertTrue(any("instead of manifest count reference" in warning for warning in warnings))
 
-    def test_source_resolver_deduplicates_identical_ids(self):
+    def test_id_resolver_deduplicates_identical_ids(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             (root / "french").mkdir()
@@ -166,13 +287,13 @@ class VoicePipelineTests(unittest.TestCase):
             old_root = MODULE.ROOT
             try:
                 MODULE.ROOT = root
-                selected, warnings = MODULE.select_source_file(
+                selected, warnings = MODULE.select_id_metadata_file(
                     "sample.rpy",
                     {
                         "count_reference_language": "french",
                         "present_in_languages": "french",
                     },
-                    {"reference_language_priority": ["french"]},
+                    {"id_reference_language_priority": ["french"]},
                 )
             finally:
                 MODULE.ROOT = old_root
