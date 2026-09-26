@@ -8,8 +8,8 @@
   "repository": "dutchdevil-83/FL-SM-1-translations-dutch",
   "base_branch": "voice/english-gemini-tts",
   "import_branch": "voice/import-original-source-20260926-022221",
-  "file_count": 501,
-  "total_bytes": 6872903,
+  "file_count": 500,
+  "total_bytes": 6857353,
   "reconstruction": {
     "used": true,
     "tool": "rpycdec",
@@ -18,7 +18,7 @@
     "loose_compiled_count": 451,
     "effective_compiled_count": 500,
     "decompiled_script_count": 500,
-    "decompile_coverage_ratio": 1.0,
+    "decompile_coverage_ratio": 1,
     "decompile_missing_count": 0,
     "archive_conflict_count": 0,
     "archives": [
@@ -59,7 +59,8 @@
     "translations": "game/tl/**",
     "compiled": "*.rpyc, *.pyc",
     "media_and_archives": "not selected by source-extension allowlist",
-    "saves_and_cache": "game/saves/**, game/cache/**"
+    "saves_and_cache": "game/saves/**, game/cache/**",
+    "credential_bearing_non_voice_source": "game/code/classes/analytics.rpy"
   },
   "files": [
     {
@@ -85,12 +86,6 @@
       "extension": ".rpy",
       "size_bytes": 162,
       "source_sha256": "6bab475e5f056adb56f6def93d035ab996277f25bff956fd5dda55e08b4b2e14"
-    },
-    {
-      "path": "game/code/classes/analytics.rpy",
-      "extension": ".rpy",
-      "size_bytes": 15550,
-      "source_sha256": "56fdcb5edaf082a23cd9d28960772e88579b3e8948b9a53afa9bde5714ceab7c"
     },
     {
       "path": "game/code/classes/character_controller.rpy",
