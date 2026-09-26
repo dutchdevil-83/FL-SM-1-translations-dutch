@@ -77,7 +77,7 @@ if (-not (Test-Path $VenvPython)) {
     New-VoiceGuiEnvironment
 }
 else {
-    & $VenvPython -c "import PySide6, google.genai" 2>$null
+    & $VenvPython -c "import PySide6, google.genai, numpy, pyqtgraph, qtawesome, soundfile" 2>$null
     if ($LASTEXITCODE -ne 0) {
         Write-Host 'GUI environment exists but dependencies are incomplete. Repairing...'
         & $VenvPython -m pip install -r requirements-voice-gui.txt
