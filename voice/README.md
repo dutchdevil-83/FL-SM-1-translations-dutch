@@ -139,6 +139,10 @@ The launcher installs/repairs `requirements-voice-gui.txt`, securely asks for th
 key when the current PowerShell process does not already contain one, and then opens the
 desktop application.
 
+The GUI requirements intentionally add `PyQtGraph`, `SoundFile`, `NumPy` and
+`QtAwesome` on top of PySide6. The launcher repairs an older GUI virtual environment
+automatically when any of those waveform/player dependencies are missing.
+
 Manual setup is still possible from an already compatible Python environment:
 
 ```powershell
@@ -157,7 +161,12 @@ The desktop app provides:
 - searchable character list with Needs voice / Audition / Approved / Disabled / Alias filters;
 - character profile, line counts, provider voice ID and editable Voice Design prompt;
 - one-click Voice Design creation, provider-sample refresh, approval and rejection/retry;
-- built-in Qt WAV playback for design samples and generated dialogue demos;
+- native Qt playback through `QMediaPlayer` with a PyQtGraph waveform rendered from
+  SoundFile/NumPy decoded samples;
+- click/drag waveform seeking, a live playback cursor, hover timestamp, zoom in/out/fit,
+  +/-5 second controls, playback-speed selection and volume control;
+- compact waveform previews for generated dialogue demos plus double-click playback;
+- QtAwesome transport/action icons with text labels and tooltips;
 - representative dialogue demo generation in a background worker;
 - shared persistent RPM/TPM limiting and TTS retry/backoff;
 - exact provider token usage when returned by Gemini plus clearly marked estimates otherwise;
