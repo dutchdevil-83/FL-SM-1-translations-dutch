@@ -883,11 +883,11 @@ function Get-SourceScan {
 
     foreach ($file in Get-ChildItem -LiteralPath $GameRoot -File -Recurse -Force) {
         $total++
-        $relativePath = [System.IO.Path]::GetRelativePath($GameRoot, $file.FullName).Replace('\', '/')
-        $segments = $relativePath -split '/'
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($GameRoot, $file.FullName))
+        $segments = @($relativePath -split '/')
 
-        if ($segments.Count -gt 0 -and $script:ExcludedTopLevelFolders -icontains $segments[0]) {
-            if ($segments[0] -ieq 'tl') {
+        if (Test-ExcludedSourcePath -RelativePath $relativePath) {
+            if ($segments.Count -gt 0 -and $segments[0] -ieq 'tl') {
                 $excludedTranslations++
             }
             continue
