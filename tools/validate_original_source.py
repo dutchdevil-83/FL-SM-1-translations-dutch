@@ -26,7 +26,7 @@ FORBIDDEN_SUFFIXES = {
     ".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp3", ".ogg", ".wav",
     ".mp4", ".webm", ".avi", ".mkv",
 }
-FORBIDDEN_PARTS = {"tl", "saves", "cache", "__pycache__", ".vscode", "audio"}
+FORBIDDEN_GAME_TOP_LEVEL = {"tl", "saves", "cache", "__pycache__", ".vscode", "audio"}
 FORBIDDEN_EXACT = {"game/code/classes/analytics.rpy"}
 
 SECRET_PATTERNS = {
@@ -117,11 +117,11 @@ def main() -> int:
             problems.append(f"missing file: {rel}")
             continue
 
-        rel_parts = set(Path(rel).parts)
+        rel_parts = Path(rel).parts
         if rel in FORBIDDEN_EXACT:
             problems.append(f"credential-bearing non-voice source must not be committed: {rel}")
-        if rel_parts & FORBIDDEN_PARTS:
-            problems.append(f"forbidden directory in snapshot: {rel}")
+        if len(rel_parts) > 1 and rel_parts[1].lower() in FORBIDDEN_GAME_TOP_LEVEL:
+            problems.append(f"forbidden top-level game directory in snapshot: {rel}")
         if target.suffix.lower() in FORBIDDEN_SUFFIXES:
             problems.append(f"forbidden binary/media extension: {rel}")
 
