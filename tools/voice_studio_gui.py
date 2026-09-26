@@ -12,6 +12,7 @@ import json
 import math
 import os
 import sys
+import time
 import traceback
 from collections import Counter
 from pathlib import Path
@@ -72,15 +73,22 @@ WINDOW_MIN_HEIGHT = 760
 
 
 class WorkerSignals(QObject):
-    result = Signal(object)
-    error = Signal(str)
-    finished = Signal()
-    message = Signal(str)
+    result = Signal(str, object)
+    error = Signal(str, str)
+    finished = Signal(str)
+    message = Signal(str, str)
 
 
 class Worker(QRunnable):
-    def __init__(self, fn: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        title: str,
+        fn: Callable[..., Any],
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         super().__init__()
+        self.title = title
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
@@ -88,14 +96,17 @@ class Worker(QRunnable):
 
     @Slot()
     def run(self) -> None:
+        def emit_message(message: str) -> None:
+            self.signals.message.emit(self.title, message)
+
         try:
-            result = self.fn(self.signals.message.emit, *self.args, **self.kwargs)
+            result = self.fn(emit_message, *self.args, **self.kwargs)
         except Exception:
-            self.signals.error.emit(traceback.format_exc())
+            self.signals.error.emit(self.title, traceback.format_exc())
         else:
-            self.signals.result.emit(result)
+            self.signals.result.emit(self.title, result)
         finally:
-            self.signals.finished.emit()
+            self.signals.finished.emit(self.title)
 
 
 class RuntimeSettingsDialog(QDialog):
@@ -198,6 +209,10 @@ class MainWindow(QMainWindow):
         self.current_speaker: str | None = None
         self.thread_pool = QThreadPool.globalInstance()
         self.busy_count = 0
+        self.active_worker: Worker | None = None
+        self.active_result_handler: Callable[[Any], None] | None = None
+        self.active_job_started = 0.0
+        self.active_job_failed = False
 
         self.player = QMediaPlayer(self)
         self.audio_output = QAudioOutput(self)
@@ -226,6 +241,12 @@ class MainWindow(QMainWindow):
 
         self.summary_bar = self._build_summary_bar()
         root.addWidget(self.summary_bar)
+
+        self.operation_banner = QLabel()
+        self.operation_banner.setObjectName("operationBanner")
+        self.operation_banner.setWordWrap(True)
+        self.operation_banner.setVisible(False)
+        root.addWidget(self.operation_banner)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.setChildrenCollapsible(False)
@@ -399,13 +420,16 @@ class MainWindow(QMainWindow):
         self.retry_button.clicked.connect(self.retry_voice)
         self.refresh_sample_button = QPushButton("Refresh provider sample")
         self.refresh_sample_button.clicked.connect(self.refresh_design_sample)
+        self.play_sample_casting_button = QPushButton("Listen audition sample")
+        self.play_sample_casting_button.clicked.connect(self.play_design_sample)
         self.final_button = QPushButton("Generate final audio")
         self.final_button.clicked.connect(self.generate_final_audio)
         action_layout.addWidget(self.create_voice_button, 0, 0)
         action_layout.addWidget(self.approve_button, 0, 1)
-        action_layout.addWidget(self.retry_button, 1, 0)
+        action_layout.addWidget(self.play_sample_casting_button, 1, 0)
         action_layout.addWidget(self.refresh_sample_button, 1, 1)
-        action_layout.addWidget(self.final_button, 2, 0, 1, 2)
+        action_layout.addWidget(self.retry_button, 2, 0)
+        action_layout.addWidget(self.final_button, 2, 1)
         layout.addWidget(actions)
 
         layout.addStretch(1)
@@ -563,6 +587,14 @@ class MainWindow(QMainWindow):
                 background: #1d2025;
                 border: 1px solid #30343a;
                 border-radius: 8px;
+            }
+            QLabel#operationBanner {
+                background: #172554;
+                border: 1px solid #2563eb;
+                border-radius: 7px;
+                color: #dbeafe;
+                padding: 8px 12px;
+                font-weight: 600;
             }
             QGroupBox {
                 margin-top: 10px;
@@ -812,6 +844,7 @@ class MainWindow(QMainWindow):
             str(sample.relative_to(vs.ROOT)) if sample.exists() else "No local sample"
         )
         self.play_design_button.setEnabled(sample.exists())
+        self.play_sample_casting_button.setEnabled(sample.exists())
         self.refresh_demo_table()
 
     def _prompt_changed(self) -> None:
@@ -841,30 +874,70 @@ class MainWindow(QMainWindow):
             )
             return
 
-        worker = Worker(fn)
-        worker.signals.message.connect(self.log)
-        worker.signals.error.connect(lambda trace: self._job_error(title, trace))
-        if on_result:
-            worker.signals.result.connect(on_result)
-        worker.signals.finished.connect(lambda: self._job_finished(title))
-        self.busy_count += 1
+        worker = Worker(title, fn)
+        worker.setAutoDelete(False)
+        worker.signals.message.connect(self._worker_message)
+        worker.signals.error.connect(self._worker_error)
+        worker.signals.result.connect(self._worker_result)
+        worker.signals.finished.connect(self._worker_finished)
+
+        self.active_worker = worker
+        self.active_result_handler = on_result
+        self.active_job_started = time.perf_counter()
+        self.active_job_failed = False
+        self.busy_count = 1
+
         self.progress.setVisible(True)
+        self.operation_banner.setText(
+            f"Working: {title}. Gemini Voice Design can take 15–30 seconds. "
+            "The controls will refresh automatically when it finishes."
+        )
+        self.operation_banner.setVisible(True)
         self.statusBar().showMessage(title)
         self.log(f"START {title}")
+        self.tabs.setCurrentWidget(self.log_tab)
         self.thread_pool.start(worker)
 
-    def _job_finished(self, title: str) -> None:
-        self.busy_count = max(0, self.busy_count - 1)
-        if not self.busy_count:
-            self.progress.setVisible(False)
-            self.statusBar().showMessage("Ready", 3000)
-        self.log(f"DONE  {title}")
-        self.reload_data(self.current_speaker)
+    @Slot(str, str)
+    def _worker_message(self, title: str, message: str) -> None:
+        self.log(f"{title}: {message}")
+        self.statusBar().showMessage(f"{title} — {message}")
 
-    def _job_error(self, title: str, trace: str) -> None:
+    @Slot(str, object)
+    def _worker_result(self, title: str, result: Any) -> None:
+        self.log(f"RESULT {title}: {result}")
+        handler = self.active_result_handler
+        if handler is not None:
+            handler(result)
+
+    @Slot(str, str)
+    def _worker_error(self, title: str, trace: str) -> None:
+        self.active_job_failed = True
         self.log(f"FAIL  {title}\n{trace}", error=True)
         last_line = trace.strip().splitlines()[-1] if trace.strip() else "Unknown error"
         QMessageBox.critical(self, title, last_line)
+
+    @Slot(str)
+    def _worker_finished(self, title: str) -> None:
+        elapsed = max(0.0, time.perf_counter() - self.active_job_started)
+        failed = self.active_job_failed
+
+        self.busy_count = 0
+        self.progress.setVisible(False)
+        self.operation_banner.setVisible(False)
+        self.active_result_handler = None
+        self.active_worker = None
+        self.active_job_started = 0.0
+        self.active_job_failed = False
+
+        if failed:
+            self.log(f"FAILED {title} after {elapsed:.1f}s")
+            self.statusBar().showMessage(f"Failed: {title}", 8000)
+        else:
+            self.log(f"DONE  {title} in {elapsed:.1f}s")
+            self.statusBar().showMessage(f"Completed: {title}", 8000)
+
+        self.reload_data(self.current_speaker)
 
     # ---------- casting actions ----------
 
@@ -925,17 +998,54 @@ class MainWindow(QMainWindow):
                 latency_ms=latency_ms,
                 text=request["voice"].get("prompted", {}).get("input", ""),
             )
-            return {"voice_id": voice_id}
+            sample_path = vs.provider_voice_sample_path(speaker)
+            message(f"Created provider voice {voice_id}")
+            if sample_path.exists():
+                message(f"Saved audition sample: {sample_path.relative_to(vs.ROOT)}")
+            else:
+                message("Provider returned no local sample; use Refresh provider sample.")
+            return {
+                "speaker": speaker,
+                "display_name": current.get("display_name", speaker),
+                "voice_id": voice_id,
+                "sample_path": str(sample_path),
+                "sample_exists": sample_path.exists(),
+            }
 
         self.run_job(
             f"Create voice: {speaker}",
             task,
-            lambda result: QMessageBox.information(
-                self,
-                "Voice created",
-                f"Stored provider voice:\n{result['voice_id']}",
-            ),
+            self._voice_created,
         )
+
+    def _voice_created(self, result: dict[str, Any]) -> None:
+        speaker = str(result["speaker"])
+        voice_id = str(result["voice_id"])
+        sample_exists = bool(result.get("sample_exists"))
+        display_name = str(result.get("display_name") or speaker)
+
+        self.log(
+            f"VOICE READY {display_name} ({speaker}) -> {voice_id}; "
+            f"sample={'ready' if sample_exists else 'not returned'}"
+        )
+        self.reload_data(speaker)
+        self.tabs.setCurrentWidget(self.audition_tab)
+
+        if sample_exists:
+            message = (
+                f"Voice created successfully for {display_name}.\n\n"
+                f"Provider voice: {voice_id}\n"
+                f"Audition sample: voice/previews/{speaker}.wav\n\n"
+                "The Audition & demos tab is now open. Click Play to listen."
+            )
+        else:
+            message = (
+                f"Voice created successfully for {display_name}.\n\n"
+                f"Provider voice: {voice_id}\n\n"
+                "No sample audio was returned with the create response. "
+                "Use Refresh provider sample in Character & casting."
+            )
+        QMessageBox.information(self, "Voice ready", message)
 
     def save_prompt(self) -> None:
         speaker = self.current_speaker
