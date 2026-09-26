@@ -71,10 +71,10 @@ It then:
 - prefers direct loose source when the same path is also present in packaged content;
 - excludes `game/tl`, saves, cache, audio/media, binary archives, compiled files and executables from the PR;
 - scans reconstructed text files for common credential patterns before committing anything;
-- compares reconstructed `.rpy` paths against the 444-path project source inventory and refuses to create a PR below 95% coverage;
+- compares reconstructed `.rpy` paths against the 444-path project translation/source inventory as a review diagnostic; version skew between the installed game and that inventory does not block a valid import;
 - copies the reviewed source snapshot to `original-source/game/`;
 - creates `original-source/SOURCE_MANIFEST.json` with SHA-256 hashes, archive/decompile provenance and source coverage;
-- creates `original-source/SOURCE_COVERAGE.json` listing every expected path still missing;
+- creates `original-source/SOURCE_COVERAGE.json` listing inventory paths that are absent from this installed build;
 - keeps the canonical voice worktree on `voice/english-gemini-tts`;
 - creates a temporary Git worktree and timestamped branch from that voice branch only for the imported source snapshot;
 - commits and pushes the snapshot;
@@ -90,7 +90,7 @@ GitHub CLI (gh), authenticated with gh auth login
 A local clone at `X:\dev\repos\personal\FL-SM-1-translations-dutch` and a clean worktree with `voice/english-gemini-tts` checked out
 ```
 
-No Gemini/TTS request is made by the importer. The installed game is read-only throughout the process. The imported PR should remain unmerged until the reconstructed English source and coverage report have been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
+No Gemini/TTS request is made by the importer. The installed game is read-only throughout the process. Import completeness is gated on reconstructing every effective `.rpyc`/`.rpymc` script discovered in the installed package, not on matching the translation inventory, because those two sources can represent different game versions. The inventory coverage report remains useful for spotting version drift. The imported PR should remain unmerged until the reconstructed English source and coverage report have been reviewed and the voice extractor has been switched from translation-export recovery to direct original-source ingestion.
 
 For a local-only dry run without pushing:
 
