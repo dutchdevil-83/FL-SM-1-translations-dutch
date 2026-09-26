@@ -60,7 +60,8 @@ try:
     )
 except ImportError as exc:
     raise SystemExit(
-        "PySide6 is not installed. Run: "
+        "PySide6/Qt runtime import failed: "
+        f"{exc}. Install/repair with: "
         "python -m pip install -r requirements-voice-gui.txt"
     ) from exc
 
