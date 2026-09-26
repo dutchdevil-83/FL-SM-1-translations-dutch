@@ -50,23 +50,30 @@ jobs:
       - name: Compile PySide6 Voice Studio frontend
         run: python -m py_compile tools/voice_studio_gui.py
 
-      - name: Validate PowerShell importer syntax
+      - name: Validate PowerShell tool syntax
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path "tools/Import-OriginalGameVoiceSource.ps1"),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
+          $scripts = @(
+            "tools/Import-OriginalGameVoiceSource.ps1",
+            "tools/Start-VoiceStudio.ps1"
+          )
 
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Error $_.Message }
-            exit 1
+          foreach ($script in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $script),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$script: $($_.Message)" }
+              exit 1
+            }
+
+            Write-Host "PowerShell syntax validation passed: $script"
           }
-
-          Write-Host "PowerShell syntax validation passed."
 
 
       - name: Run PowerShell importer runtime self-test
