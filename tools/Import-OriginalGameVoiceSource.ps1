@@ -90,6 +90,9 @@ $ErrorActionPreference = 'Stop'
 $script:ScriptVersion = '202609.26'
 $script:RepositoryRoot = $null
 $script:TranscriptStarted = $false
+$script:RpycdecVersion = '0.2.0'
+$script:RpycdecWheelSha256 = '5354959b7881c67ed87bcbd29a954bf44df10defd200314379a4cad3b98a89ec'
+$script:MinimumManifestCoverage = 0.95
 
 $script:AllowedExtensions = @(
     '.rpy',
@@ -110,7 +113,31 @@ $script:ExcludedTopLevelFolders = @(
     'tl',
     'saves',
     'cache',
-    '__pycache__'
+    '__pycache__',
+    '.vscode',
+    'audio'
+)
+
+$script:CompiledExtensions = @(
+    '.rpyc',
+    '.rpymc'
+)
+
+$script:ArchiveExtractionSuffixes = @(
+    '.rpy',
+    '.rpym',
+    '.rpyc',
+    '.rpymc',
+    '.py',
+    '.json',
+    '.yaml',
+    '.yml',
+    '.toml',
+    '.ini',
+    '.cfg',
+    '.csv',
+    '.tsv',
+    '.txt'
 )
 
 $script:SecretPatterns = [ordered]@{
@@ -416,6 +443,430 @@ function Initialize-BranchWorktree {
     }
 
     return (Resolve-Path -LiteralPath $worktreePath).Path
+}
+
+
+function ConvertTo-GameRelativePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RelativePath
+    )
+
+    $normalized = $RelativePath.Replace('\', '/').TrimStart('/')
+    if ($normalized -like 'game/*') {
+        $normalized = $normalized.Substring(5)
+    }
+
+    return $normalized
+}
+
+function Test-ExcludedSourcePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RelativePath
+    )
+
+    $normalized = ConvertTo-GameRelativePath -RelativePath $RelativePath
+    $segments = @($normalized -split '/')
+    if ($segments.Count -eq 0) {
+        return $false
+    }
+
+    return $script:ExcludedTopLevelFolders -icontains $segments[0]
+}
+
+function Get-PackagedSourceInventory {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$GameRoot
+    )
+
+    $archives = [System.Collections.Generic.List[object]]::new()
+    $compiled = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($file in Get-ChildItem -LiteralPath $GameRoot -File -Recurse -Force) {
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($GameRoot, $file.FullName))
+        $extension = $file.Extension.ToLowerInvariant()
+
+        if ($extension -eq '.rpa') {
+            $archives.Add([pscustomobject]@{
+                FullName = $file.FullName
+                RelativePath = $relativePath
+                Length = [int64]$file.Length
+            })
+            continue
+        }
+
+        if ($script:CompiledExtensions -icontains $extension) {
+            if (-not (Test-ExcludedSourcePath -RelativePath $relativePath)) {
+                $compiled.Add([pscustomobject]@{
+                    FullName = $file.FullName
+                    RelativePath = $relativePath
+                    Extension = $extension
+                    Length = [int64]$file.Length
+                })
+            }
+        }
+    }
+
+    return [pscustomobject]@{
+        Archives = @($archives)
+        CompiledScripts = @($compiled)
+    }
+}
+
+function Get-PythonLauncher {
+    [CmdletBinding()]
+    param()
+
+    $candidates = @(
+        [pscustomobject]@{ Command = 'py'; Prefix = @('-3') },
+        [pscustomobject]@{ Command = 'python'; Prefix = @() },
+        [pscustomobject]@{ Command = 'python3'; Prefix = @() }
+    )
+
+    foreach ($candidate in $candidates) {
+        if (-not (Get-Command $candidate.Command -ErrorAction SilentlyContinue)) {
+            continue
+        }
+
+        & $candidate.Command @($candidate.Prefix) -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' *> $null
+        if ($LASTEXITCODE -eq 0) {
+            return $candidate
+        }
+    }
+
+    throw 'Python 3.10 or newer is required to reconstruct Ren''Py archives/compiled scripts. Install Python 3.10+ and ensure py, python, or python3 is available in PATH.'
+}
+
+function New-RpycdecEnvironment {
+    [CmdletBinding()]
+    param()
+
+    $launcher = Get-PythonLauncher
+    $environmentRoot = Join-Path ([System.IO.Path]::GetTempPath()) "rpycdec-$([guid]::NewGuid().ToString('N'))"
+
+    Write-Status -Message "Creating isolated rpycdec $($script:RpycdecVersion) environment."
+
+    $venvOutput = & $launcher.Command @($launcher.Prefix) -m venv $environmentRoot 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to create the temporary Python environment: $(($venvOutput | Out-String).Trim())"
+    }
+
+    $pythonPath = if ([System.OperatingSystem]::IsWindows()) {
+        Join-Path $environmentRoot 'Scripts\python.exe'
+    }
+    else {
+        Join-Path $environmentRoot 'bin/python'
+    }
+
+    if (-not (Test-Path -LiteralPath $pythonPath -PathType Leaf)) {
+        throw "Temporary Python interpreter was not created: $pythonPath"
+    }
+
+    $requirementsPath = Join-Path $environmentRoot 'rpycdec-requirements.txt'
+    "rpycdec==$($script:RpycdecVersion) --hash=sha256:$($script:RpycdecWheelSha256)" | Set-Content -LiteralPath $requirementsPath -Encoding ascii
+
+    $pipArguments = @(
+        '-m', 'pip', 'install',
+        '--disable-pip-version-check',
+        '--no-deps',
+        '--require-hashes',
+        '--requirement', $requirementsPath
+    )
+    $pipOutput = & $pythonPath @pipArguments 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to install pinned rpycdec $($script:RpycdecVersion): $(($pipOutput | Out-String).Trim())"
+    }
+
+    $versionOutput = & $pythonPath -c 'import importlib.metadata; print(importlib.metadata.version("rpycdec"))' 2>&1
+    if ($LASTEXITCODE -ne 0 -or (($versionOutput | Out-String).Trim() -ne $script:RpycdecVersion)) {
+        throw "Pinned rpycdec version verification failed: $(($versionOutput | Out-String).Trim())"
+    }
+
+    Write-Status -Level Success -Message "Pinned rpycdec $($script:RpycdecVersion) is ready."
+
+    return [pscustomobject]@{
+        Root = $environmentRoot
+        Python = $pythonPath
+        Version = $script:RpycdecVersion
+    }
+}
+
+function Invoke-Rpycdec {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$PythonPath,
+
+        [Parameter(Mandatory)]
+        [string[]]$Arguments
+    )
+
+    $previousWarningSetting = $env:RPYCDEC_NO_WARNING
+    try {
+        $env:RPYCDEC_NO_WARNING = '1'
+        $output = & $PythonPath -m rpycdec @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        if ($null -eq $previousWarningSetting) {
+            Remove-Item Env:RPYCDEC_NO_WARNING -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:RPYCDEC_NO_WARNING = $previousWarningSetting
+        }
+    }
+
+    if ($exitCode -ne 0) {
+        throw "rpycdec $($Arguments -join ' ') failed with exit code $exitCode. $(($output | Out-String).Trim())"
+    }
+
+    if ($output) {
+        $output | ForEach-Object { Write-Host $_ }
+    }
+}
+
+function Copy-TreeFiles {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$SourceRoot,
+
+        [Parameter(Mandatory)]
+        [string]$DestinationRoot,
+
+        [Parameter()]
+        [switch]$IncludeCompiled,
+
+        [Parameter()]
+        [switch]$Overwrite,
+
+        [Parameter()]
+        [System.Collections.Generic.List[string]]$Conflicts
+    )
+
+    foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -File -Recurse -Force) {
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($SourceRoot, $file.FullName))
+
+        if (Test-ExcludedSourcePath -RelativePath $relativePath) {
+            continue
+        }
+
+        $extension = $file.Extension.ToLowerInvariant()
+        $allowed = $script:AllowedExtensions -icontains $extension
+        if ($IncludeCompiled) {
+            $allowed = $allowed -or ($script:CompiledExtensions -icontains $extension)
+        }
+
+        if (-not $allowed) {
+            continue
+        }
+
+        $platformRelative = $relativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+        $target = Join-Path $DestinationRoot $platformRelative
+        $targetParent = Split-Path -Parent $target
+
+        if (-not (Test-Path -LiteralPath $targetParent)) {
+            New-Item -ItemType Directory -Path $targetParent -Force | Out-Null
+        }
+
+        if (Test-Path -LiteralPath $target -PathType Leaf) {
+            $sourceHash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+            $targetHash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
+
+            if ($sourceHash -eq $targetHash) {
+                continue
+            }
+
+            if (-not $Overwrite) {
+                if ($Conflicts) {
+                    $Conflicts.Add($relativePath)
+                }
+                continue
+            }
+        }
+
+        Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+    }
+}
+
+function New-MaterializedGameSource {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$GameRoot
+    )
+
+    $inventory = Get-PackagedSourceInventory -GameRoot $GameRoot
+    $archiveCount = @($inventory.Archives).Count
+    $looseCompiledCount = @($inventory.CompiledScripts).Count
+
+    if ($archiveCount -eq 0 -and $looseCompiledCount -eq 0) {
+        return [pscustomobject]@{
+            SourceRoot = $GameRoot
+            ReconstructionUsed = $false
+            WorkspaceRoot = $null
+            ToolEnvironmentRoot = $null
+            RpycdecVersion = $null
+            ArchiveCount = 0
+            ArchiveFiles = @()
+            LooseCompiledCount = 0
+            DecompiledScriptCount = 0
+            ArchiveConflicts = @()
+        }
+    }
+
+    Write-Status -Message "Packaged Ren'Py source detected: $archiveCount RPA archive(s), $looseCompiledCount loose compiled script(s)."
+
+    $toolEnvironment = New-RpycdecEnvironment
+    $workspaceRoot = Join-Path ([System.IO.Path]::GetTempPath()) "renpy-source-$([guid]::NewGuid().ToString('N'))"
+    $rawRoot = Join-Path $workspaceRoot 'raw'
+    $decompiledRoot = Join-Path $workspaceRoot 'decompiled'
+    $materializedRoot = Join-Path $workspaceRoot 'materialized'
+    $archiveRoot = Join-Path $workspaceRoot 'archives'
+
+    foreach ($path in @($rawRoot, $decompiledRoot, $materializedRoot, $archiveRoot)) {
+        New-Item -ItemType Directory -Path $path -Force | Out-Null
+    }
+
+    $conflicts = [System.Collections.Generic.List[string]]::new()
+    $archiveMetadata = [System.Collections.Generic.List[object]]::new()
+    $archives = @($inventory.Archives | Sort-Object RelativePath -Descending)
+
+    for ($index = 0; $index -lt $archives.Count; $index++) {
+        $archive = $archives[$index]
+        $archiveOutput = Join-Path $archiveRoot ("{0:D3}-{1}" -f $index, ([System.IO.Path]::GetFileNameWithoutExtension($archive.FullName)))
+        New-Item -ItemType Directory -Path $archiveOutput -Force | Out-Null
+
+        Write-Status -Message "Extracting script/data candidates from archive: $($archive.RelativePath)"
+
+        $arguments = @('unrpa', $archive.FullName, '-o', $archiveOutput, '-s') + $script:ArchiveExtractionSuffixes
+        Invoke-Rpycdec -PythonPath $toolEnvironment.Python -Arguments $arguments
+
+        Copy-TreeFiles -SourceRoot $archiveOutput -DestinationRoot $rawRoot -IncludeCompiled -Conflicts $conflicts
+
+        $archiveMetadata.Add([ordered]@{
+            path = $archive.RelativePath
+            size_bytes = $archive.Length
+            sha256 = (Get-FileHash -LiteralPath $archive.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        })
+    }
+
+    # Loose game files are copied last and intentionally override archive entries.
+    Copy-TreeFiles -SourceRoot $GameRoot -DestinationRoot $rawRoot -IncludeCompiled -Overwrite
+
+    $compiledInRaw = @(
+        Get-ChildItem -LiteralPath $rawRoot -File -Recurse -Force |
+            Where-Object { $script:CompiledExtensions -icontains $_.Extension.ToLowerInvariant() }
+    )
+
+    if ($compiledInRaw.Count -gt 0) {
+        Write-Status -Message "Decompiling $($compiledInRaw.Count) effective Ren'Py compiled script(s)."
+        Invoke-Rpycdec -PythonPath $toolEnvironment.Python -Arguments @('decompile', $rawRoot, '-o', $decompiledRoot)
+    }
+
+    $directScan = Get-SourceScan -GameRoot $rawRoot
+    foreach ($file in $directScan.SelectedFiles) {
+        $platformRelative = $file.RelativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+        $target = Join-Path $materializedRoot $platformRelative
+        $targetParent = Split-Path -Parent $target
+        if (-not (Test-Path -LiteralPath $targetParent)) {
+            New-Item -ItemType Directory -Path $targetParent -Force | Out-Null
+        }
+        Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+    }
+
+    $decompiledScripts = @(
+        Get-ChildItem -LiteralPath $decompiledRoot -Filter '*.rpy' -File -Recurse -Force
+    )
+
+    foreach ($file in $decompiledScripts) {
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($decompiledRoot, $file.FullName))
+
+        if (Test-ExcludedSourcePath -RelativePath $relativePath) {
+            continue
+        }
+
+        $platformRelative = $relativePath.Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+        $target = Join-Path $materializedRoot $platformRelative
+        if (Test-Path -LiteralPath $target -PathType Leaf) {
+            continue
+        }
+
+        $targetParent = Split-Path -Parent $target
+        if (-not (Test-Path -LiteralPath $targetParent)) {
+            New-Item -ItemType Directory -Path $targetParent -Force | Out-Null
+        }
+
+        Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+    }
+
+    return [pscustomobject]@{
+        SourceRoot = $materializedRoot
+        ReconstructionUsed = $true
+        WorkspaceRoot = $workspaceRoot
+        ToolEnvironmentRoot = $toolEnvironment.Root
+        RpycdecVersion = $toolEnvironment.Version
+        ArchiveCount = $archiveCount
+        ArchiveFiles = @($archiveMetadata)
+        LooseCompiledCount = $looseCompiledCount
+        DecompiledScriptCount = @($decompiledScripts).Count
+        ArchiveConflicts = @($conflicts | Sort-Object -Unique)
+    }
+}
+
+function Get-ManifestCoverage {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$SourceRoot,
+
+        [Parameter(Mandatory)]
+        [string]$ManifestPath
+    )
+
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
+        throw "Expected source inventory is missing: $ManifestPath"
+    }
+
+    $expectedRows = @(Import-Csv -LiteralPath $ManifestPath)
+    if ($expectedRows.Count -eq 0) {
+        throw "Expected source inventory is empty: $ManifestPath"
+    }
+
+    $available = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Filter '*.rpy' -File -Recurse -Force) {
+        $relativePath = ConvertTo-GameRelativePath -RelativePath ([System.IO.Path]::GetRelativePath($SourceRoot, $file.FullName))
+        [void]$available.Add($relativePath)
+    }
+
+    $missing = [System.Collections.Generic.List[string]]::new()
+    $covered = 0
+
+    foreach ($row in $expectedRows) {
+        $expectedPath = ConvertTo-GameRelativePath -RelativePath ([string]$row.relative_path)
+        if ($available.Contains($expectedPath)) {
+            $covered++
+        }
+        else {
+            $missing.Add($expectedPath)
+        }
+    }
+
+    $coverage = [double]$covered / [double]$expectedRows.Count
+
+    return [pscustomobject]@{
+        ExpectedCount = $expectedRows.Count
+        CoveredCount = $covered
+        MissingCount = $missing.Count
+        Coverage = $coverage
+        MissingPaths = @($missing)
+    }
 }
 
 function Get-SourceScan {
