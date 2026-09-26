@@ -1012,6 +1012,16 @@ def command_encode(args: argparse.Namespace, config: dict) -> int:
     return 0
 
 
+
+def command_studio(args: argparse.Namespace, config: dict) -> int:
+    command = [sys.executable, str(ROOT / "tools" / "voice_studio.py")]
+    if args.speaker:
+        command.extend(["--speaker", args.speaker])
+    if args.usage:
+        command.append("--usage")
+    return subprocess.call(command, cwd=ROOT)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1022,6 +1032,14 @@ def build_parser() -> argparse.ArgumentParser:
     init_characters = subparsers.add_parser("init-characters", help="Merge discovered speaker IDs into the registry.")
     init_characters.add_argument("--dry-run", action="store_true")
     init_characters.set_defaults(handler=command_init_characters)
+
+    studio = subparsers.add_parser(
+        "studio",
+        help="Open the interactive rate-limited casting and TTS studio.",
+    )
+    studio.add_argument("--speaker")
+    studio.add_argument("--usage", action="store_true")
+    studio.set_defaults(handler=command_studio)
 
     create = subparsers.add_parser(
         "create-voice",
