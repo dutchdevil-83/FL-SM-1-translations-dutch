@@ -670,7 +670,7 @@ function New-DraftPullRequest {
         throw 'GitHub CLI is not authenticated. Run: gh auth login'
     }
 
-    $bodyPath = Join-Path $env:TEMP "voice-source-import-pr-$([guid]::NewGuid().ToString('N')).md"
+    $bodyPath = Join-Path ([System.IO.Path]::GetTempPath()) "voice-source-import-pr-$([guid]::NewGuid().ToString('N')).md"
 
     try {
         @(
@@ -724,7 +724,7 @@ function Invoke-ImporterSelfTest {
     [CmdletBinding()]
     param()
 
-    $testRoot = Join-Path $env:TEMP "voice-importer-selftest-$([guid]::NewGuid().ToString('N'))"
+    $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) "voice-importer-selftest-$([guid]::NewGuid().ToString('N'))"
 
     try {
         New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
@@ -781,7 +781,7 @@ if ($SelfTest) {
 }
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$logPath = Join-Path $env:TEMP "Import-OriginalGameVoiceSource-$timestamp.log"
+$logPath = Join-Path ([System.IO.Path]::GetTempPath()) "Import-OriginalGameVoiceSource-$timestamp.log"
 $voiceWorktreeRoot = $null
 $importWorktreePath = $null
 $removeImportWorktree = $false
@@ -866,7 +866,7 @@ try {
     Write-Status -Message "GitHub repository: $repositorySlug"
 
     $safeRepositoryName = ($repositorySlug -split '/')[1] -replace '[^A-Za-z0-9._-]', '-'
-    $importWorktreePath = Join-Path $env:TEMP "$safeRepositoryName-source-import-$timestamp"
+    $importWorktreePath = Join-Path ([System.IO.Path]::GetTempPath()) "$safeRepositoryName-source-import-$timestamp"
 
     if (Test-Path -LiteralPath $importWorktreePath) {
         throw "Temporary import worktree path already exists: $importWorktreePath"
