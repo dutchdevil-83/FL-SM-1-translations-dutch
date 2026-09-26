@@ -153,15 +153,19 @@ The default local runtime settings are deliberately conservative:
 
 \`\`\`text
 preview TTS RPM: 3
+preview input TPM: 0 (disabled until you enter the real project limit)
 final TTS RPM:   3
+final input TPM: 0 (disabled until you enter the real project limit)
 Voices API RPM:  3
 max retries:     4
 403 retry delay: 65 seconds
 \`\`\`
 
-Google's project/model limits remain authoritative and can change by usage tier. Check the
-active limits in Google AI Studio, then adjust option **4. Client-side rate / retry
-settings** in the studio. Local overrides are stored in ignored
+Google's project/model limits remain authoritative and can change by usage tier. Gemini
+limits are commonly expressed as RPM, input TPM and RPD. Check the active limits in Google
+AI Studio, then adjust option **4. Client-side rate / retry settings** in the studio.
+The optional TPM guard uses a conservative pre-request text-token estimate so it can throttle
+before sending the request; exact provider token usage is recorded after successful responses. Local overrides are stored in ignored
 \`voice/runtime.local.json\`; they are not committed.
 
 The rate limiter writes recent request timestamps to
