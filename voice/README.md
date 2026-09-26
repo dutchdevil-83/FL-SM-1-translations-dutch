@@ -152,13 +152,6 @@ If no compatible interpreter is installed, inspect the Windows Python launcher w
 py -0p
 ```
 
-The Windows launcher also checks PySide6 and securely asks for the Gemini key
-when the current PowerShell process does not already contain one:
-
-```powershell
-pwsh -NoProfile -File tools/Start-VoiceStudio.ps1
-```
-
 The desktop app provides:
 
 - searchable character list with Needs voice / Audition / Approved / Disabled / Alias filters;
@@ -175,20 +168,21 @@ The desktop app provides:
 
 The UI never stores the Gemini API key itself. It inherits `GEMINI_API_KEY` from the
 launching process.
+
 ## Interactive Voice Studio
 
 For normal casting and production work, prefer the interactive studio instead of calling
 Voice Design and TTS commands manually:
 
-\`\`\`powershell
+```powershell
 python tools/voice_studio.py
-\`\`\`
+```
 
 Open one character directly:
 
-\`\`\`powershell
+```powershell
 python tools/voice_studio.py --speaker mc
-\`\`\`
+```
 
 The studio keeps the human approval step explicit and provides:
 
@@ -196,20 +190,20 @@ The studio keeps the human approval step explicit and provides:
 - Voice Design creation from the exported request JSON;
 - direct WAV playback of the provider design sample on Windows;
 - representative, first-N, or explicit-ID dialogue demo generation;
-- approve/reject/retry flows, including provider-side \`voices.delete\` before replacing a rejected voice;
-- local archiving of rejected samples under \`voice/build/runtime/rejected/\`;
+- approve/reject/retry flows, including provider-side `voices.delete` before replacing a rejected voice;
+- local archiving of rejected samples under `voice/build/runtime/rejected/`;
 - persistent client-side rolling-window RPM limiting across script restarts;
 - exponential retry/backoff for idempotent TTS/read operations;
-- delayed retries for transient \`403 permission_denied\` TTS failures;
+- delayed retries for transient `403 permission_denied` TTS failures;
 - provider token accounting from Interactions API usage metadata;
-- a local JSONL usage ledger at \`voice/build/runtime/usage.jsonl\`;
+- a local JSONL usage ledger at `voice/build/runtime/usage.jsonl`;
 - resumable final WAV generation for one approved voice identity or all approved voices;
 - Ogg/Opus encoding through the existing pipeline encoder;
 - custom-voice inventory so untracked/orphan provider voices are visible.
 
 The default local runtime settings are deliberately conservative:
 
-\`\`\`text
+```text
 preview TTS RPM: 3
 preview input TPM: 0 (disabled until you enter the real project limit)
 final TTS RPM:   3
@@ -217,17 +211,17 @@ final input TPM: 0 (disabled until you enter the real project limit)
 Voices API RPM:  3
 max retries:     4
 403 retry delay: 65 seconds
-\`\`\`
+```
 
 Google's project/model limits remain authoritative and can change by usage tier. Gemini
 limits are commonly expressed as RPM, input TPM and RPD. Check the active limits in Google
 AI Studio, then adjust option **4. Client-side rate / retry settings** in the studio.
 The optional TPM guard uses a conservative pre-request text-token estimate so it can throttle
 before sending the request; exact provider token usage is recorded after successful responses. Local overrides are stored in ignored
-\`voice/runtime.local.json\`; they are not committed.
+`voice/runtime.local.json`; they are not committed.
 
 The rate limiter writes recent request timestamps to
-\`voice/build/runtime/rate_state.json\`. This prevents a script restart from immediately
+`voice/build/runtime/rate_state.json`. This prevents a script restart from immediately
 forgetting the local rolling request window. Do not run multiple independent TTS
 processes against the same project if you expect this single-process limiter to protect
 the combined project quota.
@@ -251,8 +245,8 @@ A rejected candidate can be retried explicitly through the character menu; the c
 stored voice is deleted first, local samples are archived, approval is revoked if needed,
 and a new candidate can then be created.
 
-Approvals are written to \`voice/approvals.json\` and the character's
-\`casting_status\` becomes \`approved\`. Final audio generation is blocked until the
+Approvals are written to `voice/approvals.json` and the character's
+`casting_status` becomes `approved`. Final audio generation is blocked until the
 canonical voice identity is approved.
 
 ## 1. Extract the English dialogue
