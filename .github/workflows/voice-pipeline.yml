@@ -50,6 +50,11 @@ jobs:
       - name: Install Voice Studio GUI dependencies
         run: python -m pip install -r requirements-voice-gui.txt
 
+      - name: Install headless Qt runtime libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1
+
       - name: Compile PySide6 Voice Studio frontend
         run: python -m py_compile tools/voice_studio_gui.py
 
