@@ -117,6 +117,82 @@ Set the Gemini API key only in your local environment or GitHub secret storage. 
 $env:GEMINI_API_KEY = "<your-key>"
 ```
 
+## Interactive Voice Studio
+
+For normal casting and production work, prefer the interactive studio instead of calling
+Voice Design and TTS commands manually:
+
+\`\`\`powershell
+python tools/voice_studio.py
+\`\`\`
+
+Open one character directly:
+
+\`\`\`powershell
+python tools/voice_studio.py --speaker mc
+\`\`\`
+
+The studio keeps the human approval step explicit and provides:
+
+- character search/selection with line counts and current casting status;
+- Voice Design creation from the exported request JSON;
+- direct WAV playback of the provider design sample on Windows;
+- representative, first-N, or explicit-ID dialogue demo generation;
+- approve/reject/retry flows, including provider-side \`voices.delete\` before replacing a rejected voice;
+- local archiving of rejected samples under \`voice/build/runtime/rejected/\`;
+- persistent client-side rolling-window RPM limiting across script restarts;
+- exponential retry/backoff for idempotent TTS/read operations;
+- delayed retries for transient \`403 permission_denied\` TTS failures;
+- provider token accounting from Interactions API usage metadata;
+- a local JSONL usage ledger at \`voice/build/runtime/usage.jsonl\`;
+- resumable final WAV generation for one approved voice identity or all approved voices;
+- Ogg/Opus encoding through the existing pipeline encoder;
+- custom-voice inventory so untracked/orphan provider voices are visible.
+
+The default local runtime settings are deliberately conservative:
+
+\`\`\`text
+preview TTS RPM: 3
+final TTS RPM:   3
+Voices API RPM:  3
+max retries:     4
+403 retry delay: 65 seconds
+\`\`\`
+
+Google's project/model limits remain authoritative and can change by usage tier. Check the
+active limits in Google AI Studio, then adjust option **4. Client-side rate / retry
+settings** in the studio. Local overrides are stored in ignored
+\`voice/runtime.local.json\`; they are not committed.
+
+The rate limiter writes recent request timestamps to
+\`voice/build/runtime/rate_state.json\`. This prevents a script restart from immediately
+forgetting the local rolling request window. Do not run multiple independent TTS
+processes against the same project if you expect this single-process limiter to protect
+the combined project quota.
+
+For each successful Interactions TTS response the studio records, when supplied by the
+provider:
+
+- total input tokens;
+- total output tokens;
+- total tokens;
+- text input tokens by modality;
+- audio output tokens by modality;
+- request latency, model, speaker and dialogue ID.
+
+If provider usage metadata is absent, the studio records a clearly labeled local input
+estimate rather than pretending it is exact.
+
+Voice Design creation is intentionally not retried after ambiguous transient failures,
+because repeating a non-idempotent create request could leave duplicate stored voices.
+A rejected candidate can be retried explicitly through the character menu; the current
+stored voice is deleted first, local samples are archived, approval is revoked if needed,
+and a new candidate can then be created.
+
+Approvals are written to \`voice/approvals.json\` and the character's
+\`casting_status\` becomes \`approved\`. Final audio generation is blocked until the
+canonical voice identity is approved.
+
 ## 1. Extract the English dialogue
 
 ```powershell
