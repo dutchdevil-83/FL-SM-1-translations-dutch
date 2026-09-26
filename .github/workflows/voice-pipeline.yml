@@ -6,7 +6,9 @@ on:
       - voice/english-gemini-tts
     paths:
       - "voice/**"
+      - "original-source/**"
       - "tools/voice*.py"
+      - "tools/validate_original_source.py"
       - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
@@ -14,7 +16,9 @@ on:
   pull_request:
     paths:
       - "voice/**"
+      - "original-source/**"
       - "tools/voice*.py"
+      - "tools/validate_original_source.py"
       - "tools/*.ps1"
       - "tests/test_voice*.py"
       - "requirements-voice.txt"
@@ -63,6 +67,10 @@ jobs:
       - name: Run PowerShell importer runtime self-test
         shell: pwsh
         run: pwsh -NoProfile -File tools/Import-OriginalGameVoiceSource.ps1 -SelfTest
+
+
+      - name: Validate imported original source snapshot
+        run: python tools/validate_original_source.py
 
       - name: Extract English dialogue manifest
         run: python tools/voice_pipeline.py extract
