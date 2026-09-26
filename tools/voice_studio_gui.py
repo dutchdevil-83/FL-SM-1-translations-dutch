@@ -129,6 +129,11 @@ class WaveformWidget(pg.PlotWidget):
         self.setMenuEnabled(False)
         self.showGrid(x=False, y=False)
         self.setMouseEnabled(x=interactive, y=False)
+        if not interactive:
+            self.setAttribute(
+                Qt.WidgetAttribute.WA_TransparentForMouseEvents,
+                True,
+            )
         self.hideAxis("left")
         if compact:
             self.hideAxis("bottom")
@@ -769,6 +774,18 @@ class MainWindow(QMainWindow):
         demo_controls.addWidget(self.play_selected_demo_button)
         demo_controls.addWidget(self.open_demo_folder_button)
         demo_controls.addStretch(1)
+
+        self.audition_approve_button = QPushButton("Approve voice")
+        self.audition_approve_button.setObjectName("primaryButton")
+        self.audition_approve_button.setIcon(ui_icon("fa5s.check"))
+        self.audition_approve_button.clicked.connect(self.approve_voice)
+
+        self.audition_retry_button = QPushButton("Reject / retry")
+        self.audition_retry_button.setIcon(ui_icon("fa5s.redo"))
+        self.audition_retry_button.clicked.connect(self.retry_voice)
+
+        demo_controls.addWidget(self.audition_retry_button)
+        demo_controls.addWidget(self.audition_approve_button)
         layout.addLayout(demo_controls)
 
         self.demo_table = QTableWidget(0, 6)
@@ -1099,7 +1116,10 @@ class MainWindow(QMainWindow):
         del previous
         if current is None:
             return
-        self.current_speaker = current.data(Qt.ItemDataRole.UserRole)
+        new_speaker = current.data(Qt.ItemDataRole.UserRole)
+        if self.current_speaker and new_speaker != self.current_speaker:
+            self._clear_audio()
+        self.current_speaker = new_speaker
         self.refresh_current_character()
 
     def refresh_current_character(self) -> None:
@@ -1145,6 +1165,8 @@ class MainWindow(QMainWindow):
         self.retry_button.setEnabled(has_voice and not alias)
         self.refresh_sample_button.setEnabled(has_voice and not alias)
         self.final_button.setEnabled(has_voice and approved)
+        self.audition_approve_button.setEnabled(has_voice and not approved)
+        self.audition_retry_button.setEnabled(has_voice and not alias)
 
         sample = vs.provider_voice_sample_path(self.current_speaker)
         self.design_sample_path.setText(
@@ -1658,6 +1680,15 @@ class MainWindow(QMainWindow):
             ]
             for offset, value in enumerate(values, start=3):
                 self.demo_table.setItem(index, offset, QTableWidgetItem(str(value)))
+
+    def _clear_audio(self) -> None:
+        self.player.stop()
+        self.player.setSource(QUrl())
+        self.current_audio_path = None
+        self.now_playing_label.setText("Nothing loaded")
+        self.waveform_hover_label.setText("")
+        self.player_time_label.setText("00:00 / 00:00")
+        self.waveform.clear_waveform()
 
     def play_design_sample(self) -> None:
         if not self.current_speaker:
