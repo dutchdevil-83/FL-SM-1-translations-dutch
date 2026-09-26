@@ -158,6 +158,145 @@ class VoiceStudioTests(unittest.TestCase):
             "DISABLED",
         )
 
+    def test_final_generation_plan_explains_missing_current_source(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "voice").mkdir(parents=True)
+            (root / "original-source").mkdir(parents=True)
+            (root / "voice" / "characters.json").write_text(
+                __import__("json").dumps(
+                    {
+                        "schema_version": 1,
+                        "characters": {
+                            "jc": {
+                                "display_name": "Jerk Cop",
+                                "voice_id": "voice_test",
+                                "voice_ref": "",
+                                "enabled": True,
+                                "line_count": 38,
+                                "casting_status": "approved",
+                                "profile": {
+                                    "evidence_ids": ["sm1cs_dc009_3979a35b"]
+                                },
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "original-source" / "SOURCE_COVERAGE.json").write_text(
+                __import__("json").dumps(
+                    {
+                        "missing_paths": [
+                            "code/scenes/character_scenes/dc/sm1cs-dc009.rpy",
+                            "code/scenes/character_scenes/dc/sm1cs-dc009i.rpy",
+                            "code/scenes/unrelated.rpy",
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            old_root = MODULE.ROOT
+            old_vp_root = MODULE.vp.ROOT
+            try:
+                MODULE.ROOT = root
+                MODULE.vp.ROOT = root
+                studio = MODULE.VoiceStudio(
+                    {
+                        "characters_file": "voice/characters.json",
+                        "wav_output_dir": "voice/generated/wav",
+                    },
+                    dict(MODULE.DEFAULT_RUNTIME_SETTINGS),
+                )
+                studio._manifest = []
+                plan = studio.final_generation_plan("jc")
+                summary = studio.describe_final_plan(plan)
+            finally:
+                MODULE.ROOT = old_root
+                MODULE.vp.ROOT = old_vp_root
+
+        self.assertEqual(len(plan["all_rows"]), 0)
+        self.assertEqual(len(plan["eligible_rows"]), 0)
+        self.assertEqual(plan["stored_line_count"], 38)
+        self.assertEqual(
+            plan["source_missing_hints"],
+            [
+                "code/scenes/character_scenes/dc/sm1cs-dc009.rpy",
+                "code/scenes/character_scenes/dc/sm1cs-dc009i.rpy",
+            ],
+        )
+        self.assertIn("Registry line_count: 38", summary)
+        self.assertIn("sm1cs-dc009.rpy", summary)
+
+    def test_final_generation_plan_counts_ready_and_pending_rows(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "voice").mkdir(parents=True)
+            (root / "original-source").mkdir(parents=True)
+            (root / "voice" / "characters.json").write_text(
+                __import__("json").dumps(
+                    {
+                        "schema_version": 1,
+                        "characters": {
+                            "mc": {
+                                "display_name": "Mike",
+                                "voice_id": "voice_test",
+                                "voice_ref": "",
+                                "enabled": True,
+                                "line_count": 2,
+                                "casting_status": "approved",
+                                "profile": {},
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "original-source" / "SOURCE_COVERAGE.json").write_text(
+                '{"missing_paths":[]}',
+                encoding="utf-8",
+            )
+
+            old_root = MODULE.ROOT
+            old_vp_root = MODULE.vp.ROOT
+            try:
+                MODULE.ROOT = root
+                MODULE.vp.ROOT = root
+                studio = MODULE.VoiceStudio(
+                    {
+                        "characters_file": "voice/characters.json",
+                        "wav_output_dir": "voice/generated/wav",
+                    },
+                    dict(MODULE.DEFAULT_RUNTIME_SETTINGS),
+                )
+                studio._manifest = [
+                    {
+                        "id": "line_1",
+                        "speaker": "mc",
+                        "status": "ready",
+                        "renpy_id": "line_1",
+                        "review_reasons": [],
+                    },
+                    {
+                        "id": "line_2",
+                        "speaker": "mc",
+                        "status": "needs_review",
+                        "renpy_id": "",
+                        "review_reasons": ["renpy-id-not-resolved"],
+                    },
+                ]
+                plan = studio.final_generation_plan("mc")
+            finally:
+                MODULE.ROOT = old_root
+                MODULE.vp.ROOT = old_vp_root
+
+        self.assertEqual(len(plan["all_rows"]), 2)
+        self.assertEqual(len(plan["eligible_rows"]), 1)
+        self.assertEqual(len(plan["pending_rows"]), 1)
+        self.assertEqual(plan["missing_renpy_id_count"], 1)
+        self.assertEqual(plan["review_reasons"]["renpy-id-not-resolved"], 1)
+
     def test_non_idempotent_create_does_not_retry_transient_errors(self):
         class FakeLimiter:
             rpm = 3
