@@ -572,7 +572,8 @@ class MainWindow(QMainWindow):
         self.profile_labels: dict[str, QLabel] = {}
         fields = [
             ("token", "Token"),
-            ("line_count", "Dialogue lines"),
+            ("line_count", "Current source lines"),
+            ("final_ready", "Final-ready lines"),
             ("voice_id", "Provider voice"),
             ("voice_ref", "Voice alias"),
             ("language", "Language"),
@@ -1003,6 +1004,7 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self.manifest = []
             self.log(f"Manifest load failed: {exc}", error=True)
+        self.backend._manifest = self.manifest
 
         self.refresh_summary()
         self.refresh_character_list()
@@ -1043,6 +1045,12 @@ class MainWindow(QMainWindow):
         self.character_list.blockSignals(True)
         self.character_list.clear()
 
+        current_counts = Counter(
+            row.get("speaker")
+            for row in self.manifest
+            if row.get("speaker")
+        )
+
         rows = []
         for token, entry in self.registry.get("characters", {}).items():
             status = vs.character_status(entry)
@@ -1069,7 +1077,7 @@ class MainWindow(QMainWindow):
             rows.append(
                 (
                     priority,
-                    -int(entry.get("line_count") or 0),
+                    -int(current_counts.get(token, 0)),
                     token,
                     entry,
                     status,
@@ -1081,7 +1089,7 @@ class MainWindow(QMainWindow):
         for index, (_, _, token, entry, status) in enumerate(rows):
             text = (
                 f"{entry.get('display_name', token)}\n"
-                f"{token}  •  {int(entry.get('line_count') or 0):,} lines  •  {status}"
+                f"{token}  •  {int(current_counts.get(token, 0)):,} source lines  •  {status}"
             )
             item = QListWidgetItem(text)
             item.setData(Qt.ItemDataRole.UserRole, token)
@@ -1135,9 +1143,28 @@ class MainWindow(QMainWindow):
         )
         self.status_badge.setText(status)
 
+        try:
+            plan = self.backend.final_generation_plan(self.current_speaker)
+        except Exception as exc:
+            plan = {
+                "all_rows": [],
+                "eligible_rows": [],
+                "pending_rows": [],
+                "stored_line_count": int(entry.get("line_count") or 0),
+                "source_missing_hints": [],
+            }
+            self.log(f"Final-generation preflight failed: {exc}", error=True)
+
+        current_count = len(plan["all_rows"])
+        stored_count = int(plan.get("stored_line_count") or 0)
+        line_count_text = f"{current_count:,}"
+        if stored_count != current_count:
+            line_count_text += f"  (registry: {stored_count:,} stale)"
+
         values = {
             "token": self.current_speaker,
-            "line_count": f"{int(entry.get('line_count') or 0):,}",
+            "line_count": line_count_text,
+            "final_ready": f"{len(plan['eligible_rows']):,}",
             "voice_id": entry.get("voice_id") or "-",
             "voice_ref": entry.get("voice_ref") or "-",
             "language": entry.get("language_code") or "-",
@@ -1168,6 +1195,19 @@ class MainWindow(QMainWindow):
         self.final_button.setEnabled(has_voice and approved)
         self.audition_approve_button.setEnabled(has_voice and not approved)
         self.audition_retry_button.setEnabled(has_voice and not alias)
+
+        ready_count = len(plan["eligible_rows"])
+        pending_count = len(plan["pending_rows"])
+        if approved and ready_count == 0:
+            self.final_button.setText("Why no final audio?")
+        elif approved and pending_count == 0 and ready_count > 0:
+            self.final_button.setText(f"Final audio complete ({ready_count:,} lines)")
+        elif approved:
+            self.final_button.setText(f"Generate final audio ({pending_count:,} pending)")
+        else:
+            self.final_button.setText("Generate final audio")
+
+        self.final_button.setToolTip(self.backend.describe_final_plan(plan))
 
         sample = vs.provider_voice_sample_path(self.current_speaker)
         self.design_sample_path.setText(
@@ -1848,36 +1888,65 @@ class MainWindow(QMainWindow):
             )
             return
 
+        plan = self.backend.final_generation_plan(speaker)
+        summary = self.backend.describe_final_plan(plan)
+
+        if not plan["eligible_rows"]:
+            if not plan["all_rows"]:
+                explanation = (
+                    "This is not a Gemini/TTS failure. The current canonical source "
+                    "manifest contains no dialogue rows for this character/voice identity."
+                )
+            else:
+                explanation = (
+                    "Dialogue rows exist, but none are safe for final generation because "
+                    "they still require review or have no Ren'Py voice ID."
+                )
+
+            QMessageBox.warning(
+                self,
+                "No final-ready dialogue",
+                f"{explanation}\n\n{summary}\n\n"
+                "No API request was made. Refresh/import the matching game source "
+                "or resolve the dialogue mapping before generating final audio.",
+            )
+            self.log(f"FINAL BLOCKED {speaker}\n{summary}", error=True)
+            return
+
+        if not plan["pending_rows"]:
+            QMessageBox.information(
+                self,
+                "Final audio already complete",
+                f"All final-ready dialogue lines already have WAV output.\n\n{summary}",
+            )
+            return
+
+        rpm = int(self.settings["final_rpm"])
+        estimated_minutes = len(plan["pending_rows"]) / rpm
         answer = QMessageBox.question(
             self,
             "Final generation",
             f"Generate resumable final WAV output for "
             f"{entry.get('display_name', speaker)}?\n\n"
-            f"Existing WAVs will be skipped.",
+            f"{summary}\n"
+            f"Configured limit: {rpm} RPM\n"
+            f"Best-case request time: {estimated_minutes:.1f} minutes\n\n"
+            "Existing WAVs will be skipped.",
         )
         if answer != QMessageBox.StandardButton.Yes:
             return
 
         def task(message: Callable[[str], None]) -> dict[str, int]:
             worker_backend = vs.VoiceStudio(self.config, self.settings)
-            registry = vs.load_registry(self.config)
-            characters = registry["characters"]
-            canonical = worker_backend.canonical_voice_token(characters, speaker)
-            related = {
-                token
-                for token in characters
-                if worker_backend.canonical_voice_token(characters, token) == canonical
-            }
-            rows = [
-                row
-                for row in self.manifest
-                if row.get("speaker") in related
-                and row.get("status") == "ready"
-                and row.get("renpy_id")
-            ]
-            message(f"{len(rows)} ready lines across {sorted(related)}")
+            worker_backend._manifest = list(self.manifest)
+            worker_plan = worker_backend.final_generation_plan(speaker)
+            message(worker_backend.describe_final_plan(worker_plan))
+            if not worker_plan["eligible_rows"]:
+                raise RuntimeError(
+                    "Final-generation eligibility changed: no final-ready rows remain."
+                )
             generated, skipped, failed, _ = worker_backend._generate_rows(
-                rows,
+                worker_plan["eligible_rows"],
                 mode="final",
                 output_dir=vp.root_path(self.config["wav_output_dir"]),
                 force=False,
