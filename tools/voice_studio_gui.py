@@ -248,7 +248,7 @@ class WaveformWidget(pg.PlotWidget):
             return
         if event.button() != Qt.MouseButton.LeftButton:
             return
-        if not self.sceneBoundingRect().contains(event.scenePos()):
+        if not self.getViewBox().sceneBoundingRect().contains(event.scenePos()):
             return
         point = self.getViewBox().mapSceneToView(event.scenePos())
         self._emit_seek(point.x())
@@ -256,7 +256,7 @@ class WaveformWidget(pg.PlotWidget):
     def _scene_moved(self, position) -> None:
         if not self.interactive or self.duration_seconds <= 0:
             return
-        if not self.sceneBoundingRect().contains(position):
+        if not self.getViewBox().sceneBoundingRect().contains(position):
             return
         point = self.getViewBox().mapSceneToView(position)
         seconds = min(max(float(point.x()), 0.0), self.duration_seconds)
