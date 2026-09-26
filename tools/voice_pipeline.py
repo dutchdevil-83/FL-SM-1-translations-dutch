@@ -1022,6 +1022,12 @@ def command_studio(args: argparse.Namespace, config: dict) -> int:
     return subprocess.call(command, cwd=ROOT)
 
 
+def command_gui(args: argparse.Namespace, config: dict) -> int:
+    del args, config
+    command = [sys.executable, str(ROOT / "tools" / "voice_studio_gui.py")]
+    return subprocess.call(command, cwd=ROOT)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1040,6 +1046,12 @@ def build_parser() -> argparse.ArgumentParser:
     studio.add_argument("--speaker")
     studio.add_argument("--usage", action="store_true")
     studio.set_defaults(handler=command_studio)
+
+    gui = subparsers.add_parser(
+        "gui",
+        help="Open the PySide6 Windows Voice Studio.",
+    )
+    gui.set_defaults(handler=command_gui)
 
     create = subparsers.add_parser(
         "create-voice",
