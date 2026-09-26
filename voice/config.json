@@ -1,7 +1,19 @@
 {
   "schema_version": 1,
   "spoken_language": "en-US",
-  "source_manifest": "docs/dutch/PHASE0_FILE_MANIFEST.csv",
+  "original_source_root": "original-source/game",
+  "id_manifest": "docs/dutch/PHASE0_FILE_MANIFEST.csv",
+  "id_reference_language_priority": [
+    "deutsch",
+    "italian",
+    "french",
+    "spanish",
+    "portuguese",
+    "turkish",
+    "chinese",
+    "magyar",
+    "ukrainian"
+  ],
   "manifest_output": "voice/build/dialogue_manifest.jsonl",
   "speaker_stats_output": "voice/build/speaker_stats.json",
   "characters_file": "voice/characters.json",
@@ -17,16 +29,5 @@
   "default_style": "natural conversational delivery, clean studio sound",
   "skip_speakers": [
     "extend"
-  ],
-  "reference_language_priority": [
-    "deutsch",
-    "italian",
-    "french",
-    "spanish",
-    "portuguese",
-    "turkish",
-    "chinese",
-    "magyar",
-    "ukrainian"
   ]
 }
