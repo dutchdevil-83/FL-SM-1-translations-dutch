@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "import_tool": "Import-OriginalGameVoiceSource.ps1",
+  "import_tool_version": "202609.26",
+  "imported_at_utc": "2026-09-26T00:05:40.2751698Z",
+  "source_kind": "original_english_renpy_game_source",
+  "source_folder_name": "game",
+  "repository": "dutchdevil-83/FL-SM-1-translations-dutch",
+  "base_branch": "voice/english-gemini-tts",
+  "import_branch": "voice/import-original-source-20260926-020532",
+  "file_count": 6,
+  "total_bytes": 526,
+  "excluded": {
+    "translations": "game/tl/**",
+    "compiled": "*.rpyc, *.pyc",
+    "media_and_archives": "not selected by source-extension allowlist",
+    "saves_and_cache": "game/saves/**, game/cache/**"
+  },
+  "files": [
+    {
+      "path": "game/options.rpy",
+      "extension": ".rpy",
+      "size_bytes": 39,
+      "source_sha256": "a43757802d6c5f8954cf9795d0508729c04e1358791018863d7f3420edcd57aa"
+    },
+    {
+      "path": "game/script_version.txt",
+      "extension": ".txt",
+      "size_bytes": 9,
+      "source_sha256": "a8d0ea87c43506eaca512019044496f6b46d7a01f601ce42fdb8e36cd4ccbb53"
+    },
+    {
+      "path": "game/taboo.rpy",
+      "extension": ".rpy",
+      "size_bytes": 36,
+      "source_sha256": "fa03db7fdd2c27201d25c158a2f1dd6ea4a55e531e270a35fef87fd845046469"
+    },
+    {
+      "path": "game/.vscode/settings.json",
+      "extension": ".json",
+      "size_bytes": 146,
+      "source_sha256": "9b4bddea2eb7b6b4d0ba2c07976d855d80c59105de99f07cd9de9a0c96dd2fb5"
+    },
+    {
+      "path": "game/audio/music/power_music/info.txt",
+      "extension": ".txt",
+      "size_bytes": 37,
+      "source_sha256": "6b21e48f4672d8b3927c51265b0a4fc3c8fd35afbeae1a3d241b66ea5aa0d109"
+    },
+    {
+      "path": "game/audio/voiceovers/girl26/ALWAYS DO CREDITS.txt",
+      "extension": ".txt",
+      "size_bytes": 259,
+      "source_sha256": "54a65dc181dbf9a668ba1354cdb1388ddeaed329e9f697b3ec18d029386eaa41"
+    }
+  ]
+}
