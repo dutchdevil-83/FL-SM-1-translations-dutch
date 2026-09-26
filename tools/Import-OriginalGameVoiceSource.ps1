@@ -1322,6 +1322,8 @@ $logPath = Join-Path ([System.IO.Path]::GetTempPath()) "Import-OriginalGameVoice
 $voiceWorktreeRoot = $null
 $importWorktreePath = $null
 $removeImportWorktree = $false
+$reconstructionWorkspaceRoot = $null
+$rpycdecEnvironmentRoot = $null
 
 try {
     Start-Transcript -Path $logPath -Force | Out-Null
@@ -1364,15 +1366,35 @@ try {
     $gameRoot = Resolve-GameFolder -SelectedPath $GamePath
     Write-Status -Message "Game source root: $gameRoot"
 
-    $scan = Get-SourceScan -GameRoot $gameRoot
-    if ($scan.SelectedFiles.Count -eq 0) {
-        throw 'No source-like files matched the import allowlist.'
+    $reconstructionInfo = New-MaterializedGameSource -GameRoot $gameRoot
+    $sourceRoot = $reconstructionInfo.SourceRoot
+    $reconstructionWorkspaceRoot = $reconstructionInfo.WorkspaceRoot
+    $rpycdecEnvironmentRoot = $reconstructionInfo.ToolEnvironmentRoot
+
+    if ($reconstructionInfo.ReconstructionUsed) {
+        Write-Status -Message "Materialized source root: $sourceRoot"
+        Write-Status -Message "RPA archives processed: $($reconstructionInfo.ArchiveCount)"
+        Write-Status -Message "Compiled scripts decompiled: $($reconstructionInfo.DecompiledScriptCount)"
     }
 
-    Write-Status -Message "Files scanned: $($scan.TotalFiles)"
+    $scan = Get-SourceScan -GameRoot $sourceRoot
+    if ($scan.SelectedFiles.Count -eq 0) {
+        throw 'No source-like files matched the import allowlist after reconstruction.'
+    }
+
+    Write-Status -Message "Files scanned in effective source tree: $($scan.TotalFiles)"
     Write-Status -Message "Source files selected: $($scan.SelectedFiles.Count)"
     Write-Status -Message "Translation files excluded: $($scan.ExcludedTranslations)"
     Write-Status -Message "Unsupported/binary files excluded: $($scan.ExcludedUnsupported)"
+
+    $expectedManifestPath = Join-Path $voiceWorktreeRoot 'docs\dutch\PHASE0_FILE_MANIFEST.csv'
+    $coverageInfo = Get-ManifestCoverage -SourceRoot $sourceRoot -ManifestPath $expectedManifestPath
+    Write-Status -Message ("Expected source coverage: {0}/{1} ({2:P2})" -f $coverageInfo.CoveredCount, $coverageInfo.ExpectedCount, $coverageInfo.Coverage)
+
+    if ($coverageInfo.Coverage -lt $script:MinimumManifestCoverage) {
+        $preview = @($coverageInfo.MissingPaths | Select-Object -First 20) -join ', '
+        throw ("Reconstructed source coverage is below the required {0:P0}: {1:P2}. Missing {2} expected source path(s). First missing paths: {3}" -f $script:MinimumManifestCoverage, $coverageInfo.Coverage, $coverageInfo.MissingCount, $preview)
+    }
 
     $secretHits = @(Find-PotentialSecret -Files $scan.SelectedFiles)
     if ($secretHits.Count -gt 0) {
@@ -1420,11 +1442,13 @@ try {
 
     $destinationRoot = Get-SafeDestination -RelativePath $DestinationRelativePath
     $copyParameters = @{
-        GameRoot = $gameRoot
+        GameRoot = $sourceRoot
         Files = $scan.SelectedFiles
         DestinationRoot = $destinationRoot
         RepositorySlug = $repositorySlug
         ImportBranch = $BranchName
+        ReconstructionInfo = $reconstructionInfo
+        CoverageInfo = $coverageInfo
     }
     $copyResult = Copy-SourceSnapshot @copyParameters
 
@@ -1467,6 +1491,8 @@ try {
         ImportBranch = $BranchName
         FileCount = $copyResult.FileCount
         TotalBytes = $copyResult.TotalBytes
+        ReconstructionInfo = $reconstructionInfo
+        CoverageInfo = $coverageInfo
     }
     $pullRequestUrl = New-DraftPullRequest @pullRequestParameters
 
@@ -1497,6 +1523,16 @@ finally {
     }
     elseif ($importWorktreePath -and (Test-Path -LiteralPath $importWorktreePath)) {
         Write-Status -Message "Import worktree retained: $importWorktreePath"
+    }
+
+    if ($reconstructionWorkspaceRoot -and (Test-Path -LiteralPath $reconstructionWorkspaceRoot)) {
+        Remove-Item -LiteralPath $reconstructionWorkspaceRoot -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Status -Message "Removed reconstruction workspace: $reconstructionWorkspaceRoot"
+    }
+
+    if ($rpycdecEnvironmentRoot -and (Test-Path -LiteralPath $rpycdecEnvironmentRoot)) {
+        Remove-Item -LiteralPath $rpycdecEnvironmentRoot -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Status -Message 'Removed temporary rpycdec environment.'
     }
 
     if ($script:TranscriptStarted) {
